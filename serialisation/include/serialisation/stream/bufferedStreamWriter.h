@@ -113,7 +113,7 @@ public:
     }
 
     template< typename tPrimitive >
-    void WritePrimitiveBlock( const tPrimitive *first, size_t count )
+    __declspec( noinline ) void WritePrimitiveBlock( const tPrimitive *first, size_t count )
     {
         const size_t maxBlockSize = std::numeric_limits< size_t >::max() / sizeof( tPrimitive );
 

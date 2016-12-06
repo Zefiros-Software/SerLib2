@@ -35,7 +35,6 @@ public:
     BinarySerialisationMessage( tStream &streamInitializer )
         : mStreamWriter( streamInitializer )
     {
-        ParallelFloatProcessor::GetInstance( 4 );
     }
 
     template< typename tT >
@@ -62,10 +61,19 @@ public:
         {
             const uint32_t blockSize = std::min( 2048u, end - i );
 
-            ParallelFloatProcessor &floatProcessor = *ParallelFloatProcessor::GetInstance();
+            ParallelFloatProcessor &floatProcessor = *ParallelFloatProcessor::GetInstance( 4 );
 
             floatProcessor.SetSource( fCursor, blockSize );
-            floatProcessor.Process();
+
+            if ( blockSize < 1024 )
+            {
+                floatProcessor.ProcessSequential();
+            }
+            else
+            {
+                floatProcessor.Process();
+            }
+
             mStreamWriter.WritePrimitiveBlock( floatProcessor.GetBuffer(), blockSize );
         }
     }

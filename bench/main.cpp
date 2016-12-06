@@ -367,7 +367,7 @@ public:
 
     TestClassArray()
     {
-        mValue1.resize( ( rand() % 8192 ) + 4096 );
+        mValue1.resize( ( rand() % 8192 ) + 8192 );
 
         for ( auto it = mValue1.begin(); it != mValue1.end(); ++it )
         {
@@ -383,7 +383,7 @@ public:
 
     size_t GetMemberSize()
     {
-        return mValue1.size() * sizeof( float );
+        return mValue1.size() * sizeof( tT );
     }
 
 
@@ -419,6 +419,32 @@ static void BM_FloatArraySer( benchmark::State &state )
     state.SetBytesProcessed( state.iterations() * nObj * tc.GetMemberSize() );
 }
 
+static void BM_IntArraySer( benchmark::State &state )
+{
+    TestClassArray<uint32_t> tc;
+
+    uint32_t nObj = 1;
+
+    while ( state.KeepRunning() )
+    {
+        {
+            std::stringstream ss;
+            Message< BinarySerialisationMessage<BufferedStreamWriter<> > > serMessage( ss );
+
+            TimeManual( state, [&]()
+            {
+                for ( uint32_t i = 0; i < nObj; ++i )
+                {
+                    serMessage.Enter( tc );
+                }
+            } );
+        }
+    }
+
+    state.SetItemsProcessed( state.iterations() * nObj );
+    state.SetBytesProcessed( state.iterations() * nObj * tc.GetMemberSize() );
+}
+
 //BENCHMARK( BM_NormalNestedDeser )->MinTime( 5.0 );
 //BENCHMARK( BM_NormalNestedSer )->MinTime( 5.0 );
 // BENCHMARK( BM_NormalNestedSer )->MinTime( 2.0 );
@@ -428,4 +454,8 @@ static void BM_FloatArraySer( benchmark::State &state )
 // BENCHMARK( BM_NormalNestedSer )->MinTime( 2.0 );
 BENCHMARK( BM_FloatArraySer )->MinTime( 4.0 );
 
-BENCHMARK_MAIN();
+int main( int argc, char **argv )
+{
+    ::benchmark::Initialize( &argc, argv );
+    ::benchmark::RunSpecifiedBenchmarks();
+}

@@ -23,12 +23,14 @@
 #ifndef __SERIALISATION_PARALLELFLOATPROCESSOR_H__
 #define __SERIALISATION_PARALLELFLOATPROCESSOR_H__
 
+#include "serialisation/internal/spinLock.h"
 #include "serialisation/defines.h"
 #include "serialisation/util.h"
 
 #include <atomic>
 #include <thread>
 #include <mutex>
+#include <vector>
 
 class ParallelFloatProcessor
 {
@@ -38,35 +40,60 @@ public:
         : mSourceCursor( nullptr ),
           mSourceSize( 0 ),
           mStop( false ),
-          mCounter( 0 )
+          mCounter( 0 ),
+          mGeneration( 0 ),
+          mWorkerCount( size - 1 )
     {
         uint32_t nWorkers = size - 1;
         mWorkers.reserve( nWorkers );
-        mMainStart = nWorkers * 2048 / size;
+        mMainEnd = 2048 / size;
 
         for ( uint32_t pid = 0; pid < nWorkers; ++pid )
         {
             mWorkers.emplace_back( [pid, size, this]()
             {
-                size_t myStart = pid * 2048 / size;
+                size_t myStart = ( pid + 1 ) * 2048 / size;
                 size_t myEnd = myStart + 2048 / size;
                 ++mCounter;
+                uint32_t myGeneration = 1;
 
                 while ( !mStop )
                 {
-                    std::unique_lock<std::mutex> lock( mLock );
-
-                    mNotify.wait( lock, [this]()
-                    {
-                        return mCounter < mWorkers.size();
-                    } );
-
-                    Process( myStart, myEnd );
-                    ++mCounter;
-
-                    while ( mCounter < mWorkers.size() )
+                    for ( volatile uint32_t waitIter = 0; mGeneration < myGeneration && waitIter < 40000; ++waitIter )
                     {
                     }
+
+                    if ( mGeneration < myGeneration )
+                    {
+                        std::unique_lock<std::mutex> lock( mLock );
+
+                        mSpinLock.lock();
+                        uint32_t generation = mGeneration;
+                        mSpinLock.unlock();
+
+                        uint32_t iter = 1;
+
+                        while ( generation < myGeneration && !mStop )
+                        {
+                            uint32_t duration = std::max( 1000u, iter * 10 );
+                            mNotify.wait_for( lock, std::chrono::milliseconds( duration ), [&]()
+                            {
+                                return myGeneration <= mGeneration || mStop;
+                            } );
+
+                            ++iter;
+                            generation = mGeneration;
+                        }
+
+                        if ( mStop )
+                        {
+                            break;
+                        }
+                    }
+
+                    WorkerProcess( myStart, myEnd );
+                    ++mCounter;
+                    ++myGeneration;
                 }
             } );
         }
@@ -85,21 +112,49 @@ public:
 
     SERIALISATION_FORCEINLINE void Process()
     {
-        while ( mCounter < mWorkers.size() )
-        {}
+        mCounter = 0;
 
-        {
-            std::unique_lock<std::mutex> lock( mLock );
-
-            mCounter = 0;
-        }
+        mSpinLock.lock();
+        ++mGeneration;
+        mSpinLock.unlock();
 
         mNotify.notify_all();
 
-        Process( mMainStart, mSourceSize );
+        WorkerProcess( 0, mMainEnd );
+
+        while ( mCounter < mWorkerCount )
+        {}
     }
 
-    static ParallelFloatProcessor *GetInstance( size_t size = 0 )
+    SERIALISATION_FORCEINLINE void ProcessSequential()
+    {
+        WorkerProcess( 0, mSourceSize );
+    }
+
+    static void TerminateWorkers()
+    {
+        ParallelFloatProcessor *sProcessor = GetInstance();
+
+        if ( sProcessor )
+        {
+            {
+                sProcessor->mStop = true;
+            }
+            sProcessor->mNotify.notify_all();
+
+            for ( auto &t : sProcessor->mWorkers )
+            {
+                if ( t.joinable() )
+                {
+                    t.join();
+                }
+            }
+
+            GetInstance( 0, false );
+        }
+    }
+
+    static ParallelFloatProcessor *GetInstance( size_t size = 0, bool create = true )
     {
         static ParallelFloatProcessor *sProcessor = nullptr;
 
@@ -108,9 +163,14 @@ public:
             sProcessor = new ParallelFloatProcessor( size );
         }
 
+        if ( !create )
+        {
+            delete sProcessor;
+            sProcessor = nullptr;
+        }
+
         return sProcessor;
     }
-
 
 private:
 
@@ -119,15 +179,18 @@ private:
     uint32_t mFloatBuffer[2048];
 
     std::mutex mLock;
+    SpinLock mSpinLock;;
     std::condition_variable mNotify;
     std::atomic_bool mStop;
-    std::atomic_uint32_t mCounter;
+    std::atomic<uint32_t> mCounter;
+    std::atomic<uint32_t> mGeneration;
 
     const float *mSourceCursor;
     size_t mSourceSize;
-    uint32_t mMainStart;
+    uint32_t mMainEnd;
+    uint32_t mWorkerCount;
 
-    SERIALISATION_FORCEINLINE void Process( uint32_t start, size_t end )
+    __declspec( noinline ) void WorkerProcess( uint32_t start, size_t end )
     {
         end = std::min( end, mSourceSize );
 

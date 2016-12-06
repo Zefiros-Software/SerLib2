@@ -204,7 +204,7 @@ namespace Util
         return ( u >> 1 ) ^ ( -( static_cast< S >( u ) & 1 ) );
     }
 
-    uint32_t FloatToUInt32( const float f )
+    inline uint32_t FloatToUInt32( const float f )
     {
         int32_t exp;
         float fi = FRExp( f, &exp );
@@ -223,7 +223,7 @@ namespace Util
         return LDExp( LDExp( static_cast<float>( ZagZig< uint32_t, int32_t >( i >> 8 ) ), -23 ), exp );
     }
 
-    uint64_t DoubleToUInt64( const double f );
+    inline uint64_t DoubleToUInt64( const double f );
 
     double UInt64ToDouble( const uint64_t i );
 
