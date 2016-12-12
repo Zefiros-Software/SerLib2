@@ -38,8 +38,8 @@ class ParallelFloatProcessor
 public:
 
     ParallelFloatProcessor( size_t size )
-        : mSourceCursor( nullptr ),
-          mSourceSize( 0 ),
+        : mFloatSourceCursor( nullptr ),
+          mFloatSourceSize( 0 ),
           mStop( false ),
           mCounter( 0 ),
           mGeneration( 0 ),
@@ -60,7 +60,7 @@ public:
 
                 while ( !mStop )
                 {
-                    for ( uint32_t waitIter = 0; mGeneration < myGeneration && waitIter < 40000; ++waitIter )
+                    for ( uint32_t waitIter = 0; mGeneration < myGeneration && waitIter < 4 * 40000; ++waitIter )
                     {
                     }
 
@@ -92,7 +92,26 @@ public:
                         }
                     }
 
-                    WorkerProcess( myStart, myEnd );
+                    switch ( mTask )
+                    {
+                    case Task::SerFloats:
+                        WorkerSerialiseFloat( myStart, myEnd );
+                        break;
+
+                    case Task::SerDoubles:
+                        break;
+
+                    case Task::DeserFloats:
+                        WorkerDeserialiseFloat( myStart, myEnd );
+                        break;
+
+                    case Task::DeserDoubles:
+                        break;
+
+                    default:
+                        break;
+                    }
+
                     ++mCounter;
                     ++myGeneration;
                 }
@@ -100,36 +119,38 @@ public:
         }
     }
 
-    SERIALISATION_FORCEINLINE void SetSource( const float *cursor, size_t size )
+    SERIALISATION_FORCEINLINE void SetSource( float *cursor, size_t size )
     {
-        mSourceCursor = cursor;
-        mSourceSize = size;
+        mFloatSourceCursor = cursor;
+        mFloatSourceSize = size;
     }
 
-    SERIALISATION_FORCEINLINE uint32_t *GetBuffer()
+    SERIALISATION_FORCEINLINE uint32_t *GetU32Buffer()
     {
-        return mFloatBuffer;
+        return mU32Buffer;
     }
 
-    SERIALISATION_FORCEINLINE void Process()
+    SERIALISATION_FORCEINLINE void SerialiseFloats()
     {
-        mCounter = 0;
+        StartTask( Task::SerFloats );
 
-        mSpinLock.lock();
-        ++mGeneration;
-        mSpinLock.unlock();
+        WorkerSerialiseFloat( 0, mMainEnd );
 
-        mNotify.notify_all();
-
-        WorkerProcess( 0, mMainEnd );
-
-        while ( mCounter < mWorkerCount )
-        {}
+        WaitTaskComplete();
     }
 
-    SERIALISATION_FORCEINLINE void ProcessSequential()
+    SERIALISATION_FORCEINLINE void DeserialiseFloats()
     {
-        WorkerProcess( 0, mSourceSize );
+        StartTask( Task::DeserFloats );
+
+        WorkerDeserialiseFloat( 0, mMainEnd );
+
+        WaitTaskComplete();
+    }
+
+    SERIALISATION_FORCEINLINE void SerialiseFloatsSequential()
+    {
+        WorkerSerialiseFloat( 0, mFloatSourceSize );
     }
 
     static void TerminateWorkers()
@@ -175,8 +196,17 @@ public:
 
 private:
 
+    enum Task
+    {
+        SerFloats,
+        SerDoubles,
+        DeserFloats,
+        DeserDoubles
+    };
+
     std::vector<std::thread> mWorkers;
 
+    uint32_t mU32Buffer[SERIALISATION_FLOAT_BUFFER_SIZE];
     uint32_t mFloatBuffer[SERIALISATION_FLOAT_BUFFER_SIZE];
 
     std::mutex mLock;
@@ -186,14 +216,37 @@ private:
     std::atomic<uint32_t> mCounter;
     std::atomic<uint32_t> mGeneration;
 
-    const float *mSourceCursor;
-    size_t mSourceSize;
+    float *mFloatSourceCursor;
+    size_t mFloatSourceSize;
+
     uint32_t mMainEnd;
     uint32_t mWorkerCount;
 
-    SERIALISATION_NOINLINE void WorkerProcess( uint32_t start, size_t end )
+    Task mTask;
+
+    void StartTask( Task task )
     {
-        end = std::min( end, mSourceSize );
+        mCounter = 0;
+
+        mSpinLock.lock();
+        ++mGeneration;
+        mTask = task;
+        mSpinLock.unlock();
+
+        mNotify.notify_all();
+    }
+
+    void WaitTaskComplete()
+    {
+        while ( mCounter < mWorkerCount )
+        {
+        }
+    }
+
+
+    SERIALISATION_NOINLINE void WorkerSerialiseFloat( uint32_t start, size_t end )
+    {
+        end = std::min( end, mFloatSourceSize );
 
         if ( end <= start )
         {
@@ -204,19 +257,49 @@ private:
 
         for ( uint32_t i = 0, blocks = ( end - start ) / 8; i < blocks; ++i, j += 8 )
         {
-            mFloatBuffer[j] = Util::FloatToUInt32( mSourceCursor[j] );
-            mFloatBuffer[j + 1] = Util::FloatToUInt32( mSourceCursor[j + 1] );
-            mFloatBuffer[j + 2] = Util::FloatToUInt32( mSourceCursor[j + 2] );
-            mFloatBuffer[j + 3] = Util::FloatToUInt32( mSourceCursor[j + 3] );
-            mFloatBuffer[j + 4] = Util::FloatToUInt32( mSourceCursor[j + 4] );
-            mFloatBuffer[j + 5] = Util::FloatToUInt32( mSourceCursor[j + 5] );
-            mFloatBuffer[j + 6] = Util::FloatToUInt32( mSourceCursor[j + 6] );
-            mFloatBuffer[j + 7] = Util::FloatToUInt32( mSourceCursor[j + 7] );
+            mU32Buffer[j] = Util::FloatToUInt32( mFloatSourceCursor[j] );
+            mU32Buffer[j + 1] = Util::FloatToUInt32( mFloatSourceCursor[j + 1] );
+            mU32Buffer[j + 2] = Util::FloatToUInt32( mFloatSourceCursor[j + 2] );
+            mU32Buffer[j + 3] = Util::FloatToUInt32( mFloatSourceCursor[j + 3] );
+            mU32Buffer[j + 4] = Util::FloatToUInt32( mFloatSourceCursor[j + 4] );
+            mU32Buffer[j + 5] = Util::FloatToUInt32( mFloatSourceCursor[j + 5] );
+            mU32Buffer[j + 6] = Util::FloatToUInt32( mFloatSourceCursor[j + 6] );
+            mU32Buffer[j + 7] = Util::FloatToUInt32( mFloatSourceCursor[j + 7] );
         }
 
         for ( ; j < end; ++j )
         {
-            mFloatBuffer[j] = Util::FloatToUInt32( mSourceCursor[j] );
+            mU32Buffer[j] = Util::FloatToUInt32( mFloatSourceCursor[j] );
+        }
+    }
+
+
+    SERIALISATION_NOINLINE void WorkerDeserialiseFloat( uint32_t start, size_t end )
+    {
+        end = std::min( end, mFloatSourceSize );
+
+        if ( end <= start )
+        {
+            return;
+        }
+
+        uint32_t j = start;
+
+        for ( uint32_t i = 0, blocks = ( end - start ) / 8; i < blocks; ++i, j += 8 )
+        {
+            mFloatSourceCursor[j] = Util::UInt32ToFloat( mU32Buffer[j] );
+            mFloatSourceCursor[j + 1] = Util::UInt32ToFloat( mU32Buffer[j + 1] );
+            mFloatSourceCursor[j + 2] = Util::UInt32ToFloat( mU32Buffer[j + 2] );
+            mFloatSourceCursor[j + 3] = Util::UInt32ToFloat( mU32Buffer[j + 3] );
+            mFloatSourceCursor[j + 4] = Util::UInt32ToFloat( mU32Buffer[j + 4] );
+            mFloatSourceCursor[j + 5] = Util::UInt32ToFloat( mU32Buffer[j + 5] );
+            mFloatSourceCursor[j + 6] = Util::UInt32ToFloat( mU32Buffer[j + 6] );
+            mFloatSourceCursor[j + 7] = Util::UInt32ToFloat( mU32Buffer[j + 7] );
+        }
+
+        for ( ; j < end; ++j )
+        {
+            mFloatSourceCursor[j] = Util::UInt32ToFloat( mU32Buffer[j] );
         }
     }
 };

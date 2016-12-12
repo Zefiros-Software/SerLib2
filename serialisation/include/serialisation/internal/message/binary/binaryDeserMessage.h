@@ -298,17 +298,35 @@ private:
 
         value.resize( size );
 
-        uint32_t flexman;
+        float *fCursor = &value[0];
 
-        for ( auto it = value.begin(), end = value.end(); it != end; ++it )
+        for ( uint32_t i = 0, end = value.size(); i < end;
+                i += SERIALISATION_FLOAT_BUFFER_SIZE, fCursor += SERIALISATION_FLOAT_BUFFER_SIZE )
         {
-            mStreamReader.ReadPrimitive( flexman );
-            *it = Util::UInt32ToFloat( flexman );
+            const uint32_t blockSize = std::min( SERIALISATION_FLOAT_BUFFER_SIZE, end - i );
+
+            ParallelFloatProcessor &floatProcessor = *ParallelFloatProcessor::GetInstance( 4 );
+
+            mStreamReader.ReadPrimitiveBlock( floatProcessor.GetU32Buffer(), blockSize );
+
+            floatProcessor.SetSource( fCursor, blockSize );
+
+            if ( blockSize < 1024 )
+            {
+                floatProcessor.DeserialiseFloats();
+            }
+            else
+            {
+                floatProcessor.DeserialiseFloats();
+            }
+
         }
     }
 
     SERIALISATION_FORCEINLINE void ReadPrimitive( std::string &value, Type::Type type )
     {
+        assert( type == Type::String );
+
         size_t size = mStreamReader.ReadSize();
         value.resize( size );
         mStreamReader.ReadBytes( &value[0], size );

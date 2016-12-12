@@ -51,11 +51,11 @@ public:
         mStreamWriter.WritePrimitiveBlock( value.data(), value.size() );
     }
 
-    SERIALISATION_NOINLINE void StoreVector( const std::vector< float > &value, uint8_t index )
+    SERIALISATION_NOINLINE void StoreVector( std::vector< float > &value, uint8_t index )
     {
         WriteArrayHeader< float >( index, value.size() );
 
-        const float *fCursor = &value[0];
+        float *fCursor = &value[0];
 
         for ( uint32_t i = 0, end = value.size(); i < end;
                 i += SERIALISATION_FLOAT_BUFFER_SIZE, fCursor += SERIALISATION_FLOAT_BUFFER_SIZE )
@@ -68,14 +68,14 @@ public:
 
             if ( blockSize < 1024 )
             {
-                floatProcessor.ProcessSequential();
+                floatProcessor.SerialiseFloatsSequential();
             }
             else
             {
-                floatProcessor.Process();
+                floatProcessor.SerialiseFloats();
             }
 
-            mStreamWriter.WritePrimitiveBlock( floatProcessor.GetBuffer(), blockSize );
+            mStreamWriter.WritePrimitiveBlock( floatProcessor.GetU32Buffer(), blockSize );
         }
     }
 
