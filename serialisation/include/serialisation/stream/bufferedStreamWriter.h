@@ -105,6 +105,7 @@ public:
         if ( sizeof( tPrimitive ) <= diff )
         {
             *reinterpret_cast< tPrimitive * >( mWriteBuffer + mWriteIndex ) = value;
+            mWriteIndex += sizeof( tPrimitive );
         }
         else
         {
@@ -113,7 +114,7 @@ public:
     }
 
     template< typename tPrimitive >
-    __declspec( noinline ) void WritePrimitiveBlock( const tPrimitive *first, size_t count )
+    SERIALISATION_NOINLINE void WritePrimitiveBlock( const tPrimitive *first, size_t count )
     {
         const size_t maxBlockSize = std::numeric_limits< size_t >::max() / sizeof( tPrimitive );
 

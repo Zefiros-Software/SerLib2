@@ -27,10 +27,11 @@
 #include "serialisation/defines.h"
 #include "serialisation/util.h"
 
+#include <condition_variable>
+#include <vector>
 #include <atomic>
 #include <thread>
 #include <mutex>
-#include <vector>
 
 class ParallelFloatProcessor
 {
@@ -46,37 +47,35 @@ public:
     {
         uint32_t nWorkers = size - 1;
         mWorkers.reserve( nWorkers );
-        mMainEnd = 2048 / size;
+        mMainEnd = SERIALISATION_FLOAT_BUFFER_SIZE / size;
 
         for ( uint32_t pid = 0; pid < nWorkers; ++pid )
         {
             mWorkers.emplace_back( [pid, size, this]()
             {
-                size_t myStart = ( pid + 1 ) * 2048 / size;
-                size_t myEnd = myStart + 2048 / size;
+                size_t myStart = ( pid + 1 ) * SERIALISATION_FLOAT_BUFFER_SIZE / size;
+                size_t myEnd = myStart + SERIALISATION_FLOAT_BUFFER_SIZE / size;
                 ++mCounter;
                 uint32_t myGeneration = 1;
 
                 while ( !mStop )
                 {
-                    for ( volatile uint32_t waitIter = 0; mGeneration < myGeneration && waitIter < 40000; ++waitIter )
+                    for ( uint32_t waitIter = 0; mGeneration < myGeneration && waitIter < 40000; ++waitIter )
                     {
                     }
 
                     if ( mGeneration < myGeneration )
                     {
-                        std::unique_lock<std::mutex> lock( mLock );
 
                         mSpinLock.lock();
                         uint32_t generation = mGeneration;
-                        mSpinLock.unlock();
 
                         uint32_t iter = 1;
 
                         while ( generation < myGeneration && !mStop )
                         {
-                            uint32_t duration = std::max( 1000u, iter * 10 );
-                            mNotify.wait_for( lock, std::chrono::milliseconds( duration ), [&]()
+                            uint32_t duration = std::max( 10u, iter );
+                            mNotify.wait_for( mSpinLock, std::chrono::milliseconds( duration ), [&]()
                             {
                                 return myGeneration <= mGeneration || mStop;
                             } );
@@ -84,6 +83,8 @@ public:
                             ++iter;
                             generation = mGeneration;
                         }
+
+                        mSpinLock.unlock();
 
                         if ( mStop )
                         {
@@ -176,11 +177,11 @@ private:
 
     std::vector<std::thread> mWorkers;
 
-    uint32_t mFloatBuffer[2048];
+    uint32_t mFloatBuffer[SERIALISATION_FLOAT_BUFFER_SIZE];
 
     std::mutex mLock;
     SpinLock mSpinLock;;
-    std::condition_variable mNotify;
+    std::condition_variable_any mNotify;
     std::atomic_bool mStop;
     std::atomic<uint32_t> mCounter;
     std::atomic<uint32_t> mGeneration;
@@ -190,11 +191,30 @@ private:
     uint32_t mMainEnd;
     uint32_t mWorkerCount;
 
-    __declspec( noinline ) void WorkerProcess( uint32_t start, size_t end )
+    SERIALISATION_NOINLINE void WorkerProcess( uint32_t start, size_t end )
     {
         end = std::min( end, mSourceSize );
 
-        for ( uint32_t j = start; j < end; ++j )
+        if ( end <= start )
+        {
+            return;
+        }
+
+        uint32_t j = start;
+
+        for ( uint32_t i = 0, blocks = ( end - start ) / 8; i < blocks; ++i, j += 8 )
+        {
+            mFloatBuffer[j] = Util::FloatToUInt32( mSourceCursor[j] );
+            mFloatBuffer[j + 1] = Util::FloatToUInt32( mSourceCursor[j + 1] );
+            mFloatBuffer[j + 2] = Util::FloatToUInt32( mSourceCursor[j + 2] );
+            mFloatBuffer[j + 3] = Util::FloatToUInt32( mSourceCursor[j + 3] );
+            mFloatBuffer[j + 4] = Util::FloatToUInt32( mSourceCursor[j + 4] );
+            mFloatBuffer[j + 5] = Util::FloatToUInt32( mSourceCursor[j + 5] );
+            mFloatBuffer[j + 6] = Util::FloatToUInt32( mSourceCursor[j + 6] );
+            mFloatBuffer[j + 7] = Util::FloatToUInt32( mSourceCursor[j + 7] );
+        }
+
+        for ( ; j < end; ++j )
         {
             mFloatBuffer[j] = Util::FloatToUInt32( mSourceCursor[j] );
         }

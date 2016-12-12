@@ -37,6 +37,11 @@ class PendingVariableArray
 {
 public:
 
+    PendingVariableArray()
+        : mIsPendingMask( 0 )
+    {
+    }
+
     uint32_t IsPending( uint8_t index ) const
     {
         //return mIsPending[index];
@@ -151,16 +156,16 @@ private:
     PendingVariableArray *mCurrentPendingVariables;
 
     Stack< PendingVariableArray * > mVariableHistory;
-    MemoryPool< PendingVariableArray > mPendingPool;
+    UnsychronisedMemoryPoolInstantiator< PendingVariableArray > mPendingPool;
 
     PendingVariableArray *InitPendingVariableArray()
     {
-        return mPendingPool.GetInstance();
+        return mPendingPool.Create();
     }
 
     void ReleasePendingVariableArray( PendingVariableArray *pva )
     {
-        mPendingPool.ReturnInstance( pva );
+        mPendingPool.Destroy( pva );
     }
 
 
@@ -282,6 +287,24 @@ private:
 
         value.resize( size );
         mStreamReader.ReadPrimitiveBlock( &value[0], size );
+    }
+
+    void ReadPrimitive( std::vector< float > &value, Type::Type type )
+    {
+        uint8_t flags;
+        Type::Type subType;
+        ReadHeader( flags, subType );
+        size_t size = mStreamReader.ReadSize();
+
+        value.resize( size );
+
+        uint32_t flexman;
+
+        for ( auto it = value.begin(), end = value.end(); it != end; ++it )
+        {
+            mStreamReader.ReadPrimitive( flexman );
+            *it = Util::UInt32ToFloat( flexman );
+        }
     }
 
     SERIALISATION_FORCEINLINE void ReadPrimitive( std::string &value, Type::Type type )

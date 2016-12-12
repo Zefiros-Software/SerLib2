@@ -40,6 +40,10 @@
 #   define SERIALISATION_SERIALISERS_BUFFERSIZE 8192
 #endif
 
+#ifndef SERIALISATION_FLOAT_BUFFER_SIZE
+#   define SERIALISATION_FLOAT_BUFFER_SIZE 2048u
+#endif
+
 #if __cplusplus > 199711L || ( defined _MSC_VER && _MSC_VER >= 1700 )
 #define SERIALISATION_SUPPORT_STDARRAY
 #include <array>
@@ -62,6 +66,22 @@
 #    define SERIALISATION_FORCEINLINE inline __attribute__ ((__always_inline__))
 #  else
 #    define SERIALISATION_FORCEINLINE inline
+#  endif
+#endif
+
+// From boost
+#if !defined(SERIALISATION_NOINLINE)
+#  if defined(_MSC_VER)
+#    define SERIALISATION_NOINLINE __declspec(noinline)
+#  elif defined(__GNUC__) && __GNUC__ > 3
+// Clang also defines __GNUC__ (as 4)
+#    if defined(__CUDACC__)
+#      define SERIALISATION_NOINLINE __attribute__ ((noinline))
+#    else
+#      define SERIALISATION_NOINLINE __attribute__ ((__noinline__))
+#    endif
+#  else
+#    define SERIALISATION_NOINLINE
 #  endif
 #endif
 

@@ -51,15 +51,16 @@ public:
         mStreamWriter.WritePrimitiveBlock( value.data(), value.size() );
     }
 
-    void StoreVector( const std::vector< float > &value, uint8_t index )
+    SERIALISATION_NOINLINE void StoreVector( const std::vector< float > &value, uint8_t index )
     {
         WriteArrayHeader< float >( index, value.size() );
 
         const float *fCursor = &value[0];
 
-        for ( uint32_t i = 0, end = value.size(); i < end; i += 2048, fCursor += 2048 )
+        for ( uint32_t i = 0, end = value.size(); i < end;
+                i += SERIALISATION_FLOAT_BUFFER_SIZE, fCursor += SERIALISATION_FLOAT_BUFFER_SIZE )
         {
-            const uint32_t blockSize = std::min( 2048u, end - i );
+            const uint32_t blockSize = std::min( SERIALISATION_FLOAT_BUFFER_SIZE, end - i );
 
             ParallelFloatProcessor &floatProcessor = *ParallelFloatProcessor::GetInstance( 4 );
 
