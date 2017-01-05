@@ -77,7 +77,7 @@ private:
     uint32_t mIsPendingMask;
 };
 
-template< typename tStreamReader >
+template< typename tStreamReader, size_t tBufferSize = SERIALISATION_FLOAT_BUFFER_SIZE >
 class BinaryDeserialisationMessage
 {
 public:
@@ -318,6 +318,39 @@ private:
         mStreamReader.ReadPrimitiveBlock( &value[0], size );
     }
 
+    void ReadPrimitiveVector( std::vector< bool > &value, Type::Type type )
+    {
+        uint8_t flags;
+        Type::Type subType;
+        size_t size;
+        ReadArrayHeader( flags, subType, size );
+
+        value.resize( size );
+
+        uint8_t temp;
+
+        for ( size_t i = 0; i < size; ++i )
+        {
+            ReadPrimitive( temp, subType );
+            value[i] = temp > 0;
+        }
+    }
+
+    void ReadPrimitiveVector( std::vector< std::string > &value, Type::Type type )
+    {
+        uint8_t flags;
+        Type::Type subType;
+        size_t size;
+        ReadArrayHeader( flags, subType, size );
+
+        value.resize( size );
+
+        for ( size_t i = 0; i < size; ++i )
+        {
+            ReadPrimitive( value[i], subType );
+        }
+    }
+
 
     void ReadPrimitiveVector( std::vector< float > &value, Type::Type type )
     {
@@ -329,26 +362,34 @@ private:
         value.resize( size );
 
         float *fCursor = &value[0];
+        ParallelFloatProcessor &floatProcessor = *ParallelFloatProcessor::GetInstance( 4 );
 
-        for ( uint32_t i = 0, end = value.size(); i < end;
-                i += SERIALISATION_FLOAT_BUFFER_SIZE, fCursor += SERIALISATION_FLOAT_BUFFER_SIZE )
+        for ( size_t i = 0, end = value.size(); i < end; i += tBufferSize, fCursor += tBufferSize )
         {
-            const uint32_t blockSize = std::min( SERIALISATION_FLOAT_BUFFER_SIZE, end - i );
-
-            ParallelFloatProcessor &floatProcessor = *ParallelFloatProcessor::GetInstance( 4 );
-
+            const size_t blockSize = std::min( tBufferSize, end - i );
             mStreamReader.ReadPrimitiveBlock( floatProcessor.GetU32Buffer(), blockSize );
+            floatProcessor.DeserialiseFloats( fCursor, blockSize );
 
-            floatProcessor.SetSource( fCursor, blockSize );
+        }
+    }
 
-            if ( blockSize < 1024 )
-            {
-                floatProcessor.DeserialiseFloats();
-            }
-            else
-            {
-                floatProcessor.DeserialiseFloats();
-            }
+    void ReadPrimitiveVector( std::vector< double > &value, Type::Type type )
+    {
+        uint8_t flags;
+        Type::Type subType;
+        size_t size;
+        ReadArrayHeader( flags, subType, size );
+
+        value.resize( size );
+
+        double *fCursor = &value[0];
+        ParallelFloatProcessor &floatProcessor = *ParallelFloatProcessor::GetInstance( 4 );
+
+        for ( size_t i = 0, end = value.size(); i < end; i += tBufferSize, fCursor += tBufferSize )
+        {
+            const size_t blockSize = std::min( tBufferSize, end - i );
+            mStreamReader.ReadPrimitiveBlock( floatProcessor.GetU64Buffer(), blockSize );
+            floatProcessor.DeserialiseDoubles( fCursor, blockSize );
 
         }
     }

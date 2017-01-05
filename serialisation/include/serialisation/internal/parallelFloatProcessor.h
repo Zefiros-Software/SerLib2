@@ -37,162 +37,26 @@ class ParallelFloatProcessor
 {
 public:
 
-    ParallelFloatProcessor( size_t size )
-        : mFloatSourceCursor( nullptr ),
-          mFloatSourceSize( 0 ),
-          mStop( false ),
-          mCounter( 0 ),
-          mGeneration( 0 ),
-          mWorkerCount( size - 1 )
-    {
-        uint32_t nWorkers = size - 1;
-        mWorkers.reserve( nWorkers );
-        mMainEnd = SERIALISATION_FLOAT_BUFFER_SIZE / size;
+    ParallelFloatProcessor( size_t size );
 
-        for ( uint32_t pid = 0; pid < nWorkers; ++pid )
-        {
-            mWorkers.emplace_back( [pid, size, this]()
-            {
-                size_t myStart = ( pid + 1 ) * SERIALISATION_FLOAT_BUFFER_SIZE / size;
-                size_t myEnd = myStart + SERIALISATION_FLOAT_BUFFER_SIZE / size;
-                ++mCounter;
-                uint32_t myGeneration = 1;
+    uint32_t *GetU32Buffer();
+    uint64_t *GetU64Buffer();
 
-                while ( !mStop )
-                {
-                    for ( uint32_t waitIter = 0; mGeneration < myGeneration && waitIter < 4 * 40000; ++waitIter )
-                    {
-                    }
+    void SerialiseFloats( float *cursor, size_t size );
+    void DeserialiseFloats( float *cursor, size_t size );
 
-                    if ( mGeneration < myGeneration )
-                    {
+    void SerialiseFloatsSequential( float *cursor, size_t size );
+    void DeserialiseFloatsSequential( float *cursor, size_t size );
 
-                        mSpinLock.lock();
-                        uint32_t generation = mGeneration;
+    void SerialiseDoubles( double *cursor, size_t size );
+    void DeserialiseDoubles( double *cursor, size_t size );
 
-                        uint32_t iter = 1;
+    void SerialiseDoublesSequential();
+    void DeserialiseDoublesSequential();
 
-                        while ( generation < myGeneration && !mStop )
-                        {
-                            uint32_t duration = std::max( 10u, iter );
-                            mNotify.wait_for( mSpinLock, std::chrono::milliseconds( duration ), [&]()
-                            {
-                                return myGeneration <= mGeneration || mStop;
-                            } );
+    static void TerminateWorkers();
 
-                            ++iter;
-                            generation = mGeneration;
-                        }
-
-                        mSpinLock.unlock();
-
-                        if ( mStop )
-                        {
-                            break;
-                        }
-                    }
-
-                    switch ( mTask )
-                    {
-                    case Task::SerFloats:
-                        WorkerSerialiseFloat( myStart, myEnd );
-                        break;
-
-                    case Task::SerDoubles:
-                        break;
-
-                    case Task::DeserFloats:
-                        WorkerDeserialiseFloat( myStart, myEnd );
-                        break;
-
-                    case Task::DeserDoubles:
-                        break;
-
-                    default:
-                        break;
-                    }
-
-                    ++mCounter;
-                    ++myGeneration;
-                }
-            } );
-        }
-    }
-
-    SERIALISATION_FORCEINLINE void SetSource( float *cursor, size_t size )
-    {
-        mFloatSourceCursor = cursor;
-        mFloatSourceSize = size;
-    }
-
-    SERIALISATION_FORCEINLINE uint32_t *GetU32Buffer()
-    {
-        return mU32Buffer;
-    }
-
-    SERIALISATION_FORCEINLINE void SerialiseFloats()
-    {
-        StartTask( Task::SerFloats );
-
-        WorkerSerialiseFloat( 0, mMainEnd );
-
-        WaitTaskComplete();
-    }
-
-    SERIALISATION_FORCEINLINE void DeserialiseFloats()
-    {
-        StartTask( Task::DeserFloats );
-
-        WorkerDeserialiseFloat( 0, mMainEnd );
-
-        WaitTaskComplete();
-    }
-
-    SERIALISATION_FORCEINLINE void SerialiseFloatsSequential()
-    {
-        WorkerSerialiseFloat( 0, mFloatSourceSize );
-    }
-
-    static void TerminateWorkers()
-    {
-        ParallelFloatProcessor *sProcessor = GetInstance();
-
-        if ( sProcessor )
-        {
-            {
-                sProcessor->mStop = true;
-            }
-            sProcessor->mNotify.notify_all();
-
-            for ( auto &t : sProcessor->mWorkers )
-            {
-                if ( t.joinable() )
-                {
-                    t.join();
-                }
-            }
-
-            GetInstance( 0, false );
-        }
-    }
-
-    static ParallelFloatProcessor *GetInstance( size_t size = 0, bool create = true )
-    {
-        static ParallelFloatProcessor *sProcessor = nullptr;
-
-        if ( !sProcessor && size )
-        {
-            sProcessor = new ParallelFloatProcessor( size );
-        }
-
-        if ( !create )
-        {
-            delete sProcessor;
-            sProcessor = nullptr;
-        }
-
-        return sProcessor;
-    }
+    static ParallelFloatProcessor *GetInstance( size_t size = 0, bool create = true );
 
 private:
 
@@ -207,7 +71,7 @@ private:
     std::vector<std::thread> mWorkers;
 
     uint32_t mU32Buffer[SERIALISATION_FLOAT_BUFFER_SIZE];
-    uint32_t mFloatBuffer[SERIALISATION_FLOAT_BUFFER_SIZE];
+    uint64_t mU64Buffer[SERIALISATION_FLOAT_BUFFER_SIZE];
 
     std::mutex mLock;
     SpinLock mSpinLock;;
@@ -217,91 +81,22 @@ private:
     std::atomic<uint32_t> mGeneration;
 
     float *mFloatSourceCursor;
-    size_t mFloatSourceSize;
+    double *mDoubleSourceCursor;
+
+    size_t mSourceSize;
 
     uint32_t mMainEnd;
     uint32_t mWorkerCount;
 
     Task mTask;
 
-    void StartTask( Task task )
-    {
-        mCounter = 0;
+    void StartTask( Task task );
+    void WaitTaskComplete();
 
-        mSpinLock.lock();
-        ++mGeneration;
-        mTask = task;
-        mSpinLock.unlock();
-
-        mNotify.notify_all();
-    }
-
-    void WaitTaskComplete()
-    {
-        while ( mCounter < mWorkerCount )
-        {
-        }
-    }
-
-
-    SERIALISATION_NOINLINE void WorkerSerialiseFloat( uint32_t start, size_t end )
-    {
-        end = std::min( end, mFloatSourceSize );
-
-        if ( end <= start )
-        {
-            return;
-        }
-
-        uint32_t j = start;
-
-        for ( uint32_t i = 0, blocks = ( end - start ) / 8; i < blocks; ++i, j += 8 )
-        {
-            mU32Buffer[j] = Util::FloatToUInt32( mFloatSourceCursor[j] );
-            mU32Buffer[j + 1] = Util::FloatToUInt32( mFloatSourceCursor[j + 1] );
-            mU32Buffer[j + 2] = Util::FloatToUInt32( mFloatSourceCursor[j + 2] );
-            mU32Buffer[j + 3] = Util::FloatToUInt32( mFloatSourceCursor[j + 3] );
-            mU32Buffer[j + 4] = Util::FloatToUInt32( mFloatSourceCursor[j + 4] );
-            mU32Buffer[j + 5] = Util::FloatToUInt32( mFloatSourceCursor[j + 5] );
-            mU32Buffer[j + 6] = Util::FloatToUInt32( mFloatSourceCursor[j + 6] );
-            mU32Buffer[j + 7] = Util::FloatToUInt32( mFloatSourceCursor[j + 7] );
-        }
-
-        for ( ; j < end; ++j )
-        {
-            mU32Buffer[j] = Util::FloatToUInt32( mFloatSourceCursor[j] );
-        }
-    }
-
-
-    SERIALISATION_NOINLINE void WorkerDeserialiseFloat( uint32_t start, size_t end )
-    {
-        end = std::min( end, mFloatSourceSize );
-
-        if ( end <= start )
-        {
-            return;
-        }
-
-        uint32_t j = start;
-
-        for ( uint32_t i = 0, blocks = ( end - start ) / 8; i < blocks; ++i, j += 8 )
-        {
-            mFloatSourceCursor[j] = Util::UInt32ToFloat( mU32Buffer[j] );
-            mFloatSourceCursor[j + 1] = Util::UInt32ToFloat( mU32Buffer[j + 1] );
-            mFloatSourceCursor[j + 2] = Util::UInt32ToFloat( mU32Buffer[j + 2] );
-            mFloatSourceCursor[j + 3] = Util::UInt32ToFloat( mU32Buffer[j + 3] );
-            mFloatSourceCursor[j + 4] = Util::UInt32ToFloat( mU32Buffer[j + 4] );
-            mFloatSourceCursor[j + 5] = Util::UInt32ToFloat( mU32Buffer[j + 5] );
-            mFloatSourceCursor[j + 6] = Util::UInt32ToFloat( mU32Buffer[j + 6] );
-            mFloatSourceCursor[j + 7] = Util::UInt32ToFloat( mU32Buffer[j + 7] );
-        }
-
-        for ( ; j < end; ++j )
-        {
-            mFloatSourceCursor[j] = Util::UInt32ToFloat( mU32Buffer[j] );
-        }
-    }
+    void WorkerSerialiseFloat( size_t start, size_t end );
+    void WorkerDeserialiseFloat( size_t start, size_t end );
+    void WorkerSerialiseDouble( size_t start, size_t end );
+    void WorkerDeserialiseDouble( size_t start, size_t end );
 };
 
 #endif

@@ -26,7 +26,7 @@
 #include "serialisation/internal/parallelFloatProcessor.h"
 #include "serialisation/util.h"
 
-template< typename tStreamWriter >
+template< typename tStreamWriter, size_t tBufferSize = SERIALISATION_FLOAT_BUFFER_SIZE >
 class BinarySerialisationMessage
 {
 public:
@@ -51,31 +51,53 @@ public:
         mStreamWriter.WritePrimitiveBlock( value.data(), value.size() );
     }
 
+    void StoreVector( const std::vector< bool > &value, uint8_t index )
+    {
+        WriteArrayHeader< bool >( index, value.size() );
+
+        for ( const bool &b : value )
+        {
+            WritePrimitive( b );
+        }
+    }
+
+    void StoreVector( const std::vector< std::string > &value, uint8_t index )
+    {
+        WriteArrayHeader< std::string >( index, value.size() );
+
+        for ( const std::string &s : value )
+        {
+            WritePrimitive( s );
+        }
+    }
+
     SERIALISATION_NOINLINE void StoreVector( std::vector< float > &value, uint8_t index )
     {
         WriteArrayHeader< float >( index, value.size() );
 
         float *fCursor = &value[0];
+        ParallelFloatProcessor &floatProcessor = *ParallelFloatProcessor::GetInstance( 4 );
 
-        for ( uint32_t i = 0, end = value.size(); i < end;
-                i += SERIALISATION_FLOAT_BUFFER_SIZE, fCursor += SERIALISATION_FLOAT_BUFFER_SIZE )
+        for ( size_t i = 0, end = value.size(); i < end; i += tBufferSize, fCursor += tBufferSize )
         {
-            const uint32_t blockSize = std::min( SERIALISATION_FLOAT_BUFFER_SIZE, end - i );
-
-            ParallelFloatProcessor &floatProcessor = *ParallelFloatProcessor::GetInstance( 4 );
-
-            floatProcessor.SetSource( fCursor, blockSize );
-
-            if ( blockSize < 1024 )
-            {
-                floatProcessor.SerialiseFloatsSequential();
-            }
-            else
-            {
-                floatProcessor.SerialiseFloats();
-            }
-
+            const uint32_t blockSize = std::min( tBufferSize, end - i );
+            floatProcessor.SerialiseFloats( fCursor, blockSize );
             mStreamWriter.WritePrimitiveBlock( floatProcessor.GetU32Buffer(), blockSize );
+        }
+    }
+
+    SERIALISATION_NOINLINE void StoreVector( std::vector< double > &value, uint8_t index )
+    {
+        WriteArrayHeader< double >( index, value.size() );
+
+        double *fCursor = &value[0];
+        ParallelFloatProcessor &floatProcessor = *ParallelFloatProcessor::GetInstance( 4 );
+
+        for ( size_t i = 0, end = value.size(); i < end;  i += tBufferSize, fCursor += tBufferSize )
+        {
+            const size_t blockSize = std::min( tBufferSize, end - i );
+            floatProcessor.SerialiseDoubles( fCursor, blockSize );
+            mStreamWriter.WritePrimitiveBlock( floatProcessor.GetU64Buffer(), blockSize );
         }
     }
 
