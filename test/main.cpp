@@ -160,83 +160,87 @@ private:
 };
 
 
-int main( int , char ** )
+int main( int argc, char **argv )
 {
 
 #ifdef _WIN32
     _CrtSetDbgFlag( _CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF );
     _CrtSetReportMode( _CRT_ASSERT, _CRTDBG_MODE_FILE );
     _CrtSetReportFile( _CRT_ASSERT, _CRTDBG_FILE_STDERR );
-    //_crtBreakAlloc = 4885;
+    //_crtBreakAlloc = 742;
 #endif
 
-    //     testing::InitGoogleTest( &argc, argv );
+    testing::InitGoogleTest( &argc, argv );
+
+    int32_t result = RUN_ALL_TESTS();
+
+    ParallelFloatProcessor::TerminateWorkers();
+
+    return result;
+
+    //     {
+    //         std::stringstream ss;
     //
-    //     int32_t result = RUN_ALL_TESTS();
-
-    {
-        std::stringstream ss;
-
-        Testclass3 tc;
-        Testclass3Reordered tc2;
-
-        {
-            Message< BinarySerialisationMessage< BufferedStreamWriter<> > > message( ss );
-            message.Enter( tc );
-        }
-
-        {
-            Message< BinaryDeserialisationMessage< BufferedStreamReader<> > > message( ss );
-            message.Enter( tc2 );
-        }
-    }
-
-    for ( volatile uint32_t i = 1; i < 100000000; ++i )
-    {
-        volatile uint64_t x = VarIntSize<std::numeric_limits<uint64_t>::max()>();
-        x += i;
-        x += VarInt<std::numeric_limits<uint64_t>::max()>().first;
-    }
-
-    std::cout << VarInt<std::numeric_limits<uint64_t>::max()>().first << std::endl
-              << VarInt<std::numeric_limits<uint64_t>::max()>().second << std::endl
-              << 0 + VarIntSize<std::numeric_limits<uint64_t>::max()>() << std::endl;
-
-    std::cout << VarInt<0x7F>().first << std::endl
-              << VarInt<0x7F>().second << std::endl
-              << 0 + VarIntSize<0x7F>() << std::endl;
-
-    std::cout << VarInt<0x80>().first << std::endl
-              << VarInt<0x80>().second << std::endl
-              << 0 + VarIntSize<0x80>() << std::endl;
-
-    constexpr auto varInt = VarInt<0x83>();
-
-    std::cout << FromVarInt< varInt.first, varInt.second >() << std::endl;
-
-    const uint64_t varIntFirst = varInt.first;
-
-    uint64_t varIntFirstVerify = 0;
-
-    std::stringstream ss;
-
-    ss.write( reinterpret_cast<const char *>( &varInt.first ), 2 );
-    ss.flush();
-
-    std::cout.write( reinterpret_cast<const char *>( &varIntFirst ), 3 );
-    std::cout << std::endl;
-
-    ss.read( reinterpret_cast<char *>( &varIntFirstVerify ), 2 );
-
-    std::cout << varIntFirstVerify << std::endl << varIntFirst << std::endl;
-
-    constexpr auto y = Type::GetHeaderEnum<bool>();
-
-    std::cout << y << std::endl;
-
-#ifdef _WIN32
-    system( "pause" );
-#endif
+    //         Testclass3 tc;
+    //         Testclass3Reordered tc2;
+    //
+    //         {
+    //             Message< BinarySerialisationMessage< BufferedStreamWriter<> > > message( ss );
+    //             message.Enter( tc );
+    //         }
+    //
+    //         {
+    //             Message< BinaryDeserialisationMessage< BufferedStreamReader<> > > message( ss );
+    //             message.Enter( tc2 );
+    //         }
+    //     }
+    //
+    //     for ( volatile uint32_t i = 1; i < 100000000; ++i )
+    //     {
+    //         volatile uint64_t x = VarIntSize<std::numeric_limits<uint64_t>::max()>();
+    //         x += i;
+    //         x += VarInt<std::numeric_limits<uint64_t>::max()>().first;
+    //     }
+    //
+    //     std::cout << VarInt<std::numeric_limits<uint64_t>::max()>().first << std::endl
+    //               << VarInt<std::numeric_limits<uint64_t>::max()>().second << std::endl
+    //               << 0 + VarIntSize<std::numeric_limits<uint64_t>::max()>() << std::endl;
+    //
+    //     std::cout << VarInt<0x7F>().first << std::endl
+    //               << VarInt<0x7F>().second << std::endl
+    //               << 0 + VarIntSize<0x7F>() << std::endl;
+    //
+    //     std::cout << VarInt<0x80>().first << std::endl
+    //               << VarInt<0x80>().second << std::endl
+    //               << 0 + VarIntSize<0x80>() << std::endl;
+    //
+    //     constexpr auto varInt = VarInt<0x83>();
+    //
+    //     std::cout << FromVarInt< varInt.first, varInt.second >() << std::endl;
+    //
+    //     const uint64_t varIntFirst = varInt.first;
+    //
+    //     uint64_t varIntFirstVerify = 0;
+    //
+    //     std::stringstream ss;
+    //
+    //     ss.write( reinterpret_cast<const char *>( &varInt.first ), 2 );
+    //     ss.flush();
+    //
+    //     std::cout.write( reinterpret_cast<const char *>( &varIntFirst ), 3 );
+    //     std::cout << std::endl;
+    //
+    //     ss.read( reinterpret_cast<char *>( &varIntFirstVerify ), 2 );
+    //
+    //     std::cout << varIntFirstVerify << std::endl << varIntFirst << std::endl;
+    //
+    //     constexpr auto y = Type::GetHeaderEnum<bool>();
+    //
+    //     std::cout << y << std::endl;
+    //
+    // #ifdef _WIN32
+    //     system( "pause" );
+    // #endif
 
     //return result;
 }

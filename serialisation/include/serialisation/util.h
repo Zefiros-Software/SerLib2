@@ -223,9 +223,24 @@ namespace Util
         return LDExp( LDExp( static_cast<float>( ZagZig< uint32_t, int32_t >( i >> 8 ) ), -23 ), exp );
     }
 
-    inline uint64_t DoubleToUInt64( const double f );
+    inline uint64_t DoubleToUInt64( const double f )
+    {
+        int32_t exp;
+        double fi = frexp( f, &exp );
+        --exp;
 
-    double UInt64ToDouble( const uint64_t i );
+        uint64_t result = ZigZag< int64_t, uint64_t >( exp );
+        result |= ZigZag< int64_t, uint64_t >( static_cast<int64_t>( ldexp( fi, 52 ) ) ) << 11;
+
+        return result;
+    }
+
+    inline double UInt64ToDouble( const uint64_t i )
+    {
+        int32_t exp = ZagZig< uint32_t, int32_t >( i & 0x7ff );
+        ++exp;
+        return ldexp( ldexp( static_cast<double>( ZagZig< uint64_t, int64_t >( i >> 11 ) ), -52 ), exp );
+    }
 
     //     template< typename T >
     //     uint8_t CalculateVarIntSize( T val )

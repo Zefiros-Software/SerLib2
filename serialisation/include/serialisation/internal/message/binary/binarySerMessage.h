@@ -80,6 +80,18 @@ public:
     }
 
     template< typename tSerialisable, typename tMessage >
+    inline void StoreObjectVector( std::vector< tSerialisable > &value, uint8_t index, tMessage &message )
+    {
+        WriteArrayHeader<tSerialisable>( index, value.size() );
+
+        for ( auto &t : value )
+        {
+            SerialisationHelper< tSerialisable >::OnStore( message, serialisable );
+            WritePrimitive( Util::CreateHeader( 0, Type::Terminator ) );
+        }
+    }
+
+    template< typename tSerialisable, typename tMessage >
     inline void StoreObject( tSerialisable &serialisable, uint8_t index, tMessage &message )
     {
         WriteHeader< tSerialisable >( index );
