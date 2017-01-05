@@ -60,20 +60,20 @@ private:
     tT mValue;
 };
 
-template< typename tT >
+template< typename tT, uint8_t tIndex >
 class SinglePrimitiveIndexed
 {
 public:
 
-    SinglePrimitiveIndexed( uint8_t index )
+    SinglePrimitiveIndexed()
         : mValue( GetRandom< tT >() ),
-          mIndex( index )
+          mIndex( tIndex )
     {
     }
 
-    SinglePrimitiveIndexed( uint8_t index, const tT &val )
+    SinglePrimitiveIndexed( const tT &val )
         : mValue( val ),
-          mIndex( index )
+          mIndex( tIndex )
     {
     }
 
@@ -83,7 +83,7 @@ public:
         message.Store( mIndex, mValue );
     }
 
-    void TestEqual( SinglePrimitiveIndexed< tT > &other )
+    void TestEqual( SinglePrimitiveIndexed< tT, tIndex > &other )
     {
         ExpectEqual( mValue, other.mValue );
     }
@@ -132,13 +132,6 @@ public:
     {
     }
 
-    template< typename tT, typename... tRest >
-    MultiPrimitive( const tT &val, tRest &&... rest )
-        : mValue( val ),
-          MultiPrimitive < tIndex + 1, tRest... > ( std::forward<tRest>( rest )... )
-    {
-    }
-
     template< typename tM >
     void OnStore( Message< tM > &message )
     {
@@ -163,55 +156,50 @@ class MultiPrimitive< tIndex, tT >
 {
 };
 
-#define SERIALISATION_TEST_SINGLE_PRIMITIVE( type )     \
-TEST( P( SinglePrimitive ), type )                      \
-{                                                       \
-    for ( uint32_t i = 0; i < 1000; ++i )               \
-    {                                                   \
-        SinglePrimitive< type > tc1, tc2;               \
-                                                        \
-        SimpleSerialiseDeserialiseStream( tc1, tc2 );   \
-                                                        \
-        tc1.TestEqual( tc2 );                           \
-    }                                                   \
-}
+template< typename tT >
+class TestClassArray
+{
+public:
 
-#define SERIALISATION_TEST_SINGLE_PRIMITIVE_INDEXED( type )                 \
-TEST( P( SinglePrimitiveIndexed ), type )                                   \
-{                                                                           \
-    for ( uint32_t i = 0; i < 1000 / 28; ++i )                              \
-    {                                                                       \
-        for ( uint8_t index = 0; index < 28; ++index )                      \
-        {                                                                   \
-            SinglePrimitiveIndexed< type > tc1( index ), tc2( index );      \
-                                                                            \
-            SimpleSerialiseDeserialiseStream( tc1, tc2 );                   \
-                                                                            \
-            tc1.TestEqual( tc2 );                                           \
-        }                                                                   \
-    }                                                                       \
-}
+    TestClassArray()
+    {
+        mValue1.resize( ( GetRandom< uint32_t >() % 8192 ) + 8192 );
 
-SERIALISATION_ALL_TYPES( SERIALISATION_TEST_SINGLE_PRIMITIVE );
+        for ( auto it = mValue1.begin(); it != mValue1.end(); ++it )
+        {
+            *it = static_cast<tT>( GetRandom< tT >() );
+        }
+    }
 
-#define  SERIALISATION_TEST_MULTI_PRIMITVE( type1, type2, type3, type4, type5 )                         \
-TEST( P( MultiPrimitive ), CONCAT( CONCAT( CONCAT( CONCAT( type1, type2 ), type3 ), type4 ), type5 ) )  \
-{                                                                                                       \
-    for ( uint32_t i = 0; i < 1000; ++i )                                                               \
-    {                                                                                                   \
-        MultiPrimitive< 0, type1, type2, type3, type4, type5 > tc1, tc2;                                \
-                                                                                                        \
-        SimpleSerialiseDeserialiseStream( tc1, tc2 );                                                   \
-                                                                                                        \
-        tc1.TestEqual( tc2 );                                                                           \
-    }                                                                                                   \
-}
+    template< typename tT >
+    TestClassArray( const tT & )
+        : TestClassArray()
+    {}
 
-#define SERIALISATION_TEST_MULTI_PRIMITVE_VARIATIONS( type ) \
-        SERIALISATION_TEST_MULTI_PRIMITVE( uint8_t, int32_t, double, String, type )
+    template< typename tT >
+    void OnStore( Message< tT > &message )
+    {
+        message.Store( 0, mValue1 );
+    }
 
-SERIALISATION_ALL_TYPES( SERIALISATION_TEST_MULTI_PRIMITVE_VARIATIONS );
+    size_t GetMemberSize()
+    {
+        return mValue1.size() * sizeof( tT );
+    }
 
-SERIALISATION_ALL_TYPES( SERIALISATION_TEST_SINGLE_PRIMITIVE_INDEXED );
+    void TestEqual( TestClassArray< tT > &t2 )
+    {
+        ExpectEqual( mValue1.size(), t2.mValue1.size() );
+
+        for ( size_t i = 0, end = mValue1.size(); i < end; ++i )
+        {
+            ExpectEqual( mValue1[i], t2.mValue1[i] );
+        }
+    }
+
+private:
+
+    std::vector<tT> mValue1;
+};
 
 #endif

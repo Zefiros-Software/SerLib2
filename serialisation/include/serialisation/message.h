@@ -30,8 +30,7 @@
 
 typedef std::string String;
 
-#define SERIALISATION_ALL_TYPES( interfaceMacro ) \
-interfaceMacro( bool )                                      \
+#define SERIALISATION_ALL_NUMERIC_TYPES( interfaceMacro )   \
 interfaceMacro( uint8_t )                                   \
 interfaceMacro( uint16_t )                                  \
 interfaceMacro( uint32_t )                                  \
@@ -41,7 +40,11 @@ interfaceMacro( int16_t )                                   \
 interfaceMacro( int32_t )                                   \
 interfaceMacro( int64_t )                                   \
 interfaceMacro( float )                                     \
-interfaceMacro( double )                                    \
+interfaceMacro( double )
+
+#define SERIALISATION_ALL_TYPES( interfaceMacro )           \
+interfaceMacro( bool )                                      \
+SERIALISATION_ALL_NUMERIC_TYPES( interfaceMacro )           \
 interfaceMacro( String )
 
 #define SERIALISATION_INTERFACE_PRIMITIVE( type )       \
