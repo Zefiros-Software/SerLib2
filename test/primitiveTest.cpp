@@ -58,3 +58,8 @@ SERIALISATION_TEST2(  MultiPrimitiveReordered, type1 ## type2 ## type3 ## type4 
         SERIALISATION_TEST_MULTI_PRIMITVE_REORDERED( uint8_t, int32_t, double, String, type );
 
 SERIALISATION_ALL_TYPES( SERIALISATION_TEST_MULTI_PRIMITVE_REORDERED_VARIATIONS );
+
+#define  SERIALISATION_TEST_PRIMITIVE_SKIPPED( type ) \
+SERIALISATION_TEST2( Skipping, Primitive, SkippedPrimitive< type >, SinglePrimitive< uint8_t >, type, 424141 * ( std::is_same< type, std::string >::value ? 32 : sizeof( type ) ), GetRandom<uint8_t>() );
+
+SERIALISATION_ALL_TYPES( SERIALISATION_TEST_PRIMITIVE_SKIPPED );

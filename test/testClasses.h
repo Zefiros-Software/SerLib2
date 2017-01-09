@@ -33,6 +33,10 @@ class SinglePrimitive
 public:
 
     static constexpr uint8_t index = tIndex;
+    template< typename tC >
+    friend class SkippedPrimitive;
+    template< typename tC >
+    friend class SkippedArray;
 
     void Init()
     {
@@ -62,6 +66,97 @@ public:
 private:
 
     tT mValue;
+};
+
+template< typename tT >
+class SkippedPrimitive
+{
+public:
+
+    void Init()
+    {
+        mValue = GetRandom<tT>();
+        mExtra = GetRandom<uint8_t>();
+    }
+
+    SkippedPrimitive( uint32_t seed )
+    {
+        g_seed = seed;
+        Init();
+    }
+
+    SkippedPrimitive()
+    {
+    }
+
+    template< typename tT >
+    void OnStore( Message< tT > &message )
+    {
+        message.Store( 1, mValue );
+        message.Store( 0, mExtra );
+    }
+
+    void TestEqual( SkippedPrimitive< tT > &other )
+    {
+        ExpectEqual( mValue, other.mValue );
+        ExpectEqual( mExtra, other.mExtra );
+    }
+
+    void TestEqual( SinglePrimitive< uint8_t, 0 > &other )
+    {
+        ExpectEqual( mExtra, other.mValue );
+    }
+
+private:
+
+    tT mValue;
+    uint8_t mExtra;
+};
+
+template< typename tT >
+class SkippedArray
+{
+public:
+
+    void Init()
+    {
+        mValue1.resize( ( GetRandom< uint32_t >() % 8192 ) + 8192 );
+
+        for ( auto it = mValue1.begin(); it != mValue1.end(); ++it )
+        {
+            *it = static_cast<tT>( GetRandom< tT >() );
+        }
+
+        mValue2 = GetRandom<uint8_t>();
+    }
+
+    SkippedArray( uint32_t seed )
+    {
+        g_seed = seed;
+        Init();
+    }
+
+    template< typename tT >
+    void OnStore( Message< tT > &message )
+    {
+        message.Store( 1, mValue1 );
+        message.Store( 0, mValue2 );
+    }
+
+    size_t GetMemberSize()
+    {
+        return mValue1.size() * sizeof( tT );
+    }
+
+    void TestEqual( SinglePrimitive< uint8_t > &t2 )
+    {
+        ExpectEqual( mValue2, t2.mValue );
+    }
+
+private:
+
+    std::vector<tT> mValue1;
+    uint8_t mValue2;
 };
 
 template< typename tT, uint8_t tIndex >
@@ -649,6 +744,35 @@ public:
 };
 
 template< typename tT, uint32_t tLevel >
+class TestClassTreeSkipping
+{
+public:
+
+    TestClassTreeSkipping()
+    {}
+
+    TestClassTreeSkipping( uint32_t seed )
+    {
+        g_seed = seed;
+    }
+
+    template< typename tM >
+    void OnStore( Message< tM > &message )
+    {
+        message.Store( 1, mRight );
+    }
+
+
+    template< typename tC >
+    void TestEqual( tC &t2 )
+    {
+        mRight.TestEqual( t2.mRight );
+    }
+
+    TestClassTreeSkipping < tT, tLevel - 1 > mRight;
+};
+
+template< typename tT, uint32_t tLevel >
 class TestClassTree
 {
 public:
@@ -674,6 +798,11 @@ public:
     {
         mLeft.TestEqual( t2.mLeft );
         mRight.TestEqual( t2.mRight );
+    }
+
+    void TestEqual( TestClassTreeSkipping< tT, tLevel > &other )
+    {
+        mRight.TestEqual( other.mRight );
     }
 
     TestClassTree < tT, tLevel - 1 > mLeft;
@@ -740,6 +869,12 @@ public:
     }
 
     tT mValue;
+};
+
+template< typename tT >
+class TestClassTreeSkipping< tT, 0 >
+    : public TestClassTree< tT, 0 >
+{
 };
 
 template< typename tT >
