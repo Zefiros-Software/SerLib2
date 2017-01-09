@@ -19,3 +19,8 @@ SERIALISATION_TEST( Object, MultiParent, ClassWithMultipleParents< uint32_t >, u
                     GetRandom<uint32_t>() );
 SERIALISATION_TEST( Object, MultiParent, ClassWithMultipleParents< uint64_t >, uint64_t, GenerateZebraValue<uint64_t>(),
                     GetRandom<uint64_t>() );
+
+#define SERIALISATION_PARENT_SKIPPING_TEST( type )                                                                               \
+SERIALISATION_TEST2( Skipping, Parent, SkippedParent< type >, SinglePrimitive< uint8_t >, type, 414141 * ( std::is_same< type, std::string >::value ? 32 : sizeof( type ) ), 414141 );
+
+SERIALISATION_ALL_TYPES( SERIALISATION_PARENT_SKIPPING_TEST );

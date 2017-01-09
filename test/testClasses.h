@@ -32,11 +32,14 @@ class SinglePrimitive
 {
 public:
 
-    static constexpr uint8_t index = tIndex;
     template< typename tC >
     friend class SkippedPrimitive;
     template< typename tC >
     friend class SkippedArray;
+    template< typename tC >
+    friend class SkippedObjectVector;
+    template< typename tC >
+    friend class SkippedParent;
 
     void Init()
     {
@@ -509,6 +512,36 @@ public:
 };
 
 template< typename tT >
+class SkippedParent
+    : public SinglePrimitive< tT >
+{
+public:
+
+    typedef SinglePrimitive< tT > tParent;
+
+    SkippedParent( uint32_t seed )
+    {
+        g_seed = seed;
+        Init();
+        mValue = GetRandom<uint8_t>();
+    }
+
+    template< typename tM >
+    void OnStore( Message< tM > &message )
+    {
+        message.StoreParent< tParent >( 1, this );
+        message.Store( 0, mValue );
+    }
+
+    void TestEqual( SinglePrimitive<uint8_t> &t2 )
+    {
+        ExpectEqual( mValue, t2.mValue );
+    }
+
+    uint8_t mValue;
+};
+
+template< typename tT >
 class ClassWithParentReordered
     : public SinglePrimitive< tT >
 {
@@ -648,7 +681,7 @@ private:
 };
 
 template< typename tT >
-class ObjectVectorWithMember
+class SkippedObjectVector
 {
 public:
 
@@ -661,10 +694,10 @@ public:
             *it = static_cast<tT>( GetRandom< tT >() );
         }
 
-        mValue = GetRandom<tT>();
+        mValue = GetRandom<uint8_t>();
     }
 
-    ObjectVectorWithMember( uint32_t seed )
+    SkippedObjectVector( uint32_t seed )
     {
         g_seed = seed;
         Init();
@@ -673,73 +706,17 @@ public:
     template< typename tM >
     void OnStore( Message< tM > &message )
     {
-        message.Store( 1, mValue );
-        message.Store( 0, mObjects );
+        message.Store( 1, mObjects );
+        message.Store( 0, mValue );
     }
 
-    template< typename tC >
-    void TestEqual( tC &t2 )
+    void TestEqual( SinglePrimitive< uint8_t > &other )
     {
-        ExpectEqual( mObjects.size(), t2.mObjects.size() );
-
-        for ( size_t i = 0, end = mObjects.size(); i < end; ++i )
-        {
-            mObjects[i].TestEqual( t2.mObjects[i] );
-        }
-
-        ExpectEqual( mValue, t2.mValue );
+        ExpectEqual( mValue, other.mValue );
     }
 
     std::vector< SinglePrimitive< tT > > mObjects;
-    tT mValue;
-
-};
-
-template< typename tT >
-class ObjectVectorWithMemberReordered
-{
-public:
-
-    void Init()
-    {
-        mObjects.resize( ( GetRandom< uint32_t >() % 8192 ) + 8192 );
-
-        for ( auto it = mObjects.begin(); it != mObjects.end(); ++it )
-        {
-            *it = static_cast<tT>( GetRandom< tT >() );
-        }
-
-        mValue = GetRandom<tT>();
-    }
-
-    ObjectVectorWithMemberReordered( uint32_t seed )
-    {
-        g_seed = seed;
-        Init();
-    }
-
-    template< typename tM >
-    void OnStore( Message< tM > &message )
-    {
-        message.Store( 1, mValue );
-        message.Store( 0, mObjects );
-    }
-
-    template< typename tC >
-    void TestEqual( tC &t2 )
-    {
-        ExpectEqual( mObjects.size(), t2.mObjects.size() );
-
-        for ( size_t i = 0, end = mObjects.size(); i < end; ++i )
-        {
-            mObjects[i].TestEqual( t2.mObjects[i] );
-        }
-
-        ExpectEqual( mValue, t2.mValue );
-    }
-
-    std::vector< SinglePrimitive< tT > > mObjects;
-    tT mValue;
+    uint8_t mValue;
 
 };
 
