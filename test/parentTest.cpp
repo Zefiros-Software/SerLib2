@@ -24,3 +24,8 @@ SERIALISATION_TEST( Object, MultiParent, ClassWithMultipleParents< uint64_t >, u
 SERIALISATION_TEST2( Skipping, Parent, SkippedParent< type >, SinglePrimitive< uint8_t >, type, 414141 * ( std::is_same< type, std::string >::value ? 32 : sizeof( type ) ), 414141 );
 
 SERIALISATION_ALL_TYPES( SERIALISATION_PARENT_SKIPPING_TEST );
+
+#define SERIALISATION_PARENT_NON_EXISTING_TEST( type )                                                                               \
+SERIALISATION_TEST2( NonExisting, Parent, SinglePrimitive< uint8_t >, SkippedParent< type >, type, 414141 * ( std::is_same< type, std::string >::value ? 32 : sizeof( type ) ), 414141 );
+
+SERIALISATION_ALL_TYPES( SERIALISATION_PARENT_NON_EXISTING_TEST );

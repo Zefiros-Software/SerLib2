@@ -35,3 +35,8 @@ SERIALISATION_ALL_TYPES( SERIALISATION_ARRAY_REORDERED_REVERSE_TEST );
 SERIALISATION_TEST2( Skipping, Vector, SkippedArray< type >, SinglePrimitive<uint8_t>, type, 42 * ( std::is_same< type, std::string >::value ? 32 : sizeof( type ) ), GetRandom<uint32_t>() );
 
 SERIALISATION_ALL_TYPES( SERIALISATION_ARRAY_SKIPPED_TEST );
+
+#define SERIALISATION_ARRAY_NON_EXISTING_TEST( type )                                            \
+SERIALISATION_TEST2( NonExisting, Vector, SinglePrimitive<uint8_t>, SkippedArray< type >, type, 42 * ( std::is_same< type, std::string >::value ? 32 : sizeof( type ) ), GetRandom<uint32_t>() );
+
+SERIALISATION_ALL_TYPES( SERIALISATION_ARRAY_NON_EXISTING_TEST );

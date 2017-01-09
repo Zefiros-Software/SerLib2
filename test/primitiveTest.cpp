@@ -63,3 +63,8 @@ SERIALISATION_ALL_TYPES( SERIALISATION_TEST_MULTI_PRIMITVE_REORDERED_VARIATIONS 
 SERIALISATION_TEST2( Skipping, Primitive, SkippedPrimitive< type >, SinglePrimitive< uint8_t >, type, 424141 * ( std::is_same< type, std::string >::value ? 32 : sizeof( type ) ), GetRandom<uint8_t>() );
 
 SERIALISATION_ALL_TYPES( SERIALISATION_TEST_PRIMITIVE_SKIPPED );
+
+#define  SERIALISATION_TEST_PRIMITIVE_NON_EXISTING_TEST( type ) \
+SERIALISATION_TEST2( NonExisting, Primitive, SinglePrimitive< uint8_t >, SkippedPrimitive< type >, type, 424141 * ( std::is_same< type, std::string >::value ? 32 : sizeof( type ) ), GetRandom<uint8_t>() );
+
+SERIALISATION_ALL_TYPES( SERIALISATION_TEST_PRIMITIVE_NON_EXISTING_TEST );

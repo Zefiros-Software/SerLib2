@@ -66,6 +66,30 @@ public:
         ExpectEqual( mValue, other.mValue );
     }
 
+    template< typename tC >
+    void TestEqual( SkippedPrimitive< tC > &other )
+    {
+        other.TestEqual( *this );
+    }
+
+    template< typename tC >
+    void TestEqual( SkippedArray< tC > &other )
+    {
+        other.TestEqual( *this );
+    }
+
+    template< typename tC >
+    void TestEqual( SkippedObjectVector< tC > &other )
+    {
+        other.TestEqual( *this );
+    }
+
+    template< typename tC >
+    void TestEqual( SkippedParent< tC > &other )
+    {
+        other.TestEqual( *this );
+    }
+
 private:
 
     tT mValue;
@@ -223,7 +247,8 @@ public:
     void TestEqual( MultiPrimitive< tIndex, tT, tRest... > &other )
     {
         ExpectEqual( mValue, other.mValue );
-        MultiPrimitive < tIndex + 1, tRest... >::TestEqual( other );
+        MultiPrimitive < tIndex + 1, tRest... >::TestEqual( static_cast <  MultiPrimitive < tIndex + 1,
+                                                            tRest... > & >( other ) );
     }
 
     tT mValue;
@@ -263,13 +288,15 @@ public:
     void TestEqual( MultiPrimitiveReordered< tIndex, tT, tRest... > &other )
     {
         ExpectEqual( mValue, other.mValue );
-        MultiPrimitiveReordered < tIndex + 1, tRest... >::TestEqual( other );
+        MultiPrimitiveReordered < tIndex + 1, tRest... >::TestEqual( static_cast < MultiPrimitiveReordered < tIndex + 1,
+                                                                     tRest... > & >( other ) );
     }
 
     void TestEqual( MultiPrimitive< tIndex, tT, tRest... > &other )
     {
         ExpectEqual( mValue, other.mValue );
-        MultiPrimitiveReordered < tIndex + 1, tRest... >::TestEqual( other );
+        MultiPrimitiveReordered < tIndex + 1, tRest... >::TestEqual( static_cast < MultiPrimitive < tIndex + 1,
+                                                                     tRest... > & >( other ) );
     }
 
     tT mValue;
@@ -620,10 +647,10 @@ public:
 
     void TestEqual( ClassWithMultipleParents< tT > &t2 )
     {
-        tParent1::TestEqual( static_cast< ClassWithParent & >( t2 ) );
-        tParent2::TestEqual( t2 );
-        tParent3::TestEqual( t2 );
-        tParent4::TestEqual( t2 );
+        tParent1::TestEqual( static_cast<tParent1 &>( t2 ) );
+        tParent2::TestEqual( static_cast<tParent2 &>( t2 ) );
+        tParent3::TestEqual( static_cast<tParent3 &>( t2 ) );
+        tParent4::TestEqual( static_cast<tParent4 &>( t2 ) );
 
         mObject.TestEqual( t2.mObject );
 
