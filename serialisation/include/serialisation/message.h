@@ -93,6 +93,22 @@ public:
 
     SERIALISATION_ALL_TYPES( SERIALISATION_INTERFACE_PRIMITIVE_VECTOR );
 
+    template< typename tParent, typename tSerialisable >
+    void StoreParent( uint8_t index, tSerialisable &serialisable )
+    {
+        SERIALISATION_ASSERT_PARENT_INDEX_IN_RANGE( index );
+
+        mInternalMessage.StoreObject< tParent >( serialisable, index, *this );
+    }
+
+    template< typename tParent, typename tSerialisable >
+    void StoreParent( uint8_t index, tSerialisable *serialisable )
+    {
+        SERIALISATION_ASSERT_PARENT_INDEX_IN_RANGE( index );
+
+        mInternalMessage.StoreObject< tParent >( *serialisable, index, *this );
+    }
+
     template< typename tSerialisable >
     void Enter( tSerialisable &serialisable )
     {
