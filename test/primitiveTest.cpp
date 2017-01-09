@@ -44,7 +44,7 @@ SERIALISATION_TEST_SINGLE_PRIMITIVE_INDEXED_NUMERIC( type, 27 );
 SERIALISATION_ALL_NUMERIC_TYPES( SERIALISATION_TEST_SINGLE_PRIMITIVE_INDEXED_NUMERIC_ALL_INDICES );
 
 #define  SERIALISATION_TEST_MULTI_PRIMITVE( type1, type2, type3, type4, type5 )                         \
-SERIALISATION_TEST(  MultiPrimitive, type1 ## type2 ## type3 ## type4 ## type5, SERIALISATION_PP_TEMPLATE6( MultiPrimitive, 0, type1, type2, type3, type4, type5 ), type5, GenerateInvZebraValue<type1>(), GetRandom< type1 >() );
+SERIALISATION_TEST(  MultiPrimitive, type1 ## type2 ## type3 ## type4 ## type5, SERIALISATION_PP_TEMPLATE6( MultiPrimitive, 0, type1, type2, type3, type4, type5 ), type5, 424142 * sizeof( type1 ), 424142 );
 
 #define SERIALISATION_TEST_MULTI_PRIMITVE_VARIATIONS( type ) \
         SERIALISATION_TEST_MULTI_PRIMITVE( uint8_t, int32_t, double, String, type );

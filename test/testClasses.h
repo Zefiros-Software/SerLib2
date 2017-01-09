@@ -34,13 +34,17 @@ public:
 
     static constexpr uint8_t index = tIndex;
 
-    SinglePrimitive()
-        : mValue( GetRandom< tT >() )
+    void Init()
     {
+        mValue = GetRandom<tT>();
     }
 
     SinglePrimitive( const tT &val )
         : mValue( val )
+    {
+    }
+
+    SinglePrimitive()
     {
     }
 
@@ -64,12 +68,6 @@ template< typename tT, uint8_t tIndex >
 class SinglePrimitiveIndexed
 {
 public:
-
-    SinglePrimitiveIndexed()
-        : mValue( GetRandom< tT >() ),
-          mIndex( tIndex )
-    {
-    }
 
     SinglePrimitiveIndexed( const tT &val )
         : mValue( val ),
@@ -120,16 +118,21 @@ class MultiPrimitive
 {
 public:
 
-    MultiPrimitive()
-        : mValue( GetRandom< tT >() ),
-          MultiPrimitive < tIndex + 1, tRest... > ()
+    void Init()
     {
+        mValue = GetRandom< tT >();
+        MultiPrimitive < tIndex + 1, tRest... >::Init();
     }
 
-    MultiPrimitive( const tT &val )
-        : mValue( val ),
-          MultiPrimitive < tIndex + 1, tRest... > ()
+    MultiPrimitive()
     {
+
+    }
+
+    MultiPrimitive( uint32_t seed )
+    {
+        g_seed = seed;
+        Init();
     }
 
     template< typename tM >
@@ -161,7 +164,7 @@ class TestClassArray
 {
 public:
 
-    TestClassArray()
+    void Init()
     {
         mValue1.resize( ( GetRandom< uint32_t >() % 8192 ) + 8192 );
 
@@ -172,9 +175,9 @@ public:
     }
 
     TestClassArray( uint32_t seed )
-        : TestClassArray()
     {
         g_seed = seed;
+        Init();
     }
 
     template< typename tT >
@@ -205,13 +208,8 @@ private:
 
 template< typename tT >
 class NestedObject
-    : public SinglePrimitive< tT >
 {
 public:
-
-    NestedObject()
-        : mObject()
-    {}
 
     NestedObject( const tT &value )
         : mValue( value ),
