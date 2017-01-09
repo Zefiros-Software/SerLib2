@@ -237,6 +237,110 @@ private:
 };
 
 template< typename tT >
+class TestClassArrayWithMember
+{
+public:
+
+    void Init()
+    {
+        mValue1.resize( ( GetRandom< uint32_t >() % 8192 ) + 8192 );
+
+        for ( auto it = mValue1.begin(); it != mValue1.end(); ++it )
+        {
+            *it = static_cast<tT>( GetRandom< tT >() );
+        }
+
+        mValue2 = GetRandom< tT >();
+    }
+
+    TestClassArrayWithMember( uint32_t seed )
+    {
+        g_seed = seed;
+        Init();
+    }
+
+    template< typename tT >
+    void OnStore( Message< tT > &message )
+    {
+        message.Store( 0, mValue1 );
+        message.Store( 1, mValue2 );
+    }
+
+    size_t GetMemberSize()
+    {
+        return mValue1.size() * sizeof( tT );
+    }
+
+    template< typename tC >
+    void TestEqual( tC &t2 )
+    {
+        ExpectEqual( mValue1.size(), t2.mValue1.size() );
+
+        for ( size_t i = 0, end = mValue1.size(); i < end; ++i )
+        {
+            ExpectEqual( mValue1[i], t2.mValue1[i] );
+        }
+
+        ExpectEqual( mValue2, t2.mValue2 );
+    }
+
+    std::vector<tT> mValue1;
+    tT mValue2;
+};
+
+template< typename tT >
+class TestClassArrayWithMemberReordered
+{
+public:
+
+    void Init()
+    {
+        mValue1.resize( ( GetRandom< uint32_t >() % 8192 ) + 8192 );
+
+        for ( auto it = mValue1.begin(); it != mValue1.end(); ++it )
+        {
+            *it = static_cast<tT>( GetRandom< tT >() );
+        }
+
+        mValue2 = GetRandom< tT >();
+    }
+
+    TestClassArrayWithMemberReordered( uint32_t seed )
+    {
+        g_seed = seed;
+        Init();
+    }
+
+    template< typename tT >
+    void OnStore( Message< tT > &message )
+    {
+        message.Store( 1, mValue2 );
+        message.Store( 0, mValue1 );
+    }
+
+    size_t GetMemberSize()
+    {
+        return mValue1.size() * sizeof( tT );
+    }
+
+    template< typename tC >
+    void TestEqual( tC &t2 )
+    {
+        ExpectEqual( mValue1.size(), t2.mValue1.size() );
+
+        for ( size_t i = 0, end = mValue1.size(); i < end; ++i )
+        {
+            ExpectEqual( mValue1[i], t2.mValue1[i] );
+        }
+
+        ExpectEqual( mValue2, t2.mValue2 );
+    }
+
+    std::vector<tT> mValue1;
+    tT mValue2;
+};
+
+template< typename tT >
 class NestedObject
 {
 public:
@@ -260,8 +364,6 @@ public:
 
         mObject.TestEqual( t2.mObject );
     }
-
-private:
 
     tT mValue;
 
@@ -296,7 +398,8 @@ public:
         message.Store( 2, mValue );
     }
 
-    void TestEqual( ClassWithParent< tT > &t2 )
+    template< typename tC >
+    void TestEqual( tC &t2 )
     {
         tParent::TestEqual( t2 );
 
@@ -305,7 +408,49 @@ public:
         ExpectEqual( mValue, t2.mValue );
     }
 
-private:
+    tT mValue;
+
+    SinglePrimitive< tT > mObject;
+};
+
+template< typename tT >
+class ClassWithParentReordered
+    : public SinglePrimitive< tT >
+{
+public:
+
+    typedef SinglePrimitive< tT > tParent;
+
+    ClassWithParentReordered()
+        : tParent(),
+          mObject()
+    {}
+
+    ClassWithParentReordered( const tT &value )
+        : tParent( value ),
+          mValue( value ),
+          mObject( value )
+    {
+    }
+
+    template< typename tM >
+    void OnStore( Message< tM > &message )
+    {
+        message.Store( 2, mValue );
+        message.Store( 1, mObject );
+        message.StoreParent< tParent >( 0, this );
+    }
+
+
+    template< typename tC >
+    void TestEqual( tC &t2 )
+    {
+        tParent::TestEqual( t2 );
+
+        mObject.TestEqual( t2.mObject );
+
+        ExpectEqual( mValue, t2.mValue );
+    }
 
     tT mValue;
 
@@ -347,7 +492,7 @@ public:
 
     void TestEqual( ClassWithMultipleParents< tT > &t2 )
     {
-        tParent1::TestEqual( t2 );
+        tParent1::TestEqual( static_cast< ClassWithParent & >( t2 ) );
         tParent2::TestEqual( t2 );
         tParent3::TestEqual( t2 );
         tParent4::TestEqual( t2 );
@@ -407,6 +552,102 @@ private:
 
 };
 
+template< typename tT >
+class ObjectVectorWithMember
+{
+public:
+
+    void Init()
+    {
+        mObjects.resize( ( GetRandom< uint32_t >() % 8192 ) + 8192 );
+
+        for ( auto it = mObjects.begin(); it != mObjects.end(); ++it )
+        {
+            *it = static_cast<tT>( GetRandom< tT >() );
+        }
+
+        mValue = GetRandom<tT>();
+    }
+
+    ObjectVectorWithMember( uint32_t seed )
+    {
+        g_seed = seed;
+        Init();
+    }
+
+    template< typename tM >
+    void OnStore( Message< tM > &message )
+    {
+        message.Store( 1, mValue );
+        message.Store( 0, mObjects );
+    }
+
+    template< typename tC >
+    void TestEqual( tC &t2 )
+    {
+        ExpectEqual( mObjects.size(), t2.mObjects.size() );
+
+        for ( size_t i = 0, end = mObjects.size(); i < end; ++i )
+        {
+            mObjects[i].TestEqual( t2.mObjects[i] );
+        }
+
+        ExpectEqual( mValue, t2.mValue );
+    }
+
+    std::vector< SinglePrimitive< tT > > mObjects;
+    tT mValue;
+
+};
+
+template< typename tT >
+class ObjectVectorWithMemberReordered
+{
+public:
+
+    void Init()
+    {
+        mObjects.resize( ( GetRandom< uint32_t >() % 8192 ) + 8192 );
+
+        for ( auto it = mObjects.begin(); it != mObjects.end(); ++it )
+        {
+            *it = static_cast<tT>( GetRandom< tT >() );
+        }
+
+        mValue = GetRandom<tT>();
+    }
+
+    ObjectVectorWithMemberReordered( uint32_t seed )
+    {
+        g_seed = seed;
+        Init();
+    }
+
+    template< typename tM >
+    void OnStore( Message< tM > &message )
+    {
+        message.Store( 1, mValue );
+        message.Store( 0, mObjects );
+    }
+
+    template< typename tC >
+    void TestEqual( tC &t2 )
+    {
+        ExpectEqual( mObjects.size(), t2.mObjects.size() );
+
+        for ( size_t i = 0, end = mObjects.size(); i < end; ++i )
+        {
+            mObjects[i].TestEqual( t2.mObjects[i] );
+        }
+
+        ExpectEqual( mValue, t2.mValue );
+    }
+
+    std::vector< SinglePrimitive< tT > > mObjects;
+    tT mValue;
+
+};
+
 template< typename tT, uint32_t tLevel >
 class TestClassTree
 {
@@ -427,7 +668,9 @@ public:
         message.Store( 1, mRight );
     }
 
-    void TestEqual( TestClassTree< tT, tLevel > &t2 )
+
+    template< typename tC >
+    void TestEqual( tC &t2 )
     {
         mLeft.TestEqual( t2.mLeft );
         mRight.TestEqual( t2.mRight );
@@ -463,7 +706,9 @@ public:
         mRight.TestEqual( t2.mRight );
     }
 
-    void TestEqual( TestClassTree< tT, tLevel > &t2 )
+
+    template< typename tC >
+    void TestEqual( tC &t2 )
     {
         mLeft.TestEqual( t2.mLeft );
         mRight.TestEqual( t2.mRight );
@@ -488,7 +733,8 @@ public:
         message.Store( 0, mValue );
     }
 
-    void TestEqual( TestClassTree< tT, 0 > &t2 )
+    template< typename tC >
+    void TestEqual( tC &t2 )
     {
         ExpectEqual( mValue, t2.mValue );
     }
@@ -511,12 +757,8 @@ public:
         message.Store( 0, mValue );
     }
 
-    void TestEqual( TestClassTreeReordered< tT, 0 > &t2 )
-    {
-        ExpectEqual( mValue, t2.mValue );
-    }
-
-    void TestEqual( TestClassTree< tT, 0 > &t2 )
+    template< typename tC >
+    void TestEqual( tC &t2 )
     {
         ExpectEqual( mValue, t2.mValue );
     }
