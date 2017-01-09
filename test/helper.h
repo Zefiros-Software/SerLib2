@@ -146,6 +146,13 @@ inline float GetRandom< float >()
     return ( float )GetFastRand() / ( float )( std::numeric_limits< uint32_t >::max() / ( 1e-8 / 3.0f ) );
 }
 
+template<>
+inline bool GetRandom< bool >()
+{
+    // return with max an arbitrary number
+    return ( GetRandom<uint32_t>() % 2 ) == 1;
+}
+
 
 template<>
 inline double GetRandom< double >()
@@ -154,7 +161,7 @@ inline double GetRandom< double >()
     return ( double )GetFastRand() / ( float )( std::numeric_limits< uint32_t >::max() / ( 1e-16 / 3.0f ) );
 }
 
-std::string GenerateRandomString();
+std::string GenerateRandomString( bool random = true, uint32_t index = 0 );
 
 template<>
 inline std::string GetRandom<std::string>()

@@ -171,10 +171,11 @@ public:
         }
     }
 
-    template< typename tT >
-    TestClassArray( const tT & )
+    TestClassArray( uint32_t seed )
         : TestClassArray()
-    {}
+    {
+        g_seed = seed;
+    }
 
     template< typename tT >
     void OnStore( Message< tT > &message )
