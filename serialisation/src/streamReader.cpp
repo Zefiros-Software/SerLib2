@@ -104,7 +104,7 @@ SERIALISATION_INLINE size_t StreamReader::ReadSize()
 
 SERIALISATION_INLINE void StreamReader::SeekG( std::ios::off_type count )
 {
-    mStream->seekg( count, std::ios_base::beg );
+    mStream->seekg( count, std::ios_base::cur );
 }
 
 SERIALISATION_INLINE std::streamsize StreamReader::GCount()

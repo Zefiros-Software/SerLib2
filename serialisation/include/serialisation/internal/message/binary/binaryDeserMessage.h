@@ -439,12 +439,73 @@ private:
         }
     }
 
+    void SkipArray( uint8_t flags, Type::Type subType, size_t size )
+    {
+        switch ( subType )
+        {
+        case Type::Object:
+            {
+                bool objectSkipping = mObjectSkipping;
+
+                if ( !objectSkipping )
+                {
+                    mObjectSkipping = true;
+                }
+
+                for ( size_t i = 0; i < size; ++i )
+                {
+                    ReadRemaining();
+                }
+
+                if ( !objectSkipping )
+                {
+                    mObjectSkipping = false;
+                }
+            }
+            break;
+
+        case Type::String:
+            {
+                size_t strSize;
+
+                for ( size_t i = 0; i < size; ++i )
+                {
+                    strSize = mStreamReader.ReadSize();
+                    mStreamReader.Skip( strSize );
+                }
+            }
+            break;
+
+        case Type::UInt8:
+        case Type::UInt16:
+        case Type::UInt32:
+        case Type::UInt64:
+            {
+                mStreamReader.Skip( size * GetSize( subType ) );
+            }
+            break;
+
+        default:
+            assert( false &&
+                    "Whoops! Something went haywire. Please try to reproduce this exception in an example as small as possible and submit it as an issue. Thanks!" );
+            break;
+        }
+    }
+
     void SkipVariable( Type::Type type )
     {
         switch ( type )
         {
-        //         case Type::Array:
-        //             break;
+        case Type::Array:
+            {
+                uint8_t flags;
+                Type::Type subType;
+                size_t size;
+                ReadArrayHeader( flags, subType, size );
+
+                SkipArray( flags, subType, size );
+            }
+            break;
 
         case Type::Object:
             {
@@ -469,19 +530,10 @@ private:
             break;
 
         case Type::UInt8:
-            mStreamReader.Skip( sizeof( uint8_t ) );
-            break;
-
         case Type::UInt16:
-            mStreamReader.Skip( sizeof( uint16_t ) );
-            break;
-
         case Type::UInt32:
-            mStreamReader.Skip( sizeof( uint32_t ) );
-            break;
-
         case Type::UInt64:
-            mStreamReader.Skip( sizeof( uint64_t ) );
+            mStreamReader.Skip( GetSize( type ) );
             break;
 
         default:

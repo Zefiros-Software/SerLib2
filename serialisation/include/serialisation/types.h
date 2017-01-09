@@ -23,6 +23,7 @@
 #ifndef __SERIALISATION_TYPES_H__
 #define __SERIALISATION_TYPES_H__
 
+#include <assert.h>
 #include <stdint.h>
 #include <string>
 
@@ -206,6 +207,44 @@ namespace Type
     constexpr Type GetHeaderEnum< bool >()
     {
         return GetEnum<uint8_t>();
+    }
+
+    inline size_t GetSize( Type type )
+    {
+        switch ( type )
+        {
+        case Type::Boolean:
+        case Type::UInt8:
+        case Type::SInt8:
+            return 1;
+            break;
+
+        case Type::UInt16:
+        case Type::SInt16:
+            return 2;
+            break;
+
+        case Type::UInt32:
+        case Type::SInt32:
+        case Type::Float:
+            return 4;
+            break;
+
+        case Type::UInt64:
+        case Type::SInt64:
+        case Type::Double:
+            return 8;
+            break;
+
+            break;
+
+        default:
+            assert( false &&
+                    "Whoops! Something went haywire. Please try to reproduce this exception in an example as small as possible and submit it as an issue. Thanks!" );
+            break;
+        }
+
+        return 1;
     }
 }
 
