@@ -104,9 +104,7 @@ public:
     template< typename tParent, typename tSerialisable >
     void StoreParent( uint8_t index, tSerialisable *serialisable )
     {
-        SERIALISATION_ASSERT_PARENT_INDEX_IN_RANGE( index );
-
-        mInternalMessage.StoreObject< tParent >( *serialisable, index, *this );
+        StoreParent< tParent, tSerialisable >( index, *serialisable );
     }
 
     template< typename tSerialisable >

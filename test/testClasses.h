@@ -92,26 +92,6 @@ private:
     uint8_t mIndex;
 };
 
-template< typename tT, typename tLevel >
-class MultiPrimitiveLeveled
-{
-public:
-
-    static constexpr uint8_t index = tLevel::index + 1;
-
-    template< typename tM >
-    void OnStore( Message< tM > &message )
-    {
-        message.Store( index, mValue );
-        mLevel.OnStore( message );
-    }
-
-private:
-
-    tT mValue;
-    tLevel mLevel;
-};
-
 template< uint8_t tIndex, typename tT, typename... tRest >
 class MultiPrimitive
     : public MultiPrimitive < tIndex + 1, tRest... >
@@ -236,6 +216,145 @@ private:
     tT mValue;
 
     SinglePrimitive< tT > mObject;
+};
+
+template< typename tT >
+class ClassWithParent
+    : public SinglePrimitive< tT >
+{
+public:
+
+    typedef SinglePrimitive< tT > tParent;
+
+    ClassWithParent()
+        : tParent(),
+          mObject()
+    {}
+
+    ClassWithParent( const tT &value )
+        : tParent( value ),
+          mValue( value ),
+          mObject( value )
+    {
+    }
+
+    template< typename tM >
+    void OnStore( Message< tM > &message )
+    {
+        message.StoreParent< tParent >( 0, this );
+        message.Store( 1, mObject );
+        message.Store( 2, mValue );
+    }
+
+    void TestEqual( ClassWithParent< tT > &t2 )
+    {
+        tParent::TestEqual( t2 );
+
+        mObject.TestEqual( t2.mObject );
+
+        ExpectEqual( mValue, t2.mValue );
+    }
+
+private:
+
+    tT mValue;
+
+    SinglePrimitive< tT > mObject;
+};
+
+template< typename tT >
+class ClassWithMultipleParents
+    : public ClassWithParent< tT >, public SinglePrimitive< float >, public SinglePrimitive< uint8_t >,
+      public SinglePrimitive< uint16_t >
+{
+public:
+
+    typedef ClassWithParent< tT > tParent1;
+    typedef SinglePrimitive< float > tParent2;
+    typedef SinglePrimitive< uint8_t > tParent3;
+    typedef SinglePrimitive< uint16_t > tParent4;
+
+    ClassWithMultipleParents( const tT &value )
+        : mValue( value ),
+          mObject( value ),
+          tParent1( value ),
+          tParent2( value ),
+          tParent3( value ),
+          tParent4( value )
+    {
+    }
+
+    template< typename tM >
+    void OnStore( Message< tM > &message )
+    {
+        message.StoreParent< tParent1 >( 0, this );
+        message.StoreParent< tParent2 >( 1, this );
+        message.StoreParent< tParent3 >( 2, this );
+        message.StoreParent< tParent4 >( 3, this );
+        message.Store( 1, mObject );
+        message.Store( 2, mValue );
+    }
+
+    void TestEqual( ClassWithMultipleParents< tT > &t2 )
+    {
+        tParent1::TestEqual( t2 );
+        tParent2::TestEqual( t2 );
+        tParent3::TestEqual( t2 );
+        tParent4::TestEqual( t2 );
+
+        mObject.TestEqual( t2.mObject );
+
+        ExpectEqual( mValue, t2.mValue );
+    }
+
+private:
+
+    tT mValue;
+
+    SinglePrimitive< tT > mObject;
+};
+
+template< typename tT >
+class ObjectVector
+{
+public:
+
+    void Init()
+    {
+        mObjects.resize( ( GetRandom< uint32_t >() % 8192 ) + 8192 );
+
+        for ( auto it = mObjects.begin(); it != mObjects.end(); ++it )
+        {
+            *it = static_cast<tT>( GetRandom< tT >() );
+        }
+    }
+
+    ObjectVector( uint32_t seed )
+    {
+        g_seed = seed;
+        Init();
+    }
+
+    template< typename tM >
+    void OnStore( Message< tM > &message )
+    {
+        message.Store( 0, mObjects );
+    }
+
+    void TestEqual( ObjectVector< tT > &t2 )
+    {
+        ExpectEqual( mObjects.size(), t2.mObjects.size() );
+
+        for ( size_t i = 0, end = mObjects.size(); i < end; ++i )
+        {
+            mObjects[i].TestEqual( t2.mObjects[i] );
+        }
+    }
+
+private:
+
+    std::vector< SinglePrimitive< tT > > mObjects;
+
 };
 
 template< typename tT, uint32_t tLevel >
