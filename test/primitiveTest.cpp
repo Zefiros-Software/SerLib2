@@ -14,9 +14,6 @@ SERIALISATION_TEST( SinglePrimitive, FT, SinglePrimitive< bool >, bool, false, t
 SERIALISATION_TEST( SinglePrimitive, TF, SinglePrimitive< bool >, bool, true, false );
 SERIALISATION_TEST( SinglePrimitive, TT, SinglePrimitive< bool >, bool, true, true );
 
-#define SERIALISATION_PP_TEMPLATE2( tClass, t1, t2 ) tClass< t1, t2 >
-#define SERIALISATION_PP_TEMPLATE6( tClass, t1, t2, t3, t4, t5, t6 ) tClass< t1, t2, t3, t4, t5, t6 >
-
 #define SERIALISATION_TEST_SINGLE_PRIMITIVE_INDEXED_NUMERIC( type, index )                                                                                                                   \
 SERIALISATION_TEST( SinglePrimitiveIndexed, Max ## _ ## index, SERIALISATION_PP_TEMPLATE2( SinglePrimitiveIndexed, type, index ), type, std::numeric_limits< type >::max(), ( type )( 1 ) ); \
 SERIALISATION_TEST( SinglePrimitiveIndexed, Min ## _ ## index, SERIALISATION_PP_TEMPLATE2( SinglePrimitiveIndexed, type, index ), type, std::numeric_limits< type >::min(), ( type )( 1 ) ); \

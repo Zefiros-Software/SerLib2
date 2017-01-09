@@ -243,4 +243,7 @@ TEST( P( test ), type ## name ## _backwards )                                   
     tc1.TestEqual( tc2 );                                                           \
 }
 
+#define SERIALISATION_PP_TEMPLATE2( tClass, t1, t2 ) tClass< t1, t2 >
+#define SERIALISATION_PP_TEMPLATE6( tClass, t1, t2, t3, t4, t5, t6 ) tClass< t1, t2, t3, t4, t5, t6 >
+
 #endif

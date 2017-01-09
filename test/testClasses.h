@@ -240,5 +240,62 @@ private:
     SinglePrimitive< tT > mObject;
 };
 
+template< typename tT, uint32_t tLevel >
+class TestClassTree
+{
+public:
+
+    TestClassTree()
+    {}
+
+    TestClassTree( uint32_t seed )
+    {
+        g_seed = seed;
+    }
+
+    template< typename tM >
+    void OnStore( Message< tM > &message )
+    {
+        message.Store( 0, mLeft );
+        message.Store( 1, mRight );
+    }
+
+    void TestEqual( TestClassTree< tT, tLevel > &t2 )
+    {
+        mLeft.TestEqual( t2.mLeft );
+        mRight.TestEqual( t2.mRight );
+    }
+
+private:
+
+    TestClassTree < tT, tLevel - 1 > mLeft;
+    TestClassTree < tT, tLevel - 1 > mRight;
+};
+
+template< typename tT >
+class TestClassTree< tT, 0 >
+{
+public:
+
+    TestClassTree()
+        : mValue( GetRandom<tT>() )
+    {}
+
+    template< typename tM >
+    void OnStore( Message< tM > &message )
+    {
+        message.Store( 0, mValue );
+    }
+
+    void TestEqual( TestClassTree< tT, 0 > &t2 )
+    {
+        ExpectEqual( mValue, t2.mValue );
+    }
+
+private:
+
+    tT mValue;
+};
+
 
 #endif
