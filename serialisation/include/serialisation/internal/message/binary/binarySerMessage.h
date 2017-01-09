@@ -108,7 +108,7 @@ public:
 
         for ( auto &t : value )
         {
-            SerialisationHelper< tSerialisable >::OnStore( message, serialisable );
+            SerialisationHelper< tSerialisable >::OnStore( message, t );
             WritePrimitive( Util::CreateHeader( 0, Type::Terminator ) );
         }
     }

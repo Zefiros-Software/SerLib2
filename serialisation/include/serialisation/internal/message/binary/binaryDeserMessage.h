@@ -270,13 +270,17 @@ private:
     template< typename tSerialisable, typename tMessage  >
     void ReadObjectVector( std::vector<tSerialisable> &value, Type::Type type, tMessage &message )
     {
-
         uint8_t flags;
         Type::Type subType;
         size_t size;
         ReadArrayHeader( flags, subType, size );
 
-        StoreEntryPoint( serialisable, message );
+        value.resize( size );
+
+        for ( auto &t : value )
+        {
+            StoreEntryPoint( t, message );
+        }
     }
 
     template< typename tT >
