@@ -203,4 +203,42 @@ private:
     std::vector<tT> mValue1;
 };
 
+template< typename tT >
+class NestedObject
+    : public SinglePrimitive< tT >
+{
+public:
+
+    NestedObject()
+        : mObject()
+    {}
+
+    NestedObject( const tT &value )
+        : mValue( value ),
+          mObject( value )
+    {
+    }
+
+    template< typename tM >
+    void OnStore( Message< tM > &message )
+    {
+        message.Store( 0, mValue );
+        message.Store( 1, mObject );
+    }
+
+    void TestEqual( NestedObject< tT > &t2 )
+    {
+        ExpectEqual( mValue, t2.mValue );
+
+        mObject.TestEqual( t2.mObject );
+    }
+
+private:
+
+    tT mValue;
+
+    SinglePrimitive< tT > mObject;
+};
+
+
 #endif
