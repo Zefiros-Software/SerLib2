@@ -243,6 +243,30 @@ TEST( P( test ), type ## name ## _backwards )                                   
     tc1.TestEqual( tc2 );                                                           \
 }
 
+#define SERIALISATION_TEST2( test, name, testClass, testClass2, type, init1, init2 )    \
+TEST( P( test ), type ## name ## _stream )                                              \
+{                                                                                       \
+    testClass tc1( init1 );                                                             \
+    testClass2 tc2( init2 );                                                            \
+    SimpleSerialiseDeserialiseStream( tc1, tc2 );                                       \
+    tc1.TestEqual( tc2 );                                                               \
+}                                                                                       \
+TEST( P( test ), type ## name ## _file )                                                \
+{                                                                                       \
+    testClass tc1( init1 );                                                             \
+    testClass2 tc2( init2 );                                                            \
+    SimpleSerialiseDeserialiseFile( tc1, tc2 );                                         \
+    tc1.TestEqual( tc2 );                                                               \
+}                                                                                       \
+TEST( P( test ), type ## name ## _backwards )                                           \
+{                                                                                       \
+    testClass tc1( init1 );                                                             \
+    testClass2 tc2( init2 );                                                            \
+    std::string file = TEST_FILE( test, type ## name );                                 \
+    SimpleSerialiseDeserialiseBackwards( file, tc1, tc2 );                              \
+    tc1.TestEqual( tc2 );                                                               \
+}
+
 #define SERIALISATION_PP_TEMPLATE2( tClass, t1, t2 ) tClass< t1, t2 >
 #define SERIALISATION_PP_TEMPLATE6( tClass, t1, t2, t3, t4, t5, t6 ) tClass< t1, t2, t3, t4, t5, t6 >
 

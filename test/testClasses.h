@@ -128,13 +128,63 @@ public:
         MultiPrimitive < tIndex + 1, tRest... >::TestEqual( other );
     }
 
-private:
+    tT mValue;
+};
+
+
+template< uint8_t tIndex, typename tT, typename... tRest >
+class MultiPrimitiveReordered
+    : public MultiPrimitiveReordered < tIndex + 1, tRest... >
+{
+public:
+
+    void Init()
+    {
+        mValue = GetRandom< tT >();
+        MultiPrimitiveReordered < tIndex + 1, tRest... >::Init();
+    }
+
+    MultiPrimitiveReordered()
+    {
+
+    }
+
+    MultiPrimitiveReordered( uint32_t seed )
+    {
+        g_seed = seed;
+        Init();
+    }
+
+    template< typename tM >
+    void OnStore( Message< tM > &message )
+    {
+        MultiPrimitiveReordered < tIndex + 1, tRest... >::OnStore( message );
+        message.Store( tIndex, mValue );
+    }
+
+    void TestEqual( MultiPrimitiveReordered< tIndex, tT, tRest... > &other )
+    {
+        ExpectEqual( mValue, other.mValue );
+        MultiPrimitiveReordered < tIndex + 1, tRest... >::TestEqual( other );
+    }
+
+    void TestEqual( MultiPrimitive< tIndex, tT, tRest... > &other )
+    {
+        ExpectEqual( mValue, other.mValue );
+        MultiPrimitiveReordered < tIndex + 1, tRest... >::TestEqual( other );
+    }
 
     tT mValue;
 };
 
 template< uint8_t tIndex, typename tT >
 class MultiPrimitive< tIndex, tT >
+    : public SinglePrimitive< tT, tIndex >
+{
+};
+
+template< uint8_t tIndex, typename tT >
+class MultiPrimitiveReordered< tIndex, tT >
     : public SinglePrimitive< tT, tIndex >
 {
 };
@@ -383,10 +433,44 @@ public:
         mRight.TestEqual( t2.mRight );
     }
 
-private:
-
     TestClassTree < tT, tLevel - 1 > mLeft;
     TestClassTree < tT, tLevel - 1 > mRight;
+};
+
+template< typename tT, uint32_t tLevel >
+class TestClassTreeReordered
+{
+public:
+
+    TestClassTreeReordered()
+    {}
+
+    TestClassTreeReordered( uint32_t seed )
+    {
+        g_seed = seed;
+    }
+
+    template< typename tM >
+    void OnStore( Message< tM > &message )
+    {
+        message.Store( 1, mRight );
+        message.Store( 0, mLeft );
+    }
+
+    void TestEqual( TestClassTreeReordered< tT, tLevel > &t2 )
+    {
+        mLeft.TestEqual( t2.mLeft );
+        mRight.TestEqual( t2.mRight );
+    }
+
+    void TestEqual( TestClassTree< tT, tLevel > &t2 )
+    {
+        mLeft.TestEqual( t2.mLeft );
+        mRight.TestEqual( t2.mRight );
+    }
+
+    TestClassTreeReordered < tT, tLevel - 1 > mLeft;
+    TestClassTreeReordered < tT, tLevel - 1 > mRight;
 };
 
 template< typename tT >
@@ -409,7 +493,33 @@ public:
         ExpectEqual( mValue, t2.mValue );
     }
 
-private:
+    tT mValue;
+};
+
+template< typename tT >
+class TestClassTreeReordered< tT, 0 >
+{
+public:
+
+    TestClassTreeReordered()
+        : mValue( GetRandom<tT>() )
+    {}
+
+    template< typename tM >
+    void OnStore( Message< tM > &message )
+    {
+        message.Store( 0, mValue );
+    }
+
+    void TestEqual( TestClassTreeReordered< tT, 0 > &t2 )
+    {
+        ExpectEqual( mValue, t2.mValue );
+    }
+
+    void TestEqual( TestClassTree< tT, 0 > &t2 )
+    {
+        ExpectEqual( mValue, t2.mValue );
+    }
 
     tT mValue;
 };
