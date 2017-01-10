@@ -23,9 +23,6 @@
 
 #include "gtest/gtest.h"
 
-#include <iostream>
-#include <cstdio>
-
 #include <stdlib.h>
 
 class Testclass
@@ -39,7 +36,8 @@ public:
 
         mValue1 = rand();
 
-        while ( ( mValue2 = Util::UInt32ToFloat( rand() ) ) == std::numeric_limits< float >::infinity() );
+        while ( ( mValue2 = Util::UInt32ToFloat( rand() ) ) == std::numeric_limits< float >::infinity() )
+        {};
 
         mValue3 = ss.str();
     }
@@ -103,7 +101,8 @@ public:
 
         mValue1 = rand();
 
-        while ( ( mValue2 = Util::UInt32ToFloat( rand() ) ) == std::numeric_limits< float >::infinity() );
+        while ( ( mValue2 = Util::UInt32ToFloat( rand() ) ) == std::numeric_limits< float >::infinity() )
+        {};
 
         mValue3 = ss.str();
     }
@@ -137,7 +136,8 @@ public:
 
         mValue1 = rand();
 
-        while ( ( mValue2 = Util::UInt32ToFloat( rand() ) ) == std::numeric_limits< float >::infinity() );
+        while ( ( mValue2 = Util::UInt32ToFloat( rand() ) ) == std::numeric_limits< float >::infinity() )
+        {};
 
         mValue3 = ss.str();
     }

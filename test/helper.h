@@ -25,7 +25,7 @@
 
 #include "gtest/gtest.h"
 
-#include <string>
+#include "serialisation/serialisation.h"
 
 #define CONCATEXT( a, b ) a##b
 #define CONCAT( a, b ) CONCATEXT( a, b )
@@ -73,7 +73,7 @@ inline tT GenerateZebraValue()
 
     for ( uint16_t i = 0; i < bits; ++++i )
     {
-        result |= ( tT )( 1ull << i );
+        result |= static_cast<tT>( 1ull << i );
     }
 
     return result;
@@ -96,13 +96,13 @@ inline std::string GenerateZebraValue()
 template<>
 inline float GenerateZebraValue()
 {
-    return ( float )GenerateZebraValue< int32_t >();
+    return static_cast<float>( GenerateZebraValue<int32_t>() );
 }
 
 template<>
 inline double GenerateZebraValue()
 {
-    return ( double )GenerateZebraValue< int64_t >();
+    return static_cast<double>( GenerateZebraValue<int64_t>() );
 }
 
 template< typename T >
@@ -128,13 +128,13 @@ inline std::string GenerateInvZebraValue()
 template<>
 inline float GenerateInvZebraValue()
 {
-    return ( float )GenerateInvZebraValue< int32_t >();
+    return static_cast<float>( GenerateInvZebraValue<int32_t>() );
 }
 
 template<>
 inline double GenerateInvZebraValue()
 {
-    return ( double )GenerateInvZebraValue< int64_t >();
+    return static_cast<double>( GenerateInvZebraValue<int64_t>() );
 }
 
 extern uint32_t g_seed;
@@ -155,7 +155,8 @@ template<>
 inline float GetRandom< float >()
 {
     // return with max an arbitrary number
-    return ( float )GetFastRand() / ( float )( std::numeric_limits< uint32_t >::max() / ( 1e-8 / 3.0f ) );
+    return static_cast<float>( GetFastRand() ) / static_cast<float>( std::numeric_limits<uint32_t>::max() /
+                                                                     ( 1e-8 / 3.0f ) );
 }
 
 template<>
@@ -170,7 +171,8 @@ template<>
 inline double GetRandom< double >()
 {
     // return with max an arbitrary number
-    return ( double )GetFastRand() / ( float )( std::numeric_limits< uint32_t >::max() / ( 1e-16 / 3.0f ) );
+    return static_cast<double>( GetFastRand() ) / static_cast<float>( std::numeric_limits<uint32_t>::max() /
+                                                                      ( 1e-16 / 3.0f ) );
 }
 
 std::string GenerateRandomString( bool random = true, uint32_t index = 0 );

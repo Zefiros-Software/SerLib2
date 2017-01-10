@@ -55,8 +55,8 @@ public:
     {
     }
 
-    template< typename tT >
-    void OnStore( Message< tT > &message )
+    template< typename tM >
+    void OnStore( Message< tM > &message )
     {
         message.Store( tIndex, mValue );
     }
@@ -112,12 +112,12 @@ public:
         Init();
     }
 
-    SkippedPrimitive()
+    SkippedPrimitive(): mExtra( 0 )
     {
     }
 
-    template< typename tT >
-    void OnStore( Message< tT > &message )
+    template< typename tM >
+    void OnStore( Message< tM > &message )
     {
         message.Store( 1, mValue );
         message.Store( 0, mExtra );
@@ -129,7 +129,7 @@ public:
         ExpectEqual( mExtra, other.mExtra );
     }
 
-    void TestEqual( SinglePrimitive< uint8_t, 0 > &other )
+    void TestEqual( SinglePrimitive< uint8_t, 0 > &other ) const
     {
         ExpectEqual( mExtra, other.mValue );
     }
@@ -163,8 +163,8 @@ public:
         Init();
     }
 
-    template< typename tT >
-    void OnStore( Message< tT > &message )
+    template< typename tM >
+    void OnStore( Message< tM > &message )
     {
         message.Store( 1, mValue1 );
         message.Store( 0, mValue2 );
@@ -175,7 +175,7 @@ public:
         return mValue1.size() * sizeof( tT );
     }
 
-    void TestEqual( SinglePrimitive< uint8_t > &t2 )
+    void TestEqual( SinglePrimitive< uint8_t > &t2 ) const
     {
         ExpectEqual( mValue2, t2.mValue );
     }
@@ -335,8 +335,8 @@ public:
         Init();
     }
 
-    template< typename tT >
-    void OnStore( Message< tT > &message )
+    template< typename tM >
+    void OnStore( Message< tM > &message )
     {
         message.Store( 0, mValue1 );
     }
@@ -384,8 +384,8 @@ public:
         Init();
     }
 
-    template< typename tT >
-    void OnStore( Message< tT > &message )
+    template< typename tM >
+    void OnStore( Message< tM > &message )
     {
         message.Store( 0, mValue1 );
         message.Store( 1, mValue2 );
@@ -436,8 +436,8 @@ public:
         Init();
     }
 
-    template< typename tT >
-    void OnStore( Message< tT > &message )
+    template< typename tM >
+    void OnStore( Message< tM > &message )
     {
         message.Store( 1, mValue2 );
         message.Store( 0, mValue1 );
@@ -508,7 +508,7 @@ public:
           mObject()
     {}
 
-    ClassWithParent( const tT &value )
+    explicit ClassWithParent( const tT &value )
         : tParent( value ),
           mValue( value ),
           mObject( value )
@@ -518,7 +518,7 @@ public:
     template< typename tM >
     void OnStore( Message< tM > &message )
     {
-        message.StoreParent< tParent >( 0, this );
+        message.template StoreParent< tParent >( 0, this );
         message.Store( 1, mObject );
         message.Store( 2, mValue );
     }
@@ -546,21 +546,21 @@ public:
 
     typedef SinglePrimitive< tT > tParent;
 
-    SkippedParent( uint32_t seed )
+    explicit SkippedParent( uint32_t seed )
     {
         g_seed = seed;
-        Init();
+        SinglePrimitive<tT>::Init();
         mValue = GetRandom<uint8_t>();
     }
 
     template< typename tM >
     void OnStore( Message< tM > &message )
     {
-        message.StoreParent< tParent >( 1, this );
+        message.template StoreParent< tParent >( 1, this );
         message.Store( 0, mValue );
     }
 
-    void TestEqual( SinglePrimitive<uint8_t> &t2 )
+    void TestEqual( SinglePrimitive<uint8_t> &t2 ) const
     {
         ExpectEqual( mValue, t2.mValue );
     }
@@ -593,7 +593,7 @@ public:
     {
         message.Store( 2, mValue );
         message.Store( 1, mObject );
-        message.StoreParent< tParent >( 0, this );
+        message.template StoreParent< tParent >( 0, this );
     }
 
 
@@ -612,35 +612,38 @@ public:
     SinglePrimitive< tT > mObject;
 };
 
-template< typename tT >
+typedef SinglePrimitive<uint8_t> SingleU8;
+typedef SinglePrimitive<uint16_t> SingleU16;
+typedef SinglePrimitive<float> SingleFloat;
+
+template< typename tT, typename tMember = SinglePrimitive< tT > >
 class ClassWithMultipleParents
-    : public ClassWithParent< tT >, public SinglePrimitive< float >, public SinglePrimitive< uint8_t >,
-      public SinglePrimitive< uint16_t >
+    : public ClassWithParent< tT >,
+      public SingleFloat,
+      public SingleU8,
+      public SingleU16
 {
-public:
 
     typedef ClassWithParent< tT > tParent1;
-    typedef SinglePrimitive< float > tParent2;
-    typedef SinglePrimitive< uint8_t > tParent3;
-    typedef SinglePrimitive< uint16_t > tParent4;
+public:
 
-    ClassWithMultipleParents( const tT &value )
-        : mValue( value ),
-          mObject( value ),
-          tParent1( value ),
-          tParent2( value ),
-          tParent3( value ),
-          tParent4( value )
+    explicit ClassWithMultipleParents( const tT &value )
+        : tParent1( value ),
+          SingleFloat( value ),
+          SingleU8( value ),
+          SingleU16( value ),
+          mValue( value ),
+          mObject( value )
     {
     }
 
     template< typename tM >
     void OnStore( Message< tM > &message )
     {
-        message.StoreParent< tParent1 >( 0, this );
-        message.StoreParent< tParent2 >( 1, this );
-        message.StoreParent< tParent3 >( 2, this );
-        message.StoreParent< tParent4 >( 3, this );
+        message.template StoreParent< tParent1 >( 0, this );
+        message.template StoreParent< SingleFloat >( 1, this );
+        message.template StoreParent< SingleU8 >( 2, this );
+        message.template StoreParent< SingleU16 >( 3, this );
         message.Store( 1, mObject );
         message.Store( 2, mValue );
     }
@@ -648,9 +651,9 @@ public:
     void TestEqual( ClassWithMultipleParents< tT > &t2 )
     {
         tParent1::TestEqual( static_cast<tParent1 &>( t2 ) );
-        tParent2::TestEqual( static_cast<tParent2 &>( t2 ) );
-        tParent3::TestEqual( static_cast<tParent3 &>( t2 ) );
-        tParent4::TestEqual( static_cast<tParent4 &>( t2 ) );
+        SingleFloat::TestEqual( static_cast<SingleFloat &>( t2 ) );
+        SingleU8::TestEqual( static_cast<SingleU8 &>( t2 ) );
+        SingleU16::TestEqual( static_cast<SingleU16 &>( t2 ) );
 
         mObject.TestEqual( t2.mObject );
 
@@ -661,7 +664,7 @@ private:
 
     tT mValue;
 
-    SinglePrimitive< tT > mObject;
+    tMember mObject;
 };
 
 template< typename tT >
@@ -724,7 +727,7 @@ public:
         mValue = GetRandom<uint8_t>();
     }
 
-    SkippedObjectVector( uint32_t seed )
+    explicit SkippedObjectVector( uint32_t seed )
     {
         g_seed = seed;
         Init();
@@ -737,7 +740,7 @@ public:
         message.Store( 0, mValue );
     }
 
-    void TestEqual( SinglePrimitive< uint8_t > &other )
+    void TestEqual( SinglePrimitive< uint8_t > &other ) const
     {
         ExpectEqual( mValue, other.mValue );
     }
@@ -776,7 +779,7 @@ public:
     TestClassTreeSkipping < tT, tLevel - 1 > mRight;
 };
 
-template< typename tT, uint32_t tLevel >
+template< typename tT, uint32_t tLevel = 5 >
 class TestClassTree
 {
 public:
