@@ -1,0 +1,11 @@
+[ 
+{
+    "name": "Zefiros-Software/GoogleTest",
+    "type": "library",
+    "version": "@head"
+}, 
+{
+    "name": "Zefiros-Software/GoogleBenchmark",
+    "type": "library",
+    "version": "@head"
+}]

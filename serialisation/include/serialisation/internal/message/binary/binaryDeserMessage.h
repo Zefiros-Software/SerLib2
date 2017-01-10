@@ -23,16 +23,20 @@
 #ifndef __SERIALISATION_BINARYDESERMESSAGE_H__
 #define __SERIALISATION_BINARYDESERMESSAGE_H__
 
-#include "serialisation/defines.h"
-#include "serialisation/util.h"
-#include "serialisation/types.h"
+#include "serialisation/internal/parallelFloatProcessor.h"
 #include "serialisation/internal/memory/memoryPool.h"
 #include "serialisation/internal/memory/stack.h"
 
-#include <array>
-#include <assert.h>
+#include "serialisation/serialisationHelper.h"
+#include "serialisation/exceptions.h"
+#include "serialisation/defines.h"
+#include "serialisation/types.h"
+#include "serialisation/util.h"
+
 #include <functional>
+#include <assert.h>
 #include <vector>
+#include <array>
 
 class PendingVariableArray
 {
@@ -85,10 +89,12 @@ public:
     template< typename tStream >
     explicit BinaryDeserialisationMessage( tStream &streamInitializer )
         : mStreamReader( streamInitializer ),
-          mVariableHistory( 1 ),
-          mCurrentPendingVariables( nullptr ),
+          mCurrentType( Type::Terminator ),
+          mCurrentIndex( 0 ),
           mCurrentIndexPending( false ),
-          mObjectSkipping( false )
+          mObjectSkipping( false ),
+          mCurrentPendingVariables( nullptr ),
+          mVariableHistory( 1 )
     {
     }
 
@@ -264,16 +270,22 @@ private:
     template< typename tSerialisable, typename tMessage  >
     void ReadObject( tSerialisable &serialisable, Type::Type type, tMessage &message )
     {
+        ExceptionHelper::Strict::AssertEqual< InvalidTypeException >( Type::Object, type );
+
         StoreEntryPoint( serialisable, message );
     }
 
     template< typename tSerialisable, typename tMessage  >
     void ReadObjectVector( std::vector<tSerialisable> &value, Type::Type type, tMessage &message )
     {
+        ExceptionHelper::Strict::AssertEqual< InvalidTypeException >( Type::Array, type );
+
         uint8_t flags;
         Type::Type subType;
         size_t size;
         ReadArrayHeader( flags, subType, size );
+
+        ExceptionHelper::Strict::AssertEqual< InvalidTypeException >( Type::Object, subType );
 
         value.resize( size );
 
@@ -286,6 +298,8 @@ private:
     template< typename tT >
     void ReadPrimitive( tT &value, Type::Type type )
     {
+        ExceptionHelper::Compat::AssertCompatible<tT>( type );
+
         mStreamReader.ReadPrimitive( value );
     }
 
@@ -313,10 +327,14 @@ private:
     template< typename tT >
     void ReadPrimitiveVector( std::vector< tT > &value, Type::Type type )
     {
+        ExceptionHelper::Strict::AssertEqual<InvalidTypeException>( Type::Array, type );
+
         uint8_t flags;
         Type::Type subType;
         size_t size;
         ReadArrayHeader( flags, subType, size );
+
+        ExceptionHelper::Strict::AssertEqual<InvalidTypeException>( Type::GetHeaderEnum<tT>(), subType );
 
         value.resize( size );
         mStreamReader.ReadPrimitiveBlock( &value[0], size );
@@ -324,10 +342,14 @@ private:
 
     void ReadPrimitiveVector( std::vector< bool > &value, Type::Type type )
     {
+        ExceptionHelper::Strict::AssertEqual<InvalidTypeException>( Type::Array, type );
+
         uint8_t flags;
         Type::Type subType;
         size_t size;
         ReadArrayHeader( flags, subType, size );
+
+        ExceptionHelper::Strict::AssertEqual<InvalidTypeException>( Type::UInt8, subType );
 
         value.resize( size );
 
@@ -342,10 +364,14 @@ private:
 
     void ReadPrimitiveVector( std::vector< std::string > &value, Type::Type type )
     {
+        ExceptionHelper::Strict::AssertEqual<InvalidTypeException>( Type::Array, type );
+
         uint8_t flags;
         Type::Type subType;
         size_t size;
         ReadArrayHeader( flags, subType, size );
+
+        ExceptionHelper::Strict::AssertEqual<InvalidTypeException>( Type::String, subType );
 
         value.resize( size );
 
@@ -358,10 +384,14 @@ private:
 
     void ReadPrimitiveVector( std::vector< float > &value, Type::Type type )
     {
+        ExceptionHelper::Strict::AssertEqual<InvalidTypeException>( Type::Array, type );
+
         uint8_t flags;
         Type::Type subType;
         size_t size;
         ReadArrayHeader( flags, subType, size );
+
+        ExceptionHelper::Strict::AssertEqual<InvalidTypeException>( Type::UInt32, subType );
 
         value.resize( size );
 
@@ -379,10 +409,14 @@ private:
 
     void ReadPrimitiveVector( std::vector< double > &value, Type::Type type )
     {
+        ExceptionHelper::Strict::AssertEqual<InvalidTypeException>( Type::Array, type );
+
         uint8_t flags;
         Type::Type subType;
         size_t size;
         ReadArrayHeader( flags, subType, size );
+
+        ExceptionHelper::Strict::AssertEqual<InvalidTypeException>( Type::UInt64, subType );
 
         value.resize( size );
 
@@ -400,7 +434,7 @@ private:
 
     SERIALISATION_FORCEINLINE void ReadPrimitive( std::string &value, Type::Type type )
     {
-        assert( type == Type::String );
+        ExceptionHelper::Strict::AssertEqual<InvalidTypeException>( Type::String, type );
 
         size_t size = mStreamReader.ReadSize();
         value.resize( size );

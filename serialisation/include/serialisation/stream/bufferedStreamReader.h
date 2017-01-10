@@ -72,9 +72,8 @@ public:
 
     void ClearBuffer()
     {
-        std::streamsize gCount = mStreamReader.GCount();
-
-        mStreamReader.SeekG( gCount + mReadIndex - mReadSize );
+        mStreamReader.SeekG( static_cast< std::streamoff >( mReadIndex ) - mReadSize );
+        mStreamReader.ClearEOF();
 
         mReadIndex = 0;
         mReadSize = 0;
@@ -219,11 +218,11 @@ private:
 
         mStreamReader.ClearEOF();
 
-        assert( mReadSize > mReadIndex );
+        ExceptionHelper::Assert<EndOfStreamException>( mReadSize > mReadIndex );
     }
 
-    BufferedStreamReader &operator=( const BufferedStreamReader & );
-    BufferedStreamReader( const BufferedStreamReader & );
+    BufferedStreamReader &operator=( const BufferedStreamReader & ) = delete;
+    BufferedStreamReader( const BufferedStreamReader & ) = delete;
 };
 
 #ifndef SERIALISATION_NO_HEADER_ONLY

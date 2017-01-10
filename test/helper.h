@@ -65,18 +65,24 @@ inline void ExpectEqual< double >( const double &d1, const double &d2 )
     EXPECT_DOUBLE_EQ( d1, d2 );
 }
 
-template< typename T >
-inline T GenerateZebraValue()
+template< typename tT >
+inline tT GenerateZebraValue()
 {
-    const uint16_t bits = sizeof( T ) << 3;
-    T result = 0;
+    const uint16_t bits = sizeof( tT ) << 3;
+    tT result = 0;
 
     for ( uint16_t i = 0; i < bits; ++++i )
     {
-        result |= ( T )( 1ull << i );
+        result |= ( tT )( 1ull << i );
     }
 
     return result;
+}
+
+template<>
+inline bool GenerateZebraValue()
+{
+    return true;
 }
 
 template<>
@@ -103,6 +109,12 @@ template< typename T >
 T GenerateInvZebraValue()
 {
     return GenerateZebraValue< T >() ^ std::numeric_limits<T>::max();
+}
+
+template<>
+inline bool GenerateInvZebraValue()
+{
+    return false;
 }
 
 template<>
@@ -169,6 +181,11 @@ inline std::string GetRandom<std::string>()
     return GenerateRandomString();
 }
 
+template< typename tT, typename tSeed = uint32_t >
+tSeed MakeSeed( uint32_t gen )
+{
+    return static_cast< tSeed >( gen * ( std::is_same< tT, std::string >::value ? 32 : sizeof( tT ) ) );
+}
 
 
 template< typename tT1, typename tT2 >
@@ -185,7 +202,7 @@ void SimpleSerialiseDeserialiseStream( tT1 &t1, tT2 &t2 )
 }
 
 template< typename tT1, typename tT2 >
-void SimpleSerialiseDeserialiseBackwards( const std::string &file, tT1 &c1, tT2 &c2 )
+void SimpleSerialiseDeserialiseBackwards( const std::string &file, tT1 &/*c1*/, tT2 &c2 )
 {
     /* Enable this when you need to regenerate the backwards compatibility files
     {

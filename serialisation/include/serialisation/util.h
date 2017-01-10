@@ -261,16 +261,16 @@ namespace Util
     //         return ( index << 3 ) | ( static_cast< T >( t ) & 0x07 );
     //     }
 
-    template< typename T >
-    Type::Type GetHeaderType( const T header )
+    template< typename tT >
+    Type::Type GetHeaderType( const tT header )
     {
         return static_cast< Type::Type >( header & 0x07 );
     }
 
-    template< typename T >
-    T GetHeaderIndex( const T header )
+    template< typename tT >
+    tT GetHeaderIndex( const tT header )
     {
-        return static_cast< T >( header >> 3 );
+        return static_cast< tT >( header >> 3 );
     }
     //}
 

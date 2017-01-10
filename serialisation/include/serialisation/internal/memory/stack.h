@@ -24,6 +24,8 @@
 #ifndef __SERIALISATION_STACK_H__
 #define __SERIALISATION_STACK_H__
 
+#include "serialisation/defines.h"
+
 #include <vector>
 
 template< typename tT >

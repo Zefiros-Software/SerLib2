@@ -78,7 +78,7 @@ public:
     {
         SeekG( byteCount );
     }
-    void SeekG( std::ios::off_type count );
+    void SeekG( std::streamoff count );
 
     std::streamsize GCount();
 
@@ -89,8 +89,8 @@ private:
     std::ifstream mFileStream;
     std::istream *mStream;
 
-    StreamReader &operator=( const StreamReader & );
-    StreamReader( const StreamReader & );
+    StreamReader &operator=( const StreamReader & ) = delete;
+    StreamReader( const StreamReader & ) = delete;
 
 };
 
