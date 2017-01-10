@@ -146,12 +146,6 @@ public:
 
     /// @}
 
-
-    UnsychronisedMemoryPoolInstantiator *Copy()
-    {
-        return new UnsychronisedMemoryPoolInstantiator< tT, tBase >( mBlockSize, mMaxBlocks );
-    }
-
 private:
 
     /// @name Pool state
