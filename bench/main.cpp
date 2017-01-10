@@ -16,7 +16,8 @@ public:
 
         mValue1 = rand();
 
-        while ( ( mValue2 = Util::UInt32ToFloat( rand() ) ) == std::numeric_limits< float >::infinity() );
+        while ( ( mValue2 = Util::UInt32ToFloat( rand() ) ) == std::numeric_limits< float >::infinity() )
+        {};
 
         mValue3 = ss.str();
     }
@@ -29,7 +30,7 @@ public:
         message.Store( 2, mValue3 );
     }
 
-    size_t GetMemberSize()
+    size_t GetMemberSize() const
     {
         return sizeof( uint32_t ) + sizeof( float ) + mValue3.length();
     }
@@ -85,7 +86,8 @@ public:
 
         mValue1 = rand();
 
-        while ( ( mValue2 = Util::UInt32ToFloat( rand() ) ) == std::numeric_limits< float >::infinity() );
+        while ( ( mValue2 = Util::UInt32ToFloat( rand() ) ) == std::numeric_limits< float >::infinity() )
+        {};
 
         mValue3 = ss.str();
     }
@@ -101,7 +103,7 @@ public:
 
 
 
-    size_t GetMemberSize()
+    size_t GetMemberSize() const
     {
         return sizeof( uint32_t ) + sizeof( float ) + mValue3.length() + mValue4.GetMemberSize();
     }
@@ -126,7 +128,8 @@ public:
 
         mValue1 = rand();
 
-        while ( ( mValue2 = Util::UInt32ToFloat( rand() ) ) == std::numeric_limits< float >::infinity() );
+        while ( ( mValue2 = Util::UInt32ToFloat( rand() ) ) == std::numeric_limits< float >::infinity() )
+        {};
 
         mValue3 = ss.str();
     }
@@ -140,7 +143,7 @@ public:
         message.Store( 3, mValue4 );
     }
 
-    size_t GetMemberSize()
+    size_t GetMemberSize() const
     {
         return sizeof( uint32_t ) + sizeof( float ) + mValue3.length() + mValue4.GetMemberSize();
     }
@@ -375,8 +378,8 @@ public:
         }
     }
 
-    template< typename tT >
-    void OnStore( Message< tT > &message )
+    template< typename tM >
+    void OnStore( Message< tM > &message )
     {
         message.Store( 0, mValue1 );
     }
