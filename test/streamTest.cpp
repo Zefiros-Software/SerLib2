@@ -85,6 +85,60 @@ TEST( P( Stream ), CorruptStreamTest )
     }
 }
 
+TEST( P( Stream ), CorruptStreamTestTree )
+{
+    g_seed = 4241;
+    std::stringstream ss;
+    TestClassTree<uint32_t, 5> t1, t2;
+
+    {
+        Serialisation::BinarySerialiser message( ss );
+        message.Enter( t1 );
+    }
+
+    {
+        std::string temp = ss.str();
+        temp.resize( temp.size() - 1 );
+        ss.str( temp );
+    }
+
+    {
+        Serialisation::BinaryDeserialiser message( ss );
+
+        auto test1 = [&]()
+        {
+            try
+            {
+                message.Enter( t2 );
+            }
+            catch ( EndOfStreamException e )
+            {
+                ExpectEqual( EndOfStreamException().what(), e.what() );
+                throw e;
+            }
+        };
+
+        auto test2 = [&]()
+        {
+            try
+            {
+                message.Enter( t2 );
+            }
+            catch ( NoCleanExitException e )
+            {
+                ExpectEqual( NoCleanExitException().what(), e.what() );
+                throw e;
+            }
+        };
+
+        EXPECT_THROW( test1(), EndOfStreamException );
+        EXPECT_THROW( test2(), NoCleanExitException );
+
+        // despite unclean exit, this should still be equal in this case
+        t1.TestEqual( t2 );
+    }
+}
+
 #define SERIALISATION_TEST_IFSTREAM_OFSTREAM( type )                                        \
 TEST( P( Stream ), IFStream_OFStream_ ## type )                                             \
 {                                                                                           \

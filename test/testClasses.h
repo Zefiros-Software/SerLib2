@@ -370,6 +370,100 @@ private:
 };
 
 template< typename tT >
+class TestClassSmallArray
+{
+public:
+
+    void Init()
+    {
+        mValue1.resize( ( GetRandom< uint32_t >() % 1024 ) );
+
+        for ( auto it = mValue1.begin(); it != mValue1.end(); ++it )
+        {
+            *it = static_cast<tT>( GetRandom< tT >() );
+        }
+    }
+
+    explicit TestClassSmallArray( uint32_t seed )
+    {
+        g_seed = seed;
+        Init();
+    }
+
+    template< typename tM >
+    void OnStore( Message< tM > &message )
+    {
+        message.Store( 0, mValue1 );
+    }
+
+    size_t GetMemberSize()
+    {
+        return mValue1.size() * sizeof( tT );
+    }
+
+    void TestEqual( TestClassSmallArray< tT > &t2 )
+    {
+        ExpectEqual( mValue1.size(), t2.mValue1.size() );
+
+        for ( size_t i = 0, end = mValue1.size(); i < end; ++i )
+        {
+            ExpectEqual( mValue1[i], t2.mValue1[i] );
+        }
+    }
+
+private:
+
+    std::vector<tT> mValue1;
+};
+
+template< typename tT >
+class TestClassArrayEdgeCaseSize
+{
+public:
+
+    void Init()
+    {
+        mValue1.resize( 1025 );
+
+        for ( auto it = mValue1.begin(); it != mValue1.end(); ++it )
+        {
+            *it = static_cast<tT>( GetRandom< tT >() );
+        }
+    }
+
+    explicit TestClassArrayEdgeCaseSize( uint32_t seed )
+    {
+        g_seed = seed;
+        Init();
+    }
+
+    template< typename tM >
+    void OnStore( Message< tM > &message )
+    {
+        message.Store( 0, mValue1 );
+    }
+
+    size_t GetMemberSize()
+    {
+        return mValue1.size() * sizeof( tT );
+    }
+
+    void TestEqual( TestClassArrayEdgeCaseSize< tT > &t2 )
+    {
+        ExpectEqual( mValue1.size(), t2.mValue1.size() );
+
+        for ( size_t i = 0, end = mValue1.size(); i < end; ++i )
+        {
+            ExpectEqual( mValue1[i], t2.mValue1[i] );
+        }
+    }
+
+private:
+
+    std::vector<tT> mValue1;
+};
+
+template< typename tT >
 class TestClassArrayWithMember
 {
 public:

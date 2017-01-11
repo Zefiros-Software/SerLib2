@@ -213,23 +213,16 @@ namespace Type
     {
         switch ( type )
         {
-        case Type::Boolean:
         case Type::UInt8:
-        case Type::SInt8:
             return 1;
 
         case Type::UInt16:
-        case Type::SInt16:
             return 2;
 
         case Type::UInt32:
-        case Type::SInt32:
-        case Type::Float:
             return 4;
 
         case Type::UInt64:
-        case Type::SInt64:
-        case Type::Double:
             return 8;
 
         default:

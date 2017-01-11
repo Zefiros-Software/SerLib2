@@ -103,14 +103,11 @@ public:
     {
         if ( !mCleanExit )
         {
-            if ( mCurrentPendingVariables != nullptr )
-            {
-                ReleasePendingVariableArray( mCurrentPendingVariables );
+            ReleasePendingVariableArray( mCurrentPendingVariables );
 
-                for ( auto it = mVariableHistory.Pop(); it != nullptr; it = mVariableHistory.Pop() )
-                {
-                    ReleasePendingVariableArray( it );
-                }
+            for ( auto it = mVariableHistory.Pop(); it != nullptr; it = mVariableHistory.Pop() )
+            {
+                ReleasePendingVariableArray( it );
             }
         }
     }
