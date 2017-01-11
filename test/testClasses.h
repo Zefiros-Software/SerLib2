@@ -40,13 +40,15 @@ public:
     friend class SkippedObjectVector;
     template< typename tC >
     friend class SkippedParent;
+    template< typename tC, uint8_t tI >
+    friend class SinglePrimitive;
 
     void Init()
     {
         mValue = GetRandom<tT>();
     }
 
-    SinglePrimitive( const tT &val )
+    explicit SinglePrimitive( const tT &val )
         : mValue( val )
     {
     }
@@ -90,6 +92,12 @@ public:
         other.TestEqual( *this );
     }
 
+    template< typename tC >
+    void TestEqual( SinglePrimitive< tC > &other )
+    {
+        ExpectEqual( mValue, static_cast<tT>( other.mValue ) );
+    }
+
 private:
 
     tT mValue;
@@ -106,7 +114,7 @@ public:
         mExtra = GetRandom<uint8_t>();
     }
 
-    SkippedPrimitive( uint32_t seed )
+    explicit SkippedPrimitive( uint32_t seed )
     {
         g_seed = seed;
         Init();
@@ -157,7 +165,7 @@ public:
         mValue2 = GetRandom<uint8_t>();
     }
 
-    SkippedArray( uint32_t seed )
+    explicit SkippedArray( uint32_t seed )
     {
         g_seed = seed;
         Init();
@@ -191,7 +199,7 @@ class SinglePrimitiveIndexed
 {
 public:
 
-    SinglePrimitiveIndexed( const tT &val )
+    explicit SinglePrimitiveIndexed( const tT &val )
         : mValue( val ),
           mIndex( tIndex )
     {
@@ -231,7 +239,7 @@ public:
 
     }
 
-    MultiPrimitive( uint32_t seed )
+    explicit MultiPrimitive( uint32_t seed )
     {
         g_seed = seed;
         Init();
@@ -272,7 +280,7 @@ public:
 
     }
 
-    MultiPrimitiveReordered( uint32_t seed )
+    explicit MultiPrimitiveReordered( uint32_t seed )
     {
         g_seed = seed;
         Init();
@@ -329,7 +337,7 @@ public:
         }
     }
 
-    TestClassArray( uint32_t seed )
+    explicit TestClassArray( uint32_t seed )
     {
         g_seed = seed;
         Init();
@@ -378,7 +386,7 @@ public:
         mValue2 = GetRandom< tT >();
     }
 
-    TestClassArrayWithMember( uint32_t seed )
+    explicit TestClassArrayWithMember( uint32_t seed )
     {
         g_seed = seed;
         Init();
@@ -430,7 +438,7 @@ public:
         mValue2 = GetRandom< tT >();
     }
 
-    TestClassArrayWithMemberReordered( uint32_t seed )
+    explicit TestClassArrayWithMemberReordered( uint32_t seed )
     {
         g_seed = seed;
         Init();
@@ -470,10 +478,19 @@ class NestedObject
 {
 public:
 
-    NestedObject( const tT &value )
+    NestedObject()
+    {}
+
+    explicit NestedObject( const tT &value )
         : mValue( value ),
           mObject( value )
     {
+    }
+
+    void Init()
+    {
+        mValue = GetRandom<tT>();
+        mObject.Init();
     }
 
     template< typename tM >
@@ -581,7 +598,7 @@ public:
           mObject()
     {}
 
-    ClassWithParentReordered( const tT &value )
+    explicit ClassWithParentReordered( const tT &value )
         : tParent( value ),
           mValue( value ),
           mObject( value )
@@ -678,7 +695,7 @@ public:
 
         for ( auto it = mObjects.begin(); it != mObjects.end(); ++it )
         {
-            *it = static_cast<tT>( GetRandom< tT >() );
+            *it = SinglePrimitive<tT>( GetRandom< tT >() );
         }
 
         mValue = GetRandom<uint8_t>();
@@ -724,7 +741,7 @@ public:
 
         for ( auto it = mObjects.begin(); it != mObjects.end(); ++it )
         {
-            *it = static_cast<tT>( GetRandom< tT >() );
+            *it = SinglePrimitive<tT>( GetRandom< tT >() );
         }
 
         mValue = GetRandom<uint8_t>();
@@ -770,7 +787,7 @@ public:
 
         for ( auto it = mObjects.begin(); it != mObjects.end(); ++it )
         {
-            *it = static_cast<tT>( GetRandom< tT >() );
+            *it = SinglePrimitive<tT>( GetRandom< tT >() );
         }
 
         mValue = GetRandom<uint8_t>();
@@ -807,7 +824,7 @@ public:
     TestClassTreeSkipping()
     {}
 
-    TestClassTreeSkipping( uint32_t seed )
+    explicit TestClassTreeSkipping( uint32_t seed )
     {
         g_seed = seed;
     }
@@ -836,7 +853,7 @@ public:
     TestClassTree()
     {}
 
-    TestClassTree( uint32_t seed )
+    explicit TestClassTree( uint32_t seed )
     {
         g_seed = seed;
     }
@@ -873,7 +890,7 @@ public:
     TestClassTreeReordered()
     {}
 
-    TestClassTreeReordered( uint32_t seed )
+    explicit TestClassTreeReordered( uint32_t seed )
     {
         g_seed = seed;
     }
