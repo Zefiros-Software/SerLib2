@@ -26,7 +26,6 @@
 #include "serialisation/defines.h"
 #include "serialisation/types.h"
 
-#include <assert.h>
 #include <fstream>
 #include <limits>
 
@@ -44,16 +43,16 @@ public:
 
     ~StreamWriter();
 
-    void ClearBuffer();
+    void ClearBuffer() const;
 
     void Close();
 
-    void WriteBytes( const char *const firstByte, size_t byteCount )
+    void WriteBytes( const char *const firstByte, size_t byteCount ) const
     {
         mStream->write( firstByte, byteCount );
     }
 
-    void WriteBlock( const char *const firstByte, size_t byteCount );
+    void WriteBlock( const char *const firstByte, size_t byteCount ) const;
 
     void WriteSize( size_t size );
 
@@ -85,8 +84,8 @@ private:
     std::ofstream mFileStream;
     std::ostream *mStream;
 
-    StreamWriter &operator=( const StreamWriter & );
-    StreamWriter( const StreamWriter & );
+    StreamWriter &operator=( const StreamWriter & ) = delete;
+    StreamWriter( const StreamWriter & ) = delete;
 };
 
 #ifndef SERIALISATION_NO_HEADER_ONLY

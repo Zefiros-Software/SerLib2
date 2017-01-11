@@ -80,7 +80,7 @@ public:
 
         for ( size_t i = 0, end = value.size(); i < end; i += tBufferSize, fCursor += tBufferSize )
         {
-            const uint32_t blockSize = std::min( tBufferSize, end - i );
+            const size_t blockSize = std::min( tBufferSize, end - i );
             floatProcessor.SerialiseFloats( fCursor, blockSize );
             mStreamWriter.WritePrimitiveBlock( floatProcessor.GetU32Buffer(), blockSize );
         }

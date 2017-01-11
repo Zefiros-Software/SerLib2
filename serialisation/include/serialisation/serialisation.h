@@ -27,9 +27,6 @@
 #include "serialisation/internal/message/binary/binarySerMessage.h"
 #include "serialisation/stream/bufferedStreamReader.h"
 #include "serialisation/stream/bufferedStreamWriter.h"
-#include "serialisation/stream/streamReader.h"
-#include "serialisation/stream/streamWriter.h"
-#include "serialisation/serialisationHelper.h"
 #include "serialisation/message.h"
 
 template< uint64_t tRemainingSize, bool tHasTwoBytes >

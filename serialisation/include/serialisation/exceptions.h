@@ -28,6 +28,53 @@
 #include <exception>
 #include <sstream>
 
+class InvalidTypeException
+    : public std::exception
+{
+public:
+
+    InvalidTypeException( Type::Type expected, Type::Type actual )
+        : mExpected( expected ),
+          mActual( actual )
+    {
+        std::stringstream ss;
+        ss << "Expected " << Type::ToString( expected ) << " but got " << Type::ToString( actual );
+        mWhat = ss.str();
+    }
+
+    const char *what() const noexcept override
+    {
+        return mWhat.c_str();
+    }
+
+private:
+
+    std::string mWhat;
+
+    Type::Type mExpected;
+    Type::Type mActual;
+};
+
+class EndOfStreamException
+    : public std::exception
+{
+public:
+
+    EndOfStreamException()
+        : mWhat( "Unexpected end of stream" )
+    {
+    }
+
+    const char *what() const noexcept override
+    {
+        return mWhat.c_str();
+    }
+
+private:
+
+    std::string mWhat;
+};
+
 namespace ExceptionHelper
 {
     namespace Strict
@@ -101,52 +148,5 @@ namespace ExceptionHelper
         }
     }
 }
-
-class InvalidTypeException
-    : public std::exception
-{
-public:
-
-    InvalidTypeException( Type::Type expected, Type::Type actual )
-        : mExpected( expected ),
-          mActual( actual )
-    {
-        std::stringstream ss;
-        ss << "Expected " << expected << " but got " << actual;
-        mWhat = ss.str();
-    }
-
-    const char *what() const noexcept override
-    {
-        return mWhat.c_str();
-    }
-
-private:
-
-    std::string mWhat;
-
-    Type::Type mExpected;
-    Type::Type mActual;
-};
-
-class EndOfStreamException
-    : public std::exception
-{
-public:
-
-    EndOfStreamException()
-        : mWhat( "Unexpected end of stream" )
-    {
-    }
-
-    virtual const char *what() const noexcept override
-    {
-        return mWhat.c_str();
-    }
-
-private:
-
-    std::string mWhat;
-};
 
 #endif

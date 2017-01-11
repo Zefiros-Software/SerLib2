@@ -217,26 +217,20 @@ namespace Type
         case Type::UInt8:
         case Type::SInt8:
             return 1;
-            break;
 
         case Type::UInt16:
         case Type::SInt16:
             return 2;
-            break;
 
         case Type::UInt32:
         case Type::SInt32:
         case Type::Float:
             return 4;
-            break;
 
         case Type::UInt64:
         case Type::SInt64:
         case Type::Double:
             return 8;
-            break;
-
-            break;
 
         default:
             assert( false &&
@@ -245,6 +239,30 @@ namespace Type
         }
 
         return 1;
+    }
+
+    inline std::string ToString( Type type )
+    {
+        static char *stringMap[] =
+        {
+            "Terminator",
+            "Array",
+            "Object",
+            "String",
+            "UInt8",
+            "UInt16",
+            "UInt32",
+            "UInt64",
+            "SInt8",
+            "SInt16",
+            "SInt32",
+            "SInt64",
+            "Float",
+            "Double",
+            "Boolean"
+        };
+
+        return stringMap[type];
     }
 }
 

@@ -32,18 +32,127 @@
         }                                                                                           \
     }
 
-SERIALISATION_PARALLEL_WORKER_FUNCTION( WorkerSerialiseFloat, mFloatSourceCursor, mU32Buffer, FloatToUInt32 );
-SERIALISATION_PARALLEL_WORKER_FUNCTION( WorkerDeserialiseFloat, mU32Buffer, mFloatSourceCursor, UInt32ToFloat );
-SERIALISATION_PARALLEL_WORKER_FUNCTION( WorkerSerialiseDouble, mDoubleSourceCursor, mU64Buffer, DoubleToUInt64 );
-SERIALISATION_PARALLEL_WORKER_FUNCTION( WorkerDeserialiseDouble, mU64Buffer, mDoubleSourceCursor, UInt64ToDouble );
+SERIALISATION_NOINLINE void ParallelFloatProcessor::WorkerSerialiseFloat( size_t start, size_t end )
+{
+    end = std::min( end, mSourceSize );
 
-ParallelFloatProcessor::ParallelFloatProcessor( size_t size ) : mFloatSourceCursor( nullptr ),
-    mDoubleSourceCursor( nullptr ),
-    mSourceSize( 0 ),
-    mStop( false ),
-    mCounter( 0 ),
-    mGeneration( 0 ),
-    mWorkerCount( static_cast<uint32_t>( size - 1 ) )
+    if ( end <= start )
+    {
+        return;
+    }
+
+    size_t j = start;
+
+    for ( size_t i = 0, blocks = ( end - start ) / 8; i < blocks; ++i, j += 8 )
+    {
+        mU32Buffer[j] = Util::FloatToUInt32( mFloatSourceCursor[j] );
+        mU32Buffer[j + 1] = Util::FloatToUInt32( mFloatSourceCursor[j + 1] );
+        mU32Buffer[j + 2] = Util::FloatToUInt32( mFloatSourceCursor[j + 2] );
+        mU32Buffer[j + 3] = Util::FloatToUInt32( mFloatSourceCursor[j + 3] );
+        mU32Buffer[j + 4] = Util::FloatToUInt32( mFloatSourceCursor[j + 4] );
+        mU32Buffer[j + 5] = Util::FloatToUInt32( mFloatSourceCursor[j + 5] );
+        mU32Buffer[j + 6] = Util::FloatToUInt32( mFloatSourceCursor[j + 6] );
+        mU32Buffer[j + 7] = Util::FloatToUInt32( mFloatSourceCursor[j + 7] );
+    }
+
+    for ( ; j < end; ++j )
+    {
+        mU32Buffer[j] = Util::FloatToUInt32( mFloatSourceCursor[j] );
+    }
+};
+SERIALISATION_NOINLINE void ParallelFloatProcessor::WorkerDeserialiseFloat( size_t start, size_t end )
+{
+    end = std::min( end, mSourceSize );
+
+    if ( end <= start )
+    {
+        return;
+    }
+
+    size_t j = start;
+
+    for ( size_t i = 0, blocks = ( end - start ) / 8; i < blocks; ++i, j += 8 )
+    {
+        mFloatSourceCursor[j] = Util::UInt32ToFloat( mU32Buffer[j] );
+        mFloatSourceCursor[j + 1] = Util::UInt32ToFloat( mU32Buffer[j + 1] );
+        mFloatSourceCursor[j + 2] = Util::UInt32ToFloat( mU32Buffer[j + 2] );
+        mFloatSourceCursor[j + 3] = Util::UInt32ToFloat( mU32Buffer[j + 3] );
+        mFloatSourceCursor[j + 4] = Util::UInt32ToFloat( mU32Buffer[j + 4] );
+        mFloatSourceCursor[j + 5] = Util::UInt32ToFloat( mU32Buffer[j + 5] );
+        mFloatSourceCursor[j + 6] = Util::UInt32ToFloat( mU32Buffer[j + 6] );
+        mFloatSourceCursor[j + 7] = Util::UInt32ToFloat( mU32Buffer[j + 7] );
+    }
+
+    for ( ; j < end; ++j )
+    {
+        mFloatSourceCursor[j] = Util::UInt32ToFloat( mU32Buffer[j] );
+    }
+};
+SERIALISATION_NOINLINE void ParallelFloatProcessor::WorkerSerialiseDouble( size_t start, size_t end )
+{
+    end = std::min( end, mSourceSize );
+
+    if ( end <= start )
+    {
+        return;
+    }
+
+    size_t j = start;
+
+    for ( size_t i = 0, blocks = ( end - start ) / 8; i < blocks; ++i, j += 8 )
+    {
+        mU64Buffer[j] = Util::DoubleToUInt64( mDoubleSourceCursor[j] );
+        mU64Buffer[j + 1] = Util::DoubleToUInt64( mDoubleSourceCursor[j + 1] );
+        mU64Buffer[j + 2] = Util::DoubleToUInt64( mDoubleSourceCursor[j + 2] );
+        mU64Buffer[j + 3] = Util::DoubleToUInt64( mDoubleSourceCursor[j + 3] );
+        mU64Buffer[j + 4] = Util::DoubleToUInt64( mDoubleSourceCursor[j + 4] );
+        mU64Buffer[j + 5] = Util::DoubleToUInt64( mDoubleSourceCursor[j + 5] );
+        mU64Buffer[j + 6] = Util::DoubleToUInt64( mDoubleSourceCursor[j + 6] );
+        mU64Buffer[j + 7] = Util::DoubleToUInt64( mDoubleSourceCursor[j + 7] );
+    }
+
+    for ( ; j < end; ++j )
+    {
+        mU64Buffer[j] = Util::DoubleToUInt64( mDoubleSourceCursor[j] );
+    }
+};
+SERIALISATION_NOINLINE void ParallelFloatProcessor::WorkerDeserialiseDouble( size_t start, size_t end )
+{
+    end = std::min( end, mSourceSize );
+
+    if ( end <= start )
+    {
+        return;
+    }
+
+    size_t j = start;
+
+    for ( size_t i = 0, blocks = ( end - start ) / 8; i < blocks; ++i, j += 8 )
+    {
+        mDoubleSourceCursor[j] = Util::UInt64ToDouble( mU64Buffer[j] );
+        mDoubleSourceCursor[j + 1] = Util::UInt64ToDouble( mU64Buffer[j + 1] );
+        mDoubleSourceCursor[j + 2] = Util::UInt64ToDouble( mU64Buffer[j + 2] );
+        mDoubleSourceCursor[j + 3] = Util::UInt64ToDouble( mU64Buffer[j + 3] );
+        mDoubleSourceCursor[j + 4] = Util::UInt64ToDouble( mU64Buffer[j + 4] );
+        mDoubleSourceCursor[j + 5] = Util::UInt64ToDouble( mU64Buffer[j + 5] );
+        mDoubleSourceCursor[j + 6] = Util::UInt64ToDouble( mU64Buffer[j + 6] );
+        mDoubleSourceCursor[j + 7] = Util::UInt64ToDouble( mU64Buffer[j + 7] );
+    }
+
+    for ( ; j < end; ++j )
+    {
+        mDoubleSourceCursor[j] = Util::UInt64ToDouble( mU64Buffer[j] );
+    }
+};
+
+ParallelFloatProcessor::ParallelFloatProcessor( size_t size )
+    : mStop( false ),
+      mCounter( 0 ),
+      mGeneration( 0 ),
+      mFloatSourceCursor( nullptr ),
+      mDoubleSourceCursor( nullptr ),
+      mSourceSize( 0 ),
+      mWorkerCount( static_cast<uint32_t>( size - 1 ) )
 {
     uint32_t nWorkers = static_cast<uint32_t>( size - 1 );
     mWorkers.reserve( nWorkers );
@@ -252,7 +361,7 @@ void ParallelFloatProcessor::StartTask( Task task )
     mNotify.notify_all();
 }
 
-void ParallelFloatProcessor::WaitTaskComplete()
+void ParallelFloatProcessor::WaitTaskComplete() const
 {
     while ( mCounter < mWorkerCount )
     {

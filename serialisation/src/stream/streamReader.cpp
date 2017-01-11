@@ -22,7 +22,7 @@
 #include "serialisation/stream/streamReader.h"
 #include "serialisation/defines.h"
 
-SERIALISATION_INLINE StreamReader::StreamReader( const std::string &fileName )
+StreamReader::StreamReader( const std::string &fileName )
     : mFileStream( fileName.c_str(), std::ifstream::binary | std::ifstream::in ),
       mStream( &mFileStream )
 {
@@ -32,31 +32,31 @@ SERIALISATION_INLINE StreamReader::StreamReader( const std::string &fileName )
     }
 }
 
-SERIALISATION_INLINE StreamReader::StreamReader( std::ifstream &stream )
+StreamReader::StreamReader( std::ifstream &stream )
     : mStream( &stream )
 {
     assert( mStream->flags() & std::ios::binary );
 }
 
-SERIALISATION_INLINE StreamReader::StreamReader( std::fstream &stream )
+StreamReader::StreamReader( std::fstream &stream )
     : mStream( &stream )
 {
     assert( ( stream.flags() & std::ios::in ) && "Not an input stream" );
     assert( ( stream.flags() & std::ios::binary ) && "File stream is not in binary mode" );
 }
 
-SERIALISATION_INLINE StreamReader::StreamReader( std::istream &stream )
+StreamReader::StreamReader( std::istream &stream )
     : mStream( &stream )
 {
 
 }
 
-SERIALISATION_INLINE StreamReader::~StreamReader()
+StreamReader::~StreamReader()
 {
     Close();
 }
 
-SERIALISATION_INLINE void StreamReader::ClearBuffer()
+SERIALISATION_INLINE void StreamReader::ClearBuffer() const
 {
 
 }
@@ -71,12 +71,12 @@ SERIALISATION_INLINE void StreamReader::Close()
     }
 }
 
-SERIALISATION_INLINE void StreamReader::ReadBytes( char *const firstByte, size_t byteCount )
+SERIALISATION_INLINE void StreamReader::ReadBytes( char *const firstByte, size_t byteCount ) const
 {
     mStream->read( firstByte, byteCount );
 }
 
-SERIALISATION_INLINE void StreamReader::ReadBlock( char *const firstByte, size_t byteCount )
+SERIALISATION_INLINE void StreamReader::ReadBlock( char *const firstByte, size_t byteCount ) const
 {
     ReadBytes( firstByte, byteCount );
 }
@@ -102,17 +102,17 @@ SERIALISATION_INLINE size_t StreamReader::ReadSize()
     return size;
 }
 
-SERIALISATION_INLINE void StreamReader::SeekG( std::streamoff count )
+SERIALISATION_INLINE void StreamReader::SeekG( std::streamoff count ) const
 {
     mStream->seekg( count, std::ios_base::cur );
 }
 
-SERIALISATION_INLINE std::streamsize StreamReader::GCount()
+SERIALISATION_INLINE std::streamsize StreamReader::GCount() const
 {
     return mStream->gcount();
 }
 
-SERIALISATION_INLINE void StreamReader::ClearEOF()
+SERIALISATION_INLINE void StreamReader::ClearEOF() const
 {
     if ( mStream->eof() )
     {

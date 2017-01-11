@@ -26,8 +26,6 @@
 #include "serialisation/stream/streamReader.h"
 #include "serialisation/defines.h"
 
-#include <cstring>
-
 template< size_t tBufferSize = SERIALISATION_SERIALISERS_BUFFERSIZE >
 class BufferedStreamReader
 {
@@ -197,7 +195,7 @@ public:
         }
         else
         {
-            mReadIndex += ( int32_t )byteCount;
+            mReadIndex += static_cast<int32_t>( byteCount );
         }
     }
 

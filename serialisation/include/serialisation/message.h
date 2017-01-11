@@ -24,7 +24,6 @@
 #define __SERIALISATION_MESSAGE_H__
 
 #include "serialisation/defines.h"
-#include "serialisation/types.h"
 
 #include <string.h>
 
@@ -68,7 +67,7 @@ class Message
 public:
 
     template< typename tStream >
-    Message( tStream &streamInitializer )
+    explicit Message( tStream &streamInitializer )
         : mInternalMessage( streamInitializer )
     {
     }
@@ -98,7 +97,7 @@ public:
     {
         SERIALISATION_ASSERT_PARENT_INDEX_IN_RANGE( index );
 
-        mInternalMessage.StoreObject< tParent >( serialisable, index, *this );
+        mInternalMessage.template StoreObject< tParent >( serialisable, index, *this );
     }
 
     template< typename tParent, typename tSerialisable >

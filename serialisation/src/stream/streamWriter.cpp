@@ -55,7 +55,7 @@ StreamWriter::~StreamWriter()
     Close();
 }
 
-void StreamWriter::ClearBuffer()
+void StreamWriter::ClearBuffer() const
 {
     mStream->flush();
 }
@@ -70,7 +70,7 @@ void StreamWriter::Close()
     }
 }
 
-void StreamWriter::WriteBlock( const char *const firstByte, size_t byteCount )
+void StreamWriter::WriteBlock( const char *const firstByte, size_t byteCount ) const
 {
     WriteBytes( firstByte, byteCount );
 }

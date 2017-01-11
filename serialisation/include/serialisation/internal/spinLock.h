@@ -41,11 +41,6 @@ public:
         }
     }
 
-    bool try_lock()
-    {
-        return !mLockValue.test_and_set( std::memory_order_acquire );
-    }
-
     void unlock()
     {
         mLockValue.clear( std::memory_order_release );

@@ -33,10 +33,10 @@ class Stack
 {
 public:
 
-    Stack( size_t size )
-        : mCursor( 0 ),
+    explicit Stack( size_t size )
+        : mStack( size ),
           mSize( size ),
-          mStack( size )
+          mCursor( 0 )
     {
     }
 

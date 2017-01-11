@@ -23,9 +23,6 @@
 #ifndef __SERIALISATION_STREAMREADER_H__
 #define __SERIALISATION_STREAMREADER_H__
 
-#include "serialisation/types.h"
-
-#include <assert.h>
 #include <fstream>
 #include <limits>
 
@@ -43,13 +40,13 @@ public:
 
     ~StreamReader();
 
-    void ClearBuffer();
+    void ClearBuffer() const;
 
     void Close();
 
-    void ReadBytes( char *const firstByte, size_t byteCount );
+    void ReadBytes( char *const firstByte, size_t byteCount ) const;
 
-    void ReadBlock( char *const firstByte, size_t byteCount );
+    void ReadBlock( char *const firstByte, size_t byteCount ) const;
 
     size_t ReadSize();
 
@@ -74,15 +71,15 @@ public:
         }
     }
 
-    void Skip( size_t byteCount )
+    void Skip( size_t byteCount ) const
     {
         SeekG( byteCount );
     }
-    void SeekG( std::streamoff count );
+    void SeekG( std::streamoff count ) const;
 
-    std::streamsize GCount();
+    std::streamsize GCount() const;
 
-    void ClearEOF();
+    void ClearEOF() const;
 
 private:
 

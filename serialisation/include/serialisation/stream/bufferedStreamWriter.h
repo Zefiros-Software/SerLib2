@@ -26,8 +26,6 @@
 #include "serialisation/stream/streamWriter.h"
 #include "serialisation/defines.h"
 
-#include <cstring>
-
 template< uint32_t tBufferSize = SERIALISATION_SERIALISERS_BUFFERSIZE, typename tStreamWriter = StreamWriter>
 class BufferedStreamWriter
 {
@@ -62,6 +60,12 @@ public:
 
     struct Buffer
     {
+        Buffer( const char *firstByte, size_t byteCount )
+            : firstByte( firstByte ),
+              byteCount( byteCount )
+        {
+        }
+
         const char *const firstByte;
         size_t byteCount;
     };
@@ -138,8 +142,8 @@ private:
 
     uint32_t mWriteIndex;
 
-    BufferedStreamWriter &operator=( const BufferedStreamWriter & );
-    BufferedStreamWriter( const BufferedStreamWriter & );
+    BufferedStreamWriter &operator=( const BufferedStreamWriter & ) = delete;
+    BufferedStreamWriter( const BufferedStreamWriter & ) = delete;
 };
 
 #ifndef SERIALISATION_NO_HEADER_ONLY

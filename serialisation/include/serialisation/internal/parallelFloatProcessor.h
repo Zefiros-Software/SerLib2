@@ -45,14 +45,8 @@ public:
     void SerialiseFloats( float *cursor, size_t size );
     void DeserialiseFloats( float *cursor, size_t size );
 
-    void SerialiseFloatsSequential( float *cursor, size_t size );
-    void DeserialiseFloatsSequential( float *cursor, size_t size );
-
     void SerialiseDoubles( double *cursor, size_t size );
     void DeserialiseDoubles( double *cursor, size_t size );
-
-    void SerialiseDoublesSequential();
-    void DeserialiseDoublesSequential();
 
     static void TerminateWorkers();
 
@@ -91,7 +85,7 @@ private:
     Task mTask;
 
     void StartTask( Task task );
-    void WaitTaskComplete();
+    void WaitTaskComplete() const;
 
     void WorkerSerialiseFloat( size_t start, size_t end );
     void WorkerDeserialiseFloat( size_t start, size_t end );
