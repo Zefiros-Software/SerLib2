@@ -409,12 +409,14 @@ private:
             ReadPrimitive( temp, type );
             value = static_cast<float>( temp );
         }
+        else
+        {
+            ExceptionHelper::Strict::AssertEqual<InvalidTypeException>( Type::UInt32, type, mCleanExit );
 
-        ExceptionHelper::Strict::AssertEqual<InvalidTypeException>( Type::UInt32, type, mCleanExit );
-
-        uint32_t flexman;
-        ReadPrimitiveNoAssert( flexman );
-        value = Util::UInt32ToFloat( flexman );
+            uint32_t flexman;
+            ReadPrimitiveNoAssert( flexman );
+            value = Util::UInt32ToFloat( flexman );
+        }
     }
 
     void ReadPrimitive( double &value, Type::Type type )
@@ -425,12 +427,14 @@ private:
             ReadPrimitive( temp, type );
             value = temp;
         }
+        else
+        {
+            ExceptionHelper::Strict::AssertEqual<InvalidTypeException>( Type::UInt64, type, mCleanExit );
 
-        ExceptionHelper::Strict::AssertEqual<InvalidTypeException>( Type::UInt64, type, mCleanExit );
-
-        uint64_t flexman;
-        ReadPrimitiveNoAssert( flexman );
-        value = Util::UInt64ToDouble( flexman );
+            uint64_t flexman;
+            ReadPrimitiveNoAssert( flexman );
+            value = Util::UInt64ToDouble( flexman );
+        }
     }
 
     SERIALISATION_FORCEINLINE void ReadPrimitive( std::string &value, Type::Type type )
