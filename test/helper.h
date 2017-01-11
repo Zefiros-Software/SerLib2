@@ -65,6 +65,12 @@ inline void ExpectEqual< double >( const double &d1, const double &d2 )
     EXPECT_DOUBLE_EQ( d1, d2 );
 }
 
+inline void ExpectEqual( const char *c1, const char *c2 )
+{
+    std::string s1( c1 ), s2( c2 );
+    EXPECT_EQ( s1, s2 );
+}
+
 template< typename tT >
 inline tT GenerateZebraValue()
 {

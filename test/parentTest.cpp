@@ -24,12 +24,12 @@ SERIALISATION_TEST( Object, MultiParent, ClassWithMultipleParents< uint64_t >, u
 
 #define SERIALISATION_PARENT_SKIPPING_TEST( type )                                              \
 SERIALISATION_TEST2( Skipping, Parent, SkippedParent< type >, SinglePrimitive< uint8_t >, type, \
-                     MakeSeed<type>( 414141 ), 414141 );
+                     MakeSeed<type>( 414141 ), 189 );
 
 SERIALISATION_ALL_TYPES( SERIALISATION_PARENT_SKIPPING_TEST );
 
 #define SERIALISATION_PARENT_NON_EXISTING_TEST( type )                                              \
 SERIALISATION_TEST2( NonExisting, Parent, SinglePrimitive< uint8_t >, SkippedParent< type >, type,  \
-                     MakeSeed<type>( 414141 ), 414141 );
+                     SERIALISATION_PP_TEMPLATE2( MakeSeed, type, uint8_t )( 414141 ), 414141 );
 
 SERIALISATION_ALL_TYPES( SERIALISATION_PARENT_NON_EXISTING_TEST );

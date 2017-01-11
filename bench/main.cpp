@@ -200,168 +200,168 @@ static inline void TimeManual( benchmark::State &state, const tFunc &func )
     state.SetIterationTime( elapsed_seconds.count() );
 }
 
-static void BM_VarInt( benchmark::State &state )
-{
-    while ( state.KeepRunning() )
-    {
-        benchmark::DoNotOptimize( VarInt<std::numeric_limits<uint64_t>::max()>() );
-    }
-
-    state.SetItemsProcessed( state.iterations() );
-    state.SetBytesProcessed( state.iterations() * sizeof( uint64_t ) );
-}
-
-static void BM_VarIntSize( benchmark::State &state )
-{
-    while ( state.KeepRunning() )
-    {
-        benchmark::DoNotOptimize( VarIntSize<std::numeric_limits<uint64_t>::max()>() );
-    }
-
-    state.SetItemsProcessed( state.iterations() );
-    state.SetBytesProcessed( state.iterations() * sizeof( uint64_t ) );
-}
-
-static void BM_StoreU32( benchmark::State &state )
-{
-    uint32_t x = static_cast<uint32_t>( state.range_x() );
-    {
-        std::stringstream ss;
-        Message< BinarySerialisationMessage< BufferedStreamWriter<> > > message( ss );
-
-        while ( state.KeepRunning() )
-        {
-            message.Store( 0, x );
-        }
-    }
-
-    state.SetItemsProcessed( state.iterations() );
-    state.SetBytesProcessed( state.iterations() * sizeof( uint64_t ) );
-    state.SetComplexityN( static_cast<int>( x ) );
-}
-
-static void BM_CreateHeaderCT( benchmark::State &state )
-{
-    while ( state.KeepRunning() )
-    {
-        benchmark::DoNotOptimize( Util::CreateHeader<uint32_t>( 0 ) );
-    }
-
-    state.SetItemsProcessed( state.iterations() );
-    state.SetBytesProcessed( state.iterations() * sizeof( uint64_t ) );
-}
-
-static void BM_CreateHeader( benchmark::State &state )
-{
-    volatile uint8_t index = 0;
-
-    while ( state.KeepRunning() )
-    {
-        benchmark::DoNotOptimize( Util::CreateHeader<uint32_t>( index ) );
-    }
-
-    state.SetItemsProcessed( state.iterations() );
-    state.SetBytesProcessed( state.iterations() * sizeof( uint64_t ) );
-}
-
-static void BM_NormalNestedDeser( benchmark::State &state )
-{
-    Testclass3 tc, tc2;
-
-    uint32_t nObj = 200;
-
-    std::stringstream ssSource;
-    {
-        Serialisation::BinarySerialiser serMessage( ssSource );
-
-        for ( uint32_t i = 0; i < nObj; ++i )
-        {
-            serMessage.Enter( tc );
-        }
-    }
-
-    while ( state.KeepRunning() )
-    {
-        {
-            std::stringstream ss( ssSource.str() );
-            Message< BinaryDeserialisationMessage< BufferedStreamReader<> > > deserMessage( ss );
-
-            TimeManual( state, [&]()
-            {
-                for ( uint32_t i = 0; i < nObj; ++i )
-                {
-                    deserMessage.Enter( tc2 );
-                }
-            } );
-        }
-    }
-
-    state.SetItemsProcessed( state.iterations() * nObj );
-    state.SetBytesProcessed( state.iterations() * nObj * tc.GetMemberSize() );
-}
-
-static void BM_ReorderedNestedDeser( benchmark::State &state )
-{
-    Testclass3 tc;
-    Testclass3Reordered tc2;
-
-    uint32_t nObj = 200;
-
-    std::stringstream ssSource;
-    {
-        Serialisation::BinarySerialiser serMessage( ssSource );
-
-        for ( uint32_t i = 0; i < nObj; ++i )
-        {
-            serMessage.Enter( tc );
-        }
-    }
-
-    while ( state.KeepRunning() )
-    {
-        {
-            std::stringstream ss( ssSource.str() );
-            Message< BinaryDeserialisationMessage< BufferedStreamReader<> > > deserMessage( ss );
-
-            TimeManual( state, [&]()
-            {
-                for ( uint32_t i = 0; i < nObj; ++i )
-                {
-                    deserMessage.Enter( tc2 );
-                }
-            } );
-        }
-    }
-
-    state.SetItemsProcessed( state.iterations() * nObj );
-    state.SetBytesProcessed( state.iterations() * nObj * tc.GetMemberSize() );
-}
-
-static void BM_NormalNestedSer( benchmark::State &state )
-{
-    Testclass3 tc;
-
-    uint32_t nObj = 200;
-
-    while ( state.KeepRunning() )
-    {
-        {
-            std::stringstream ss;
-            Message< BinarySerialisationMessage<BufferedStreamWriter<> > > serMessage( ss );
-
-            TimeManual( state, [&]()
-            {
-                for ( uint32_t i = 0; i < nObj; ++i )
-                {
-                    serMessage.Enter( tc );
-                }
-            } );
-        }
-    }
-
-    state.SetItemsProcessed( state.iterations() * nObj );
-    state.SetBytesProcessed( state.iterations() * nObj * tc.GetMemberSize() );
-}
+// static void BM_VarInt( benchmark::State &state )
+// {
+//     while ( state.KeepRunning() )
+//     {
+//         benchmark::DoNotOptimize( VarInt<std::numeric_limits<uint64_t>::max()>() );
+//     }
+//
+//     state.SetItemsProcessed( state.iterations() );
+//     state.SetBytesProcessed( state.iterations() * sizeof( uint64_t ) );
+// }
+//
+// static void BM_VarIntSize( benchmark::State &state )
+// {
+//     while ( state.KeepRunning() )
+//     {
+//         benchmark::DoNotOptimize( VarIntSize<std::numeric_limits<uint64_t>::max()>() );
+//     }
+//
+//     state.SetItemsProcessed( state.iterations() );
+//     state.SetBytesProcessed( state.iterations() * sizeof( uint64_t ) );
+// }
+//
+// static void BM_StoreU32( benchmark::State &state )
+// {
+//     uint32_t x = static_cast<uint32_t>( state.range_x() );
+//     {
+//         std::stringstream ss;
+//         Message< BinarySerialisationMessage< BufferedStreamWriter<> > > message( ss );
+//
+//         while ( state.KeepRunning() )
+//         {
+//             message.Store( 0, x );
+//         }
+//     }
+//
+//     state.SetItemsProcessed( state.iterations() );
+//     state.SetBytesProcessed( state.iterations() * sizeof( uint64_t ) );
+//     state.SetComplexityN( static_cast<int>( x ) );
+// }
+//
+// static void BM_CreateHeaderCT( benchmark::State &state )
+// {
+//     while ( state.KeepRunning() )
+//     {
+//         benchmark::DoNotOptimize( Util::CreateHeader<uint32_t>( 0 ) );
+//     }
+//
+//     state.SetItemsProcessed( state.iterations() );
+//     state.SetBytesProcessed( state.iterations() * sizeof( uint64_t ) );
+// }
+//
+// static void BM_CreateHeader( benchmark::State &state )
+// {
+//     volatile uint8_t index = 0;
+//
+//     while ( state.KeepRunning() )
+//     {
+//         benchmark::DoNotOptimize( Util::CreateHeader<uint32_t>( index ) );
+//     }
+//
+//     state.SetItemsProcessed( state.iterations() );
+//     state.SetBytesProcessed( state.iterations() * sizeof( uint64_t ) );
+// }
+//
+// static void BM_NormalNestedDeser( benchmark::State &state )
+// {
+//     Testclass3 tc, tc2;
+//
+//     uint32_t nObj = 200;
+//
+//     std::stringstream ssSource;
+//     {
+//         Serialisation::BinarySerialiser serMessage( ssSource );
+//
+//         for ( uint32_t i = 0; i < nObj; ++i )
+//         {
+//             serMessage.Enter( tc );
+//         }
+//     }
+//
+//     while ( state.KeepRunning() )
+//     {
+//         {
+//             std::stringstream ss( ssSource.str() );
+//             Message< BinaryDeserialisationMessage< BufferedStreamReader<> > > deserMessage( ss );
+//
+//             TimeManual( state, [&]()
+//             {
+//                 for ( uint32_t i = 0; i < nObj; ++i )
+//                 {
+//                     deserMessage.Enter( tc2 );
+//                 }
+//             } );
+//         }
+//     }
+//
+//     state.SetItemsProcessed( state.iterations() * nObj );
+//     state.SetBytesProcessed( state.iterations() * nObj * tc.GetMemberSize() );
+// }
+//
+// static void BM_ReorderedNestedDeser( benchmark::State &state )
+// {
+//     Testclass3 tc;
+//     Testclass3Reordered tc2;
+//
+//     uint32_t nObj = 200;
+//
+//     std::stringstream ssSource;
+//     {
+//         Serialisation::BinarySerialiser serMessage( ssSource );
+//
+//         for ( uint32_t i = 0; i < nObj; ++i )
+//         {
+//             serMessage.Enter( tc );
+//         }
+//     }
+//
+//     while ( state.KeepRunning() )
+//     {
+//         {
+//             std::stringstream ss( ssSource.str() );
+//             Message< BinaryDeserialisationMessage< BufferedStreamReader<> > > deserMessage( ss );
+//
+//             TimeManual( state, [&]()
+//             {
+//                 for ( uint32_t i = 0; i < nObj; ++i )
+//                 {
+//                     deserMessage.Enter( tc2 );
+//                 }
+//             } );
+//         }
+//     }
+//
+//     state.SetItemsProcessed( state.iterations() * nObj );
+//     state.SetBytesProcessed( state.iterations() * nObj * tc.GetMemberSize() );
+// }
+//
+// static void BM_NormalNestedSer( benchmark::State &state )
+// {
+//     Testclass3 tc;
+//
+//     uint32_t nObj = 200;
+//
+//     while ( state.KeepRunning() )
+//     {
+//         {
+//             std::stringstream ss;
+//             Message< BinarySerialisationMessage<BufferedStreamWriter<> > > serMessage( ss );
+//
+//             TimeManual( state, [&]()
+//             {
+//                 for ( uint32_t i = 0; i < nObj; ++i )
+//                 {
+//                     serMessage.Enter( tc );
+//                 }
+//             } );
+//         }
+//     }
+//
+//     state.SetItemsProcessed( state.iterations() * nObj );
+//     state.SetBytesProcessed( state.iterations() * nObj * tc.GetMemberSize() );
+// }
 
 template< typename tT >
 class TestClassArray
@@ -422,31 +422,31 @@ static void BM_FloatArraySer( benchmark::State &state )
     state.SetBytesProcessed( state.iterations() * nObj * tc.GetMemberSize() );
 }
 
-static void BM_IntArraySer( benchmark::State &state )
-{
-    TestClassArray<uint32_t> tc;
-
-    uint32_t nObj = 1;
-
-    while ( state.KeepRunning() )
-    {
-        {
-            std::stringstream ss;
-            Message< BinarySerialisationMessage<BufferedStreamWriter<> > > serMessage( ss );
-
-            TimeManual( state, [&]()
-            {
-                for ( uint32_t i = 0; i < nObj; ++i )
-                {
-                    serMessage.Enter( tc );
-                }
-            } );
-        }
-    }
-
-    state.SetItemsProcessed( state.iterations() * nObj );
-    state.SetBytesProcessed( state.iterations() * nObj * tc.GetMemberSize() );
-}
+// static void BM_IntArraySer( benchmark::State &state )
+// {
+//     TestClassArray<uint32_t> tc;
+//
+//     uint32_t nObj = 1;
+//
+//     while ( state.KeepRunning() )
+//     {
+//         {
+//             std::stringstream ss;
+//             Message< BinarySerialisationMessage<BufferedStreamWriter<> > > serMessage( ss );
+//
+//             TimeManual( state, [&]()
+//             {
+//                 for ( uint32_t i = 0; i < nObj; ++i )
+//                 {
+//                     serMessage.Enter( tc );
+//                 }
+//             } );
+//         }
+//     }
+//
+//     state.SetItemsProcessed( state.iterations() * nObj );
+//     state.SetBytesProcessed( state.iterations() * nObj * tc.GetMemberSize() );
+// }
 
 //BENCHMARK( BM_NormalNestedDeser )->MinTime( 5.0 );
 //BENCHMARK( BM_NormalNestedSer )->MinTime( 5.0 );

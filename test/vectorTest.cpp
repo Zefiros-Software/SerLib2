@@ -33,12 +33,12 @@ SERIALISATION_ALL_TYPES( SERIALISATION_ARRAY_REORDERED_REVERSE_TEST );
 
 #define SERIALISATION_ARRAY_SKIPPED_TEST( type )                                                                    \
 SERIALISATION_TEST2( Skipping, Vector, SkippedArray< type >, SinglePrimitive<uint8_t>, type, MakeSeed<type>( 42 ),  \
-                     GetRandom<uint32_t>() );
+                     GetRandom<uint8_t>() );
 
 SERIALISATION_ALL_TYPES( SERIALISATION_ARRAY_SKIPPED_TEST );
 
-#define SERIALISATION_ARRAY_NON_EXISTING_TEST( type )                                                                  \
-SERIALISATION_TEST2( NonExisting, Vector, SinglePrimitive<uint8_t>, SkippedArray< type >, type, MakeSeed<type>( 42 ),  \
-                     GetRandom<uint32_t>() );
+#define SERIALISATION_ARRAY_NON_EXISTING_TEST( type )                                                       \
+SERIALISATION_TEST2( NonExisting, Vector, SinglePrimitive<uint8_t>, SkippedArray< type >, type,             \
+                     SERIALISATION_PP_TEMPLATE2( MakeSeed, type, uint8_t )( 42 ), GetRandom<uint32_t>() );
 
 SERIALISATION_ALL_TYPES( SERIALISATION_ARRAY_NON_EXISTING_TEST );

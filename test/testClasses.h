@@ -629,9 +629,9 @@ public:
 
     explicit ClassWithMultipleParents( const tT &value )
         : tParent1( value ),
-          SingleFloat( value ),
-          SingleU8( value ),
-          SingleU16( value ),
+          SingleFloat( 1.0f * value ),
+          SingleU8( static_cast<uint8_t>( value ) ),
+          SingleU16( static_cast<uint16_t>( value ) ),
           mValue( value ),
           mObject( value )
     {
@@ -680,9 +680,11 @@ public:
         {
             *it = static_cast<tT>( GetRandom< tT >() );
         }
+
+        mValue = GetRandom<uint8_t>();
     }
 
-    ObjectVector( uint32_t seed )
+    explicit ObjectVector( uint32_t seed )
     {
         g_seed = seed;
         Init();
@@ -692,9 +694,11 @@ public:
     void OnStore( Message< tM > &message )
     {
         message.Store( 0, mObjects );
+        message.Store( 1, mValue );
     }
 
-    void TestEqual( ObjectVector< tT > &t2 )
+    template< typename tC >
+    void TestEqual( tC &t2 )
     {
         ExpectEqual( mObjects.size(), t2.mObjects.size() );
 
@@ -704,9 +708,54 @@ public:
         }
     }
 
-private:
+    std::vector< SinglePrimitive< tT > > mObjects;
+    uint8_t mValue;
+
+};
+
+template< typename tT >
+class ObjectVectorReordered
+{
+public:
+
+    void Init()
+    {
+        mObjects.resize( ( GetRandom< uint32_t >() % 8192 ) + 8192 );
+
+        for ( auto it = mObjects.begin(); it != mObjects.end(); ++it )
+        {
+            *it = static_cast<tT>( GetRandom< tT >() );
+        }
+
+        mValue = GetRandom<uint8_t>();
+    }
+
+    explicit ObjectVectorReordered( uint32_t seed )
+    {
+        g_seed = seed;
+        Init();
+    }
+
+    template< typename tM >
+    void OnStore( Message< tM > &message )
+    {
+        message.Store( 1, mValue );
+        message.Store( 0, mObjects );
+    }
+
+    template< typename tC >
+    void TestEqual( tC &t2 )
+    {
+        ExpectEqual( mObjects.size(), t2.mObjects.size() );
+
+        for ( size_t i = 0, end = mObjects.size(); i < end; ++i )
+        {
+            mObjects[i].TestEqual( t2.mObjects[i] );
+        }
+    }
 
     std::vector< SinglePrimitive< tT > > mObjects;
+    uint8_t mValue;
 
 };
 
