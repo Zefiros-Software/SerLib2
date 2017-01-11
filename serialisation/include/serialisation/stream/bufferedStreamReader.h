@@ -31,36 +31,14 @@ class BufferedStreamReader
 {
 public:
 
-    explicit BufferedStreamReader( const std::string &fileName )
-        : mStreamReader( fileName ),
-          mReadIndex( 0 ),
-          mReadSize( 0 )
-    {
+    template< typename tStream >
 
-    }
-
-    explicit BufferedStreamReader( std::ifstream &stream )
+    explicit BufferedStreamReader( tStream &stream, bool &cleanExit )
         : mStreamReader( stream ),
           mReadIndex( 0 ),
-          mReadSize( 0 )
+          mReadSize( 0 ),
+          mCleanExit( cleanExit )
     {
-
-    }
-
-    explicit BufferedStreamReader( std::fstream &stream )
-        : mStreamReader( stream ),
-          mReadIndex( 0 ),
-          mReadSize( 0 )
-    {
-
-    }
-
-    explicit BufferedStreamReader( std::istream &stream )
-        : mStreamReader( stream ),
-          mReadIndex( 0 ),
-          mReadSize( 0 )
-    {
-
     }
 
     ~BufferedStreamReader()
@@ -208,6 +186,8 @@ private:
     uint32_t mReadIndex;
     uint32_t mReadSize;
 
+    bool &mCleanExit;
+
     void FillReadBuffer()
     {
         mReadIndex = 0;
@@ -216,7 +196,7 @@ private:
 
         mStreamReader.ClearEOF();
 
-        ExceptionHelper::Assert<EndOfStreamException>( mReadSize > mReadIndex );
+        ExceptionHelper::Assert<EndOfStreamException>( mReadSize > mReadIndex, mCleanExit );
     }
 
     BufferedStreamReader &operator=( const BufferedStreamReader & ) = delete;

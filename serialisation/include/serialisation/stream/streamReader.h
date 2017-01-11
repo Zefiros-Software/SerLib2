@@ -24,7 +24,6 @@
 #define __SERIALISATION_STREAMREADER_H__
 
 #include <fstream>
-#include <limits>
 
 class StreamReader
 {
@@ -46,35 +45,6 @@ public:
 
     void ReadBytes( char *const firstByte, size_t byteCount ) const;
 
-    void ReadBlock( char *const firstByte, size_t byteCount ) const;
-
-    size_t ReadSize();
-
-    template< typename tPrimitive >
-    void ReadPrimitive( tPrimitive &value )
-    {
-        ReadBytes( reinterpret_cast< char *const >( &value ), sizeof( tPrimitive ) );
-    }
-
-    template< typename tPrimitive >
-    void ReadPrimitiveBlock( tPrimitive *first, size_t count )
-    {
-        const size_t maxBlockSize = std::numeric_limits< size_t >::max() / sizeof( tPrimitive );
-
-        while ( count > 0 )
-        {
-            const size_t readBlockSize = count > maxBlockSize ? maxBlockSize : count;
-
-            ReadBlock( reinterpret_cast< char *const >( first ), readBlockSize * sizeof( tPrimitive ) );
-            count -= readBlockSize;
-            first += readBlockSize;
-        }
-    }
-
-    void Skip( size_t byteCount ) const
-    {
-        SeekG( byteCount );
-    }
     void SeekG( std::streamoff count ) const;
 
     std::streamsize GCount() const;

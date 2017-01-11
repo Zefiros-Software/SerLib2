@@ -88,14 +88,31 @@ public:
 
     template< typename tStream >
     explicit BinaryDeserialisationMessage( tStream &streamInitializer )
-        : mStreamReader( streamInitializer ),
+        : mStreamReader( streamInitializer, mCleanExit ),
           mCurrentType( Type::Terminator ),
           mCurrentIndex( 0 ),
           mCurrentIndexPending( false ),
           mObjectSkipping( false ),
+          mCleanExit( true ),
           mCurrentPendingVariables( nullptr ),
           mVariableHistory( 1 )
     {
+    }
+
+    ~BinaryDeserialisationMessage()
+    {
+        if ( !mCleanExit )
+        {
+            if ( mCurrentPendingVariables != nullptr )
+            {
+                ReleasePendingVariableArray( mCurrentPendingVariables );
+
+                for ( auto it = mVariableHistory.Pop(); it != nullptr; it = mVariableHistory.Pop() )
+                {
+                    ReleasePendingVariableArray( it );
+                }
+            }
+        }
     }
 
     template< typename tT >
@@ -125,6 +142,8 @@ public:
     template< typename tSerialisable, typename tMessage >
     void StoreEntryPoint( tSerialisable &serialisable, tMessage &message )
     {
+        ExceptionHelper::Assert<NoCleanExitException>( mCleanExit, mCleanExit );
+
         mVariableHistory.Push( mCurrentPendingVariables );
         mCurrentPendingVariables = InitPendingVariableArray();
 
@@ -150,6 +169,8 @@ private:
     bool mCurrentIndexPending;
 
     bool mObjectSkipping;
+
+    bool mCleanExit;
 
     PendingVariableArray *mCurrentPendingVariables;
 
@@ -270,7 +291,7 @@ private:
     template< typename tSerialisable, typename tMessage  >
     void ReadObject( tSerialisable &serialisable, Type::Type type, tMessage &message )
     {
-        ExceptionHelper::Strict::AssertEqual< InvalidTypeException >( Type::Object, type );
+        ExceptionHelper::Strict::AssertEqual< InvalidTypeException >( Type::Object, type, mCleanExit );
 
         StoreEntryPoint( serialisable, message );
     }
@@ -278,14 +299,14 @@ private:
     template< typename tSerialisable, typename tMessage  >
     void ReadObjectVector( std::vector<tSerialisable> &value, Type::Type type, tMessage &message )
     {
-        ExceptionHelper::Strict::AssertEqual< InvalidTypeException >( Type::Array, type );
+        ExceptionHelper::Strict::AssertEqual< InvalidTypeException >( Type::Array, type, mCleanExit );
 
         uint8_t flags;
         Type::Type subType;
         size_t size;
         ReadArrayHeader( flags, subType, size );
 
-        ExceptionHelper::Strict::AssertEqual< InvalidTypeException >( Type::Object, subType );
+        ExceptionHelper::Strict::AssertEqual< InvalidTypeException >( Type::Object, subType, mCleanExit );
 
         value.resize( size );
 
@@ -301,12 +322,82 @@ private:
         mStreamReader.ReadPrimitive( value );
     }
 
+    void ReadPrimitiveNoAssert( std::string &value )
+    {
+        size_t size = mStreamReader.ReadSize();
+        value.resize( size );
+        mStreamReader.ReadBytes( &value[0], size );
+    }
+
+    template< typename tT >
+    void ReadPrimitiveType( tT &value, Type::Type type )
+    {
+        switch ( type )
+        {
+        case Type::UInt8:
+            {
+                uint8_t val;
+                ReadPrimitiveNoAssert( val );
+                value = static_cast<tT>( val );
+            }
+            break;
+
+        case Type::UInt16:
+
+            {
+                uint16_t val;
+                ReadPrimitiveNoAssert( val );
+                value = static_cast<tT>( val );
+            }
+            break;
+
+        case Type::UInt32:
+
+            {
+                uint32_t val;
+                ReadPrimitiveNoAssert( val );
+                value = static_cast<tT>( val );
+            }
+            break;
+
+        case Type::UInt64:
+
+            {
+                uint64_t val;
+                ReadPrimitiveNoAssert( val );
+                value = static_cast<tT>( val );
+            }
+            break;
+
+        default:
+            assert( false &&
+                    "Whoops! Something went haywire. Please try to reproduce this exception in an example as small as possible and submit it as an issue. Thanks!" );
+            break;
+        }
+    }
+
     template< typename tT >
     void ReadPrimitive( tT &value, Type::Type type )
     {
-        ExceptionHelper::Compat::AssertCompatible<tT>( type );
+#ifndef SERIALISATION_DISABLE_TYPE_CHECKS
+#ifndef SERIALISATION_ENABLE_STRICT_TYPES
 
+        if ( ExceptionHelper::Compat::AssertCompatible<tT>( type, mCleanExit ) )
+        {
+            ReadPrimitiveType( value, type );
+        }
+        else
+        {
+            ReadPrimitiveNoAssert( value );
+        }
+
+#else
+        ExceptionHelper::Strict::AssertEqual( Type::GetHeaderEnum<tT>(), type );
         ReadPrimitiveNoAssert( value );
+#endif
+#else
+        ReadPrimitiveNoAssert( value );
+#endif
     }
 
     void ReadPrimitive( bool &value, Type::Type type )
@@ -318,7 +409,14 @@ private:
 
     void ReadPrimitive( float &value, Type::Type type )
     {
-        ExceptionHelper::Strict::AssertEqual<InvalidTypeException>( Type::UInt32, type );
+        if ( type == Type::UInt64 )
+        {
+            double temp;
+            ReadPrimitive( temp, type );
+            value = static_cast<float>( temp );
+        }
+
+        ExceptionHelper::Strict::AssertEqual<InvalidTypeException>( Type::UInt32, type, mCleanExit );
 
         uint32_t flexman;
         ReadPrimitiveNoAssert( flexman );
@@ -327,24 +425,38 @@ private:
 
     void ReadPrimitive( double &value, Type::Type type )
     {
-        ExceptionHelper::Strict::AssertEqual<InvalidTypeException>( Type::UInt64, type );
+        if ( type == Type::UInt32 )
+        {
+            float temp;
+            ReadPrimitive( temp, type );
+            value = temp;
+        }
+
+        ExceptionHelper::Strict::AssertEqual<InvalidTypeException>( Type::UInt64, type, mCleanExit );
 
         uint64_t flexman;
         ReadPrimitiveNoAssert( flexman );
         value = Util::UInt64ToDouble( flexman );
     }
 
+    SERIALISATION_FORCEINLINE void ReadPrimitive( std::string &value, Type::Type type )
+    {
+        ExceptionHelper::Strict::AssertEqual<InvalidTypeException>( Type::String, type, mCleanExit );
+
+        ReadPrimitiveNoAssert( value );
+    }
+
     template< typename tT >
     void ReadPrimitiveVector( std::vector< tT > &value, Type::Type type )
     {
-        ExceptionHelper::Strict::AssertEqual<InvalidTypeException>( Type::Array, type );
+        ExceptionHelper::Strict::AssertEqual<InvalidTypeException>( Type::Array, type, mCleanExit );
 
         uint8_t flags;
         Type::Type subType;
         size_t size;
         ReadArrayHeader( flags, subType, size );
 
-        ExceptionHelper::Strict::AssertEqual<InvalidTypeException>( Type::GetHeaderEnum<tT>(), subType );
+        ExceptionHelper::Strict::AssertEqual<InvalidTypeException>( Type::GetHeaderEnum<tT>(), subType, mCleanExit );
 
         value.resize( size );
         mStreamReader.ReadPrimitiveBlock( &value[0], size );
@@ -352,14 +464,14 @@ private:
 
     void ReadPrimitiveVector( std::vector< bool > &value, Type::Type type )
     {
-        ExceptionHelper::Strict::AssertEqual<InvalidTypeException>( Type::Array, type );
+        ExceptionHelper::Strict::AssertEqual<InvalidTypeException>( Type::Array, type, mCleanExit );
 
         uint8_t flags;
         Type::Type subType;
         size_t size;
         ReadArrayHeader( flags, subType, size );
 
-        ExceptionHelper::Strict::AssertEqual<InvalidTypeException>( Type::UInt8, subType );
+        ExceptionHelper::Strict::AssertEqual<InvalidTypeException>( Type::UInt8, subType, mCleanExit );
 
         value.resize( size );
 
@@ -374,14 +486,14 @@ private:
 
     void ReadPrimitiveVector( std::vector< std::string > &value, Type::Type type )
     {
-        ExceptionHelper::Strict::AssertEqual<InvalidTypeException>( Type::Array, type );
+        ExceptionHelper::Strict::AssertEqual<InvalidTypeException>( Type::Array, type, mCleanExit );
 
         uint8_t flags;
         Type::Type subType;
         size_t size;
         ReadArrayHeader( flags, subType, size );
 
-        ExceptionHelper::Strict::AssertEqual<InvalidTypeException>( Type::String, subType );
+        ExceptionHelper::Strict::AssertEqual<InvalidTypeException>( Type::String, subType, mCleanExit );
 
         value.resize( size );
 
@@ -394,14 +506,14 @@ private:
 
     void ReadPrimitiveVector( std::vector< float > &value, Type::Type type )
     {
-        ExceptionHelper::Strict::AssertEqual<InvalidTypeException>( Type::Array, type );
+        ExceptionHelper::Strict::AssertEqual<InvalidTypeException>( Type::Array, type, mCleanExit );
 
         uint8_t flags;
         Type::Type subType;
         size_t size;
         ReadArrayHeader( flags, subType, size );
 
-        ExceptionHelper::Strict::AssertEqual<InvalidTypeException>( Type::UInt32, subType );
+        ExceptionHelper::Strict::AssertEqual<InvalidTypeException>( Type::UInt32, subType, mCleanExit );
 
         value.resize( size );
 
@@ -419,14 +531,14 @@ private:
 
     void ReadPrimitiveVector( std::vector< double > &value, Type::Type type )
     {
-        ExceptionHelper::Strict::AssertEqual<InvalidTypeException>( Type::Array, type );
+        ExceptionHelper::Strict::AssertEqual<InvalidTypeException>( Type::Array, type, mCleanExit );
 
         uint8_t flags;
         Type::Type subType;
         size_t size;
         ReadArrayHeader( flags, subType, size );
 
-        ExceptionHelper::Strict::AssertEqual<InvalidTypeException>( Type::UInt64, subType );
+        ExceptionHelper::Strict::AssertEqual<InvalidTypeException>( Type::UInt64, subType, mCleanExit );
 
         value.resize( size );
 
@@ -440,15 +552,6 @@ private:
             floatProcessor.DeserialiseDoubles( fCursor, blockSize );
 
         }
-    }
-
-    SERIALISATION_FORCEINLINE void ReadPrimitive( std::string &value, Type::Type type )
-    {
-        ExceptionHelper::Strict::AssertEqual<InvalidTypeException>( Type::String, type );
-
-        size_t size = mStreamReader.ReadSize();
-        value.resize( size );
-        mStreamReader.ReadBytes( &value[0], size );
     }
 
     void ReadRemaining()

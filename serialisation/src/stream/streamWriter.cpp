@@ -69,22 +69,3 @@ void StreamWriter::Close()
         mFileStream.close();
     }
 }
-
-void StreamWriter::WriteBlock( const char *const firstByte, size_t byteCount ) const
-{
-    WriteBytes( firstByte, byteCount );
-}
-
-void StreamWriter::WriteSize( size_t size )
-{
-    uint8_t bufferIndex;
-
-    for ( bufferIndex = 0; size >= 0x80; size >>= 7, ++bufferIndex )
-    {
-        mVarIntBuffer[bufferIndex] = static_cast<uint8_t>( ( size & 0x7F ) | 0x80 );
-    }
-
-    mVarIntBuffer[bufferIndex] = static_cast<uint8_t>( size );
-
-    WriteBytes( reinterpret_cast<char *>( mVarIntBuffer ), ++bufferIndex );
-}

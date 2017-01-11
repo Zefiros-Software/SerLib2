@@ -76,32 +76,6 @@ SERIALISATION_INLINE void StreamReader::ReadBytes( char *const firstByte, size_t
     mStream->read( firstByte, byteCount );
 }
 
-SERIALISATION_INLINE void StreamReader::ReadBlock( char *const firstByte, size_t byteCount ) const
-{
-    ReadBytes( firstByte, byteCount );
-}
-
-SERIALISATION_INLINE size_t StreamReader::ReadSize()
-{
-    size_t size = 0;
-    uint8_t shift = 0;
-
-    uint8_t byte;
-
-    ReadPrimitive( byte );
-
-    while ( byte & 0x80 )
-    {
-        size |= static_cast<size_t>( byte & 0x7F ) << shift;
-        ReadPrimitive( byte );
-        shift += 7;
-    }
-
-    size |= static_cast<size_t>( byte ) << shift;
-
-    return size;
-}
-
 SERIALISATION_INLINE void StreamReader::SeekG( std::streamoff count ) const
 {
     mStream->seekg( count, std::ios_base::cur );

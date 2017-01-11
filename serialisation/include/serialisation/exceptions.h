@@ -75,17 +75,38 @@ private:
     std::string mWhat;
 };
 
+class NoCleanExitException
+    : public std::exception
+{
+public:
+
+    NoCleanExitException()
+        : mWhat( "Attempted to reuse message after unclean exit" )
+    {
+    }
+
+    const char *what() const noexcept override
+    {
+        return mWhat.c_str();
+    }
+
+private:
+
+    std::string mWhat;
+};
+
 namespace ExceptionHelper
 {
     namespace Strict
     {
         template< typename tException, typename tT >
-        inline void AssertEqual( const tT &expected, const tT &actual )
+        inline void AssertEqual( const tT &expected, const tT &actual, bool &cleanExit )
         {
 #ifndef SERIALISATION_DISABLE_TYPE_CHECKS
 
             if ( expected != actual )
             {
+                cleanExit = false;
                 throw tException( expected, actual );
             }
 
@@ -96,31 +117,17 @@ namespace ExceptionHelper
     namespace Compat
     {
         template< typename tT >
-        inline void AssertCompatible( const Type::Type &actual )
+        inline bool AssertCompatible( const Type::Type &actual, bool &cleanExit )
         {
-#ifndef SERIALISATION_DISABLE_TYPE_CHECKS
-#ifndef SERIALISATION_ENABLE_STRICT_TYPES
-
             switch ( Type::GetHeaderEnum< tT >() )
             {
-            case Type::Array:
-                Strict::AssertEqual< InvalidTypeException >( Type::Array, actual );
-                break;
-
-            case Type::Object:
-                Strict::AssertEqual< InvalidTypeException >( Type::Object, actual );
-                break;
-
-            case Type::String:
-                Strict::AssertEqual< InvalidTypeException >( Type::String, actual );
-                break;
-
             case Type::UInt8:
             case Type::UInt16:
             case Type::UInt32:
             case Type::UInt64:
                 if ( actual != Type::UInt8 && actual != Type::UInt16 && actual != Type::UInt32 && actual != Type::UInt64 )
                 {
+                    cleanExit = false;
                     throw InvalidTypeException( Type::GetHeaderEnum<tT>(), actual );
                 }
 
@@ -132,18 +139,17 @@ namespace ExceptionHelper
                 break;
             }
 
-#else
-            Strict::AssertEqual< InvalidTypeException >( Type::GetHeaderEnum< tT >(), actual );
-#endif
-#endif
+            // return whether conversion is needed
+            return actual != Type::GetHeaderEnum<tT>();
         }
     }
 
     template< typename tException >
-    inline void Assert( bool condition )
+    inline void Assert( bool condition, bool &cleanExit )
     {
         if ( !condition )
         {
+            cleanExit = false;
             throw tException();
         }
     }

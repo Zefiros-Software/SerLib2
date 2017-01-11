@@ -56,27 +56,6 @@ public:
 
     void WriteSize( size_t size );
 
-    template< typename tPrimitive >
-    void WritePrimitive( const tPrimitive &value )
-    {
-        WriteBytes( reinterpret_cast< const char *const >( &value ), sizeof( tPrimitive ) );
-    }
-
-    template< typename tPrimitive >
-    void WritePrimitiveBlock( const tPrimitive *first, size_t count )
-    {
-        const size_t maxBlockSize = std::numeric_limits< size_t >::max() / sizeof( tPrimitive );
-
-        while ( count > 0 )
-        {
-            const size_t writeBlockSize = count > maxBlockSize ? maxBlockSize : count;
-
-            WriteBlock( reinterpret_cast< const char *const >( first ), writeBlockSize * sizeof( tPrimitive ) );
-            count -= writeBlockSize;
-            first += writeBlockSize;
-        }
-    }
-
 private:
 
     uint8_t mVarIntBuffer[ 10 ];
