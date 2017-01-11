@@ -296,11 +296,17 @@ private:
     }
 
     template< typename tT >
+    void ReadPrimitiveNoAssert( tT &value )
+    {
+        mStreamReader.ReadPrimitive( value );
+    }
+
+    template< typename tT >
     void ReadPrimitive( tT &value, Type::Type type )
     {
         ExceptionHelper::Compat::AssertCompatible<tT>( type );
 
-        mStreamReader.ReadPrimitive( value );
+        ReadPrimitiveNoAssert( value );
     }
 
     void ReadPrimitive( bool &value, Type::Type type )
@@ -312,15 +318,19 @@ private:
 
     void ReadPrimitive( float &value, Type::Type type )
     {
+        ExceptionHelper::Strict::AssertEqual<InvalidTypeException>( Type::UInt32, type );
+
         uint32_t flexman;
-        ReadPrimitive( flexman, type );
+        ReadPrimitiveNoAssert( flexman );
         value = Util::UInt32ToFloat( flexman );
     }
 
     void ReadPrimitive( double &value, Type::Type type )
     {
+        ExceptionHelper::Strict::AssertEqual<InvalidTypeException>( Type::UInt64, type );
+
         uint64_t flexman;
-        ReadPrimitive( flexman, type );
+        ReadPrimitiveNoAssert( flexman );
         value = Util::UInt64ToDouble( flexman );
     }
 
@@ -357,7 +367,7 @@ private:
 
         for ( size_t i = 0; i < size; ++i )
         {
-            ReadPrimitive( temp, subType );
+            ReadPrimitiveNoAssert( temp );
             value[i] = temp > 0;
         }
     }
@@ -377,7 +387,7 @@ private:
 
         for ( size_t i = 0; i < size; ++i )
         {
-            ReadPrimitive( value[i], subType );
+            ReadPrimitiveNoAssert( value[i] );
         }
     }
 
@@ -473,7 +483,7 @@ private:
         }
     }
 
-    void SkipArray( uint8_t flags, Type::Type subType, size_t size )
+    void SkipArray( uint8_t /*flags*/, Type::Type subType, size_t size )
     {
         switch ( subType )
         {
