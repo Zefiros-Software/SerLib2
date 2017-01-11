@@ -98,7 +98,7 @@ TEST( P( Stream ), CorruptStreamTestTree )
 
     {
         std::string temp = ss.str();
-        temp.resize( temp.size() - 1 );
+        temp.resize( temp.size() - 2 );
         ss.str( temp );
     }
 

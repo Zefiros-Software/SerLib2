@@ -157,12 +157,16 @@ inline T GetRandom()
     return static_cast<T>( GetFastRand() );
 }
 
-template<>
-inline float GetRandom< float >()
+inline float GetRandomFloatNormalized()
 {
     // return with max an arbitrary number
-    return static_cast<float>( GetFastRand() ) / static_cast<float>( std::numeric_limits<uint32_t>::max() /
-                                                                     ( 1e-8 / 3.0f ) );
+    return static_cast<float>( GetFastRand() ) / 0x7FFF;
+}
+
+template<>
+inline float GetRandom<float>()
+{
+    return GetRandomFloatNormalized() * 100000.0f - 50000.0f;
 }
 
 template<>
@@ -172,13 +176,16 @@ inline bool GetRandom< bool >()
     return ( GetRandom<uint32_t>() % 2 ) == 1;
 }
 
-
-template<>
-inline double GetRandom< double >()
+inline double GetRandomDoubleNormalized()
 {
     // return with max an arbitrary number
-    return static_cast<double>( GetFastRand() ) / static_cast<float>( std::numeric_limits<uint32_t>::max() /
-                                                                      ( 1e-16 / 3.0f ) );
+    return static_cast<double>( GetFastRand() ) / 0x7FFF;
+}
+
+template<>
+inline double GetRandom<double>()
+{
+    return GetRandomDoubleNormalized() * 1000000.0 - 500000.0;
 }
 
 std::string GenerateRandomString( bool random = true, uint32_t index = 0 );

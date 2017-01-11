@@ -57,6 +57,11 @@ public:
     {
     }
 
+    const tT &GetValue() const
+    {
+        return mValue;
+    }
+
     template< typename tM >
     void OnStore( Message< tM > &message )
     {
