@@ -1,0 +1,17 @@
+
+{
+    "dependencies": [ 
+    {
+        "hash": "5e7fd50e17b6edf1cadff973d0ec68966cf3265e",
+        "name": "Zefiros-Software/GoogleTest",
+        "type": "library",
+        "version": "@head"
+    }, 
+    {
+        "hash": "4bf28e611b55de8a2d4eece3c335e014f8b0f630",
+        "name": "Zefiros-Software/GoogleBenchmark",
+        "type": "library",
+        "version": "@head"
+    }],
+    "name": "Zefiros-Software/SerLib"
+}
