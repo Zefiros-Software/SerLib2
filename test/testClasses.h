@@ -1073,5 +1073,105 @@ public:
     tT mValue;
 };
 
+class CompleteNormalOrder
+{
+public:
+
+    CompleteNormalOrder()
+        : mValue1( GetRandom<uint8_t>() ),
+          mValue2( GetRandom<uint16_t>() ),
+          mValue3( GetRandom<uint32_t>() ),
+          mValue4( GetRandom<uint64_t>() ),
+          mValue5( GetRandom<float>() ),
+          mValue6( GetRandom<double>() )
+    {
+        mObject.Init();
+    }
+
+    virtual ~CompleteNormalOrder()
+    {}
+
+    template< typename tM >
+    void OnStore( Message< tM > &message )
+    {
+        message.Store( 2, mValue1 );
+        message.Store( 3, mValue2 );
+        message.Store( 4, mValue3 );
+        message.Store( 5, mValue4 );
+        message.Store( 6, mValue5 );
+        message.Store( 7, mValue6 );
+        message.Store( 0, mObject );
+        message.Store( 1, mObject2 );
+    }
+
+    template< typename tC >
+    void TestEqual( tC &t2 )
+    {
+        ExpectEqual( mValue1, t2.mValue1 );
+        ExpectEqual( mValue2, t2.mValue2 );
+        ExpectEqual( mValue3, t2.mValue3 );
+        ExpectEqual( mValue4, t2.mValue4 );
+        ExpectEqual( mValue5, t2.mValue5 );
+        ExpectEqual( mValue6, t2.mValue6 );
+    }
+
+    virtual void TestEqual( CompleteNormalOrder &t2 )
+    {
+        TestEqual< CompleteNormalOrder >( t2 );
+
+        mObject.TestEqual( t2.mObject );
+        mObject2.mObjectVector.TestEqual( t2.mObject2.mObjectVector );
+    }
+
+    NestedObject< std::string > mObject;
+
+    struct Private
+    {
+        ObjectVector<bool> mObjectVector;
+
+        Private()
+            : mObjectVector( GetRandom<uint32_t>() )
+        {}
+
+        template< typename tM >
+        void OnStore( Message<tM> &message )
+        {
+            message.Store( 0, mObjectVector );
+        }
+    } mObject2;
+
+    uint8_t mValue1;
+    uint16_t mValue2;
+    uint32_t mValue3;
+    uint64_t mValue4;
+    float mValue5;
+    double mValue6;
+
+};
+
+class CompleteReordered
+    : public CompleteNormalOrder
+{
+public:
+
+    template< typename tM >
+    void OnStore( Message< tM > &message )
+    {
+        //message.Store(0, mObject);
+        //message.Store(2, mObjectVector);
+        message.Store( 3, mValue2 );
+        message.Store( 6, mValue5 );
+        message.Store( 4, mValue3 );
+        message.Store( 5, mValue4 );
+        message.Store( 2, mValue1 );
+        message.Store( 7, mValue6 );
+    }
+
+    void TestEqual( CompleteNormalOrder &t2 ) override
+    {
+        CompleteNormalOrder::TestEqual< CompleteNormalOrder >( t2 );
+    }
+};
+
 
 #endif
