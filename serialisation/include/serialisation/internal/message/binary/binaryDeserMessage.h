@@ -366,10 +366,7 @@ private:
             }
             break;
 
-        default:
-            assert( false &&
-                    "Whoops! Something went haywire. Please try to reproduce this exception in an example as small as possible and submit it as an issue. Thanks!" );
-            break;
+            CASE_DEFAULT_ASSERT_HAYWIRE;
         }
     }
 
@@ -629,10 +626,7 @@ private:
             }
             break;
 
-        default:
-            assert( false &&
-                    "Whoops! Something went haywire. Please try to reproduce this exception in an example as small as possible and submit it as an issue. Thanks!" );
-            break;
+            CASE_DEFAULT_ASSERT_HAYWIRE;
         }
     }
 
@@ -680,10 +674,7 @@ private:
             mStreamReader.Skip( GetSize( type ) );
             break;
 
-        default:
-            assert( false &&
-                    "Whoops! Something went haywire. Please try to reproduce this exception in an example as small as possible and submit it as an issue. Thanks!" );
-            break;
+            CASE_DEFAULT_ASSERT_HAYWIRE;
         }
     }
 

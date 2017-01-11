@@ -49,6 +49,11 @@
 #include <array>
 #endif
 
+#define CASE_DEFAULT_ASSERT_HAYWIRE \
+    default:                        \
+        assert( false && "Whoops! Something went haywire. Please try to reproduce this exception in an example as small as possible and submit it as an issue. Thanks!"); \
+        break;
+
 #ifdef DEBUG
 #define SERIALISATION_ASSERT_INDEX_IN_RANGE( index ) assert( index < 28 && "Index should be less than 28 for members" )
 #define SERIALISATION_ASSERT_PARENT_INDEX_IN_RANGE( index ) assert( index < 4 && "Index should be less than 4 for StoreParent" );

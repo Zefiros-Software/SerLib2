@@ -23,6 +23,8 @@
 #ifndef __SERIALISATION_TYPES_H__
 #define __SERIALISATION_TYPES_H__
 
+#include "serialisation/defines.h"
+
 #include <assert.h>
 #include <stdint.h>
 #include <string>
@@ -225,10 +227,7 @@ namespace Type
         case Type::UInt64:
             return 8;
 
-        default:
-            assert( false &&
-                    "Whoops! Something went haywire. Please try to reproduce this exception in an example as small as possible and submit it as an issue. Thanks!" );
-            break;
+            CASE_DEFAULT_ASSERT_HAYWIRE;
         }
 
         return 1;
