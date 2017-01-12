@@ -1,7 +1,5 @@
 /**
- * @cond ___LICENSE___
- *
- * Copyright (c) 2016 Koen Visscher, Paul Visscher and individual contributors.
+ * Copyright (c) 2017 Mick van Duijn, Koen Visscher and Paul Visscher
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -20,10 +18,7 @@
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
- *
- * @endcond
  */
-
 #pragma once
 #ifndef __SERIALISATION_UNSYNCHRONISEDMEMORYPOOLINSTANTIATOR_H__
 #define __SERIALISATION_UNSYNCHRONISEDMEMORYPOOLINSTANTIATOR_H__

@@ -1,3 +1,4 @@
+﻿extensions: .cpp .h
 /**
  * Copyright (c) 2017 Mick van Duijn, Koen Visscher and Paul Visscher
  *
@@ -19,20 +20,3 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-#pragma once
-#ifndef __SERIALISATION_SERIALISATIONHELPER_H__
-#define __SERIALISATION_SERIALISATIONHELPER_H__
-
-#include "serialisation/defines.h"
-
-template< typename tT >
-struct SerialisationHelper
-{
-    template< typename tMessage >
-    static void OnStore( tMessage &message, tT &serialisable )
-    {
-        serialisable.tT::SERIALISATION_CUSTOM_INTERFACE( message );
-    }
-};
-
-#endif

@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2016 Mick van Duijn, Koen Visscher and Paul Visscher
+ * Copyright (c) 2017 Mick van Duijn, Koen Visscher and Paul Visscher
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -28,6 +28,7 @@
 #include <assert.h>
 #include <stdint.h>
 #include <string>
+#include <vector>
 
 //class Message;
 
@@ -255,6 +256,18 @@ namespace Type
         };
 
         return stringMap[type];
+    }
+
+    template< typename tT >
+    constexpr uint8_t GetDefaultFlags()
+    {
+        return 0;
+    }
+
+    template<>
+    constexpr uint8_t GetDefaultFlags<std::vector<bool>>()
+    {
+        return 0x1;
     }
 }
 
