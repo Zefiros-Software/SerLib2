@@ -169,11 +169,12 @@ TEST( P( Stream ), IFStream_OFStream_ ## type )                                 
     t2.Init();                                                                              \
                                                                                             \
     {                                                                                       \
-        std::ofstream stream( "file.bin", std::ofstream::binary | std::ofstream::out );     \
+        std::ofstream stream;                                                               \
+        stream.open( "file.bin", std::ofstream::binary | std::ofstream::out );              \
         Serialisation::BinarySerialiser( stream ).Enter( t1 );                              \
     }                                                                                       \
     {                                                                                       \
-        std::ifstream stream( "file.bin", std::ifstream::binary | std::ifstream::in );      \
+        std::ifstream stream( "file.bin", std::ifstream::binary );                          \
         Serialisation::BinaryDeserialiser( stream ).Enter( t2 );                            \
     }                                                                                       \
                                                                                             \

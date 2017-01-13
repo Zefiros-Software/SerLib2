@@ -23,9 +23,11 @@
 #ifndef __SERIALISATION_BINARYDESERMESSAGE_H__
 #define __SERIALISATION_BINARYDESERMESSAGE_H__
 
-#include "serialisation/internal/parallelFloatProcessor.h"
 #include "serialisation/internal/memory/memoryPool.h"
 #include "serialisation/internal/memory/stack.h"
+
+#include "serialisation/internal/parallelFloatProcessor.h"
+#include "serialisation/internal/pendingVariableArray.h"
 
 #include "serialisation/serialisationHelper.h"
 #include "serialisation/exceptions.h"
@@ -37,49 +39,6 @@
 #include <assert.h>
 #include <vector>
 #include <array>
-
-class PendingVariableArray
-{
-public:
-
-    PendingVariableArray()
-        : mIsPendingMask( 0 )
-    {
-    }
-
-    uint32_t IsPending( uint8_t index ) const
-    {
-        return ( mIsPendingMask >> index ) & 0x1;
-    }
-
-    void ReadNow( uint8_t index, Type::Type type )
-    {
-        assert( ( mIsPendingMask >> index ) & 0x1 );
-
-        mPendingVariables[index]( type );
-
-        mIsPendingMask ^= 1u << index;
-    }
-
-    uint32_t AnyPending() const
-    {
-        return mIsPendingMask;
-    }
-
-    template< typename tFunc >
-    void SetPending( uint8_t index, const tFunc &lambda )
-    {
-        assert( !( ( mIsPendingMask >> index ) & 0x1 ) );
-
-        mIsPendingMask |= ( 1u << index );
-        mPendingVariables[index] = lambda;
-    }
-
-private:
-
-    std::array<std::function<void( Type::Type )>, 28> mPendingVariables;
-    uint32_t mIsPendingMask;
-};
 
 template< typename tStreamReader, size_t tBufferSize = SERIALISATION_FLOAT_BUFFER_SIZE >
 class BinaryDeserialisationMessage
@@ -113,25 +72,25 @@ public:
     }
 
     template< typename tT >
-    SERIALISATION_FORCEINLINE void Store( tT &value, uint8_t index )
+    SERIALISATION_FORCEINLINE void Store( tT &value, uint8_t index, uint8_t /*flags*/ )
     {
         StoreTemplate( value, index, StorePrimitiveProxy() );
     }
 
     template< typename tT >
-    void StoreVector( std::vector< tT > &value, uint8_t index )
+    void StoreVector( std::vector< tT > &value, uint8_t index, uint8_t /*flags*/ )
     {
         StoreTemplate( value, index, StorePrimitiveVectorProxy() );
     }
 
     template< typename tSerialisable, typename tMessage >
-    void StoreObject( tSerialisable &serialisable, uint8_t index, tMessage &message )
+    void StoreObject( tSerialisable &serialisable, uint8_t index, uint8_t /*flags*/, tMessage &message )
     {
         StoreTemplate( serialisable, index, StoreObjectProxy< tMessage >( message ) );
     }
 
     template< typename tSerialisable, typename tMessage >
-    void StoreObjectVector( std::vector< tSerialisable > &value, uint8_t index, tMessage &message )
+    void StoreObjectVector( std::vector< tSerialisable > &value, uint8_t index, uint8_t /*flags*/, tMessage &message )
     {
         StoreTemplate( value, index, StoreObjectVectorProxy< tMessage >( message ) );
     }
@@ -158,6 +117,8 @@ public:
     }
 
 private:
+
+    uint8_t mBoolPackBuffer[1024];
 
     tStreamReader mStreamReader;
 
@@ -468,17 +429,63 @@ private:
         Type::Type subType;
         size_t size;
         ReadArrayHeader( flags, subType, size );
+        flags = flags & 0x1;
+
 
         ExceptionHelper::Strict::AssertEqual<InvalidTypeException>( Type::UInt8, subType, mCleanExit );
 
         value.resize( size );
 
-        uint8_t temp;
-
-        for ( size_t i = 0; i < size; ++i )
+        if ( flags )
         {
-            ReadPrimitiveNoAssert( temp );
-            value[i] = temp > 0;
+            size_t j = 0;
+
+            constexpr uint8_t tBit = 0x1;
+            constexpr uint8_t fBit = 0x0;
+
+            for ( size_t k = 0, kEnd = ( size + 1023 ) / 1024; k < kEnd; ++k )
+            {
+                size_t end = std::min( ( size - j ) / 8ull, 1024ull );
+
+                mStreamReader.ReadPrimitiveBlock( mBoolPackBuffer, end );
+
+                for ( size_t i = 0 ; i < end; ++i, j += 8 )
+                {
+                    value[j] = ( mBoolPackBuffer[i] & tBit ) > 0;
+                    value[j + 1] = ( mBoolPackBuffer[i] & ( tBit << 1 ) ) > 0;
+                    value[j + 2] = ( mBoolPackBuffer[i] & ( tBit << 2 ) ) > 0;
+                    value[j + 3] = ( mBoolPackBuffer[i] & ( tBit << 3 ) ) > 0;
+                    value[j + 4] = ( mBoolPackBuffer[i] & ( tBit << 4 ) ) > 0;
+                    value[j + 5] = ( mBoolPackBuffer[i] & ( tBit << 5 ) ) > 0;
+                    value[j + 6] = ( mBoolPackBuffer[i] & ( tBit << 6 ) ) > 0;
+                    value[j + 7] = ( mBoolPackBuffer[i] & ( tBit << 7 ) ) > 0;
+                }
+
+            }
+
+            if ( j < size )
+            {
+                uint8_t temp;
+                mStreamReader.ReadPrimitive( temp );;
+
+                value[j] = ( temp & tBit ) > 0;
+                ++j;
+
+                for ( size_t k = 1; j < size; ++j, ++k )
+                {
+                    value[j] = ( temp & ( tBit << k ) ) > 0;
+                }
+            }
+        }
+        else
+        {
+            uint8_t temp;
+
+            for ( size_t i = 0; i < size; ++i )
+            {
+                ReadPrimitiveNoAssert( temp );
+                value[i] = temp > 0;
+            }
         }
     }
 
@@ -584,7 +591,7 @@ private:
         }
     }
 
-    void SkipArray( uint8_t /*flags*/, Type::Type subType, size_t size )
+    void SkipArray( uint8_t flags, Type::Type subType, size_t size )
     {
         switch ( subType )
         {
@@ -622,6 +629,18 @@ private:
             break;
 
         case Type::UInt8:
+            {
+                if ( flags & 0x1 )
+                {
+                    mStreamReader.Skip( ( size + 7 ) / 8 );
+                }
+                else
+                {
+                    mStreamReader.Skip( size );
+                }
+            }
+            break;
+
         case Type::UInt16:
         case Type::UInt32:
         case Type::UInt64:

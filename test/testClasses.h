@@ -34,7 +34,7 @@ public:
 
     template< typename tC >
     friend class SkippedPrimitive;
-    template< typename tC >
+    template< typename tC, uint8_t tFlags >
     friend class SkippedArray;
     template< typename tC >
     friend class SkippedObjectVector;
@@ -79,8 +79,8 @@ public:
         other.TestEqual( *this );
     }
 
-    template< typename tC >
-    void TestEqual( SkippedArray< tC > &other )
+    template< typename tC, uint8_t tFlags >
+    void TestEqual( SkippedArray< tC, tFlags > &other )
     {
         other.TestEqual( *this );
     }
@@ -153,7 +153,7 @@ private:
     uint8_t mExtra;
 };
 
-template< typename tT >
+template< typename tT, uint8_t tFlags = 0 >
 class SkippedArray
 {
 public:
@@ -179,7 +179,7 @@ public:
     template< typename tM >
     void OnStore( Message< tM > &message )
     {
-        message.Store( 1, mValue1 );
+        message.Store( 1, mValue1, tFlags );
         message.Store( 0, mValue2 );
     }
 
@@ -327,7 +327,7 @@ class MultiPrimitiveReordered< tIndex, tT >
 {
 };
 
-template< typename tT >
+template< typename tT, uint8_t tFlags = 0 >
 class TestClassArray
 {
 public:
@@ -351,7 +351,7 @@ public:
     template< typename tM >
     void OnStore( Message< tM > &message )
     {
-        message.Store( 0, mValue1 );
+        message.Store( 0, mValue1, tFlags );
     }
 
     size_t GetMemberSize()
@@ -359,7 +359,54 @@ public:
         return mValue1.size() * sizeof( tT );
     }
 
-    void TestEqual( TestClassArray< tT > &t2 )
+    void TestEqual( TestClassArray< tT, tFlags > &t2 )
+    {
+        ExpectEqual( mValue1.size(), t2.mValue1.size() );
+
+        for ( size_t i = 0, end = mValue1.size(); i < end; ++i )
+        {
+            ExpectEqual( mValue1[i], t2.mValue1[i] );
+        }
+    }
+
+private:
+
+    std::vector<tT> mValue1;
+};
+
+template< typename tT, uint8_t tFlags, size_t tSize >
+class TestClassArrayOfSize
+{
+public:
+
+    void Init()
+    {
+        mValue1.resize( tSize );
+
+        for ( auto it = mValue1.begin(); it != mValue1.end(); ++it )
+        {
+            *it = static_cast<tT>( GetRandom< tT >() );
+        }
+    }
+
+    explicit TestClassArrayOfSize( uint32_t seed )
+    {
+        g_seed = seed;
+        Init();
+    }
+
+    template< typename tM >
+    void OnStore( Message< tM > &message )
+    {
+        message.Store( 0, mValue1, tFlags );
+    }
+
+    size_t GetMemberSize()
+    {
+        return mValue1.size() * sizeof( tT );
+    }
+
+    void TestEqual( TestClassArrayOfSize< tT, tFlags, tSize > &t2 )
     {
         ExpectEqual( mValue1.size(), t2.mValue1.size() );
 
@@ -468,7 +515,7 @@ private:
     std::vector<tT> mValue1;
 };
 
-template< typename tT >
+template< typename tT, uint8_t tFlags = 0 >
 class TestClassArrayWithMember
 {
 public:
@@ -494,7 +541,7 @@ public:
     template< typename tM >
     void OnStore( Message< tM > &message )
     {
-        message.Store( 0, mValue1 );
+        message.Store( 0, mValue1, tFlags );
         message.Store( 1, mValue2 );
     }
 
@@ -520,7 +567,7 @@ public:
     tT mValue2;
 };
 
-template< typename tT >
+template< typename tT, uint8_t tFlags = 0 >
 class TestClassArrayWithMemberReordered
 {
 public:
@@ -547,7 +594,7 @@ public:
     void OnStore( Message< tM > &message )
     {
         message.Store( 1, mValue2 );
-        message.Store( 0, mValue1 );
+        message.Store( 0, mValue1, tFlags );
     }
 
     size_t GetMemberSize()

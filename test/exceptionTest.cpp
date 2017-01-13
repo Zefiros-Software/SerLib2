@@ -105,6 +105,31 @@ TEST(P(Exception), Incompatible ## type ## Object )                             
     EXPECT_THROW( test(), InvalidTypeException );                                                                      \
 }
 
+TEST( P( Exception ), FileOpenException )
+{
+    SinglePrimitive<bool> t1;
+
+    g_seed = 21;
+    t1.Init();
+
+    auto test = [&]( std::string file )
+    {
+        try
+        {
+            Serialisation::BinaryDeserialiser( file ).Enter( t1 );
+        }
+        catch ( FileOpenException e )
+        {
+            ExpectEqual( FileOpenException( file ).what(), e.what() );
+            throw e;
+        }
+    };
+
+    std::string file = GetRandom<std::string>();
+
+    EXPECT_THROW( test( file ), FileOpenException );
+}
+
 SERIALISATION_INCOMPATIBLE_TYPE_TEST( uint8_t, float );
 SERIALISATION_INCOMPATIBLE_TYPE_TEST( uint16_t, float );
 SERIALISATION_INCOMPATIBLE_TYPE_TEST( String, float );

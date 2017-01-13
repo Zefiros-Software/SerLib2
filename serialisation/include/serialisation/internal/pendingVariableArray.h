@@ -19,51 +19,42 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-#include "serialisation/stream/streamWriter.h"
-#include "serialisation/exceptions.h"
+#pragma once
+#ifndef __SERIALISATION_PENDINGVARIABLEARRAY_H__
+#define __SERIALISATION_PENDINGVARIABLEARRAY_H__
 
-StreamWriter::StreamWriter( const std::string &fileName )
-    : mFileStream( fileName.c_str(), std::ifstream::binary | std::ifstream::out ),
-      mStream( &mFileStream )
+#include "serialisation/types.h"
+
+#include <functional>
+#include <stdint.h>
+#include <assert.h>
+#include <array>
+
+class PendingVariableArray
 {
-    if ( !mFileStream.is_open() )
+public:
+
+    PendingVariableArray();
+
+    uint32_t IsPending( uint8_t index ) const;
+
+    void ReadNow( uint8_t index, Type::Type type );
+
+    uint32_t AnyPending() const;
+
+    template< typename tFunc >
+    void SetPending( uint8_t index, const tFunc &lambda )
     {
-        throw FileOpenException( fileName );
+        assert( !( ( mIsPendingMask >> index ) & 0x1 ) );
+
+        mIsPendingMask |= ( 1u << index );
+        mPendingVariables[index] = lambda;
     }
-}
 
-StreamWriter::StreamWriter( std::ofstream &stream )
-    : mStream( &stream )
-{
-}
+private:
 
-StreamWriter::StreamWriter( std::fstream &stream )
-    : mStream( &stream )
-{
-}
+    std::array<std::function<void( Type::Type )>, 28> mPendingVariables;
+    uint32_t mIsPendingMask;
+};
 
-StreamWriter::StreamWriter( std::ostream &stream )
-    : mStream( &stream )
-{
-
-}
-
-StreamWriter::~StreamWriter()
-{
-    Close();
-}
-
-void StreamWriter::ClearBuffer() const
-{
-    mStream->flush();
-}
-
-void StreamWriter::Close()
-{
-    ClearBuffer();
-
-    if ( mFileStream.is_open() )
-    {
-        mFileStream.close();
-    }
-}
+#endif

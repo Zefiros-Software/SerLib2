@@ -28,6 +28,12 @@ SERIALISATION_TEST( Container, Vector, TestClassArray< type >, type, MakeSeed<ty
 SERIALISATION_TEST( Container, SmallVector, TestClassSmallArray< type >, type, MakeSeed<type>( 42 ) ,   \
                     GetRandom<uint32_t>() );
 
+typedef TestClassArray< bool, 0x1 > PackedBoolVector;
+SERIALISATION_TEST( Container, BoolPackedVector, PackedBoolVector, bool, MakeSeed<bool>( 424142 ), 424142 )
+
+typedef TestClassArrayOfSize< bool, 0x1, 1024 > PackedBoolVectorOfSize;
+SERIALISATION_TEST( Container, BoolPackedVectorOfSize, PackedBoolVectorOfSize, bool, MakeSeed<bool>( 4241 ), 4241 );
+
 #define SERIALISATION_EDGE_CASE_ARRAY_TEST( type )                                                              \
 SERIALISATION_TEST( Container, EdgeCaseVector, TestClassArrayEdgeCaseSize< type >, type, MakeSeed<type>( 42 ) , \
                     GetRandom<uint32_t>() );
@@ -42,6 +48,9 @@ SERIALISATION_TEST2( Container, VectorReordered, TestClassArrayWithMemberReorder
 SERIALISATION_TEST2( Skipping, Vector, SkippedArray< type >, SinglePrimitive<uint8_t>, type, MakeSeed<type>( 42 ),  \
                      GetRandom<uint8_t>() );
 
+typedef SkippedArray< bool, 0x1 > SkippedBoolVectorPacked;
+SERIALISATION_TEST2( Skipping, VectorPacked, SkippedBoolVectorPacked, SinglePrimitive<uint8_t>, bool,
+                     MakeSeed<bool>( 44 ), GetRandom<uint8_t>() );
 
 #define SERIALISATION_ARRAY_NON_EXISTING_TEST( type )                                                       \
 SERIALISATION_TEST2( NonExisting, Vector, SinglePrimitive<uint8_t>, SkippedArray< type >, type,             \

@@ -20,6 +20,7 @@
  * THE SOFTWARE.
  */
 #include "serialisation/stream/streamReader.h"
+#include "serialisation/exceptions.h"
 #include "serialisation/defines.h"
 
 StreamReader::StreamReader( const std::string &fileName )
@@ -28,21 +29,18 @@ StreamReader::StreamReader( const std::string &fileName )
 {
     if ( !mFileStream.is_open() )
     {
-        throw std::string( "File does not exist" );
+        throw FileOpenException( fileName );
     }
 }
 
 StreamReader::StreamReader( std::ifstream &stream )
     : mStream( &stream )
 {
-    assert( mStream->flags() & std::ios::binary );
 }
 
 StreamReader::StreamReader( std::fstream &stream )
     : mStream( &stream )
 {
-    assert( ( stream.flags() & std::ios::in ) && "Not an input stream" );
-    assert( ( stream.flags() & std::ios::binary ) && "File stream is not in binary mode" );
 }
 
 StreamReader::StreamReader( std::istream &stream )

@@ -24,6 +24,7 @@
 #define __SERIALISATION_MESSAGE_H__
 
 #include "serialisation/defines.h"
+#include "serialisation/types.h"
 
 #include <string.h>
 
@@ -46,16 +47,16 @@ interfaceMacro( bool )                                      \
 SERIALISATION_ALL_NUMERIC_TYPES( interfaceMacro )           \
 interfaceMacro( String )
 
-#define SERIALISATION_INTERFACE_PRIMITIVE( type )       \
-inline void Store( uint8_t index, type &value )         \
-{                                                       \
-    StorePrimitive( index ,value );                     \
+#define SERIALISATION_INTERFACE_PRIMITIVE( type )                                               \
+inline void Store( uint8_t index, type &value, uint8_t flags = Type::GetDefaultFlags<type>() )  \
+{                                                                                               \
+    StorePrimitive( index ,value, flags );                                                      \
 }
 
-#define SERIALISATION_INTERFACE_PRIMITIVE_CONTAINER( storeContainer, container )  \
-inline void Store( uint8_t index, container &value )                            \
-{                                                                                       \
-    storeContainer( index, value );                                                     \
+#define SERIALISATION_INTERFACE_PRIMITIVE_CONTAINER( storeContainer, container )                            \
+inline void Store( uint8_t index, container &value, uint8_t flags = Type::GetDefaultFlags<container>() )    \
+{                                                                                                           \
+    storeContainer( index, value, flags );                                                                  \
 }
 
 #define SERIALISATION_INTERFACE_PRIMITIVE_VECTOR( type ) \
@@ -73,37 +74,37 @@ public:
     }
 
     template< typename tSerialisable >
-    void Store( uint8_t index, tSerialisable &serialisable )
+    void Store( uint8_t index, tSerialisable &serialisable, uint8_t flags = Type::GetDefaultFlags<tSerialisable>() )
     {
         SERIALISATION_ASSERT_INDEX_IN_RANGE( index );
 
-        mInternalMessage.StoreObject( serialisable, index, *this );
+        mInternalMessage.StoreObject( serialisable, index, flags, *this );
     }
 
     SERIALISATION_ALL_TYPES( SERIALISATION_INTERFACE_PRIMITIVE );
 
     template< typename tT >
-    inline void Store( uint8_t index, std::vector< tT > &value )
+    inline void Store( uint8_t index, std::vector< tT > &value, uint8_t flags = Type::GetDefaultFlags<tT>() )
     {
         SERIALISATION_ASSERT_INDEX_IN_RANGE( index );
 
-        mInternalMessage.StoreObjectVector( value, index, *this );
+        mInternalMessage.StoreObjectVector( value, index, flags, *this );
     }
 
     SERIALISATION_ALL_TYPES( SERIALISATION_INTERFACE_PRIMITIVE_VECTOR );
 
     template< typename tParent, typename tSerialisable >
-    void StoreParent( uint8_t index, tSerialisable &serialisable )
+    void StoreParent( uint8_t index, tSerialisable &serialisable, uint8_t flags = Type::GetDefaultFlags<tParent>() )
     {
         SERIALISATION_ASSERT_PARENT_INDEX_IN_RANGE( index );
 
-        mInternalMessage.template StoreObject< tParent >( serialisable, index, *this );
+        mInternalMessage.template StoreObject< tParent >( serialisable, index, flags, *this );
     }
 
     template< typename tParent, typename tSerialisable >
-    void StoreParent( uint8_t index, tSerialisable *serialisable )
+    void StoreParent( uint8_t index, tSerialisable *serialisable, uint8_t flags = Type::GetDefaultFlags<tParent>() )
     {
-        StoreParent< tParent, tSerialisable >( index, *serialisable );
+        StoreParent< tParent, tSerialisable >( index, *serialisable, flags );
     }
 
     template< typename tSerialisable >
@@ -122,19 +123,19 @@ private:
     tInternalMessage mInternalMessage;
 
     template< typename tT >
-    void StorePrimitive( uint8_t index, tT &value )
+    void StorePrimitive( uint8_t index, tT &value, uint8_t flags )
     {
         SERIALISATION_ASSERT_INDEX_IN_RANGE( index );
 
-        mInternalMessage.Store( value, index );
+        mInternalMessage.Store( value, index, flags );
     }
 
     template< typename tT >
-    void StoreVector( uint8_t index, std::vector< tT > &value )
+    void StoreVector( uint8_t index, std::vector< tT > &value, uint8_t flags )
     {
         SERIALISATION_ASSERT_INDEX_IN_RANGE( index );
 
-        mInternalMessage.StoreVector( value, index );
+        mInternalMessage.StoreVector( value, index, flags );
     }
 };
 

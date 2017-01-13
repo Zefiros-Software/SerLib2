@@ -95,6 +95,28 @@ private:
     std::string mWhat;
 };
 
+class FileOpenException
+    : public std::exception
+{
+public:
+
+    explicit FileOpenException( const std::string &file )
+    {
+        std::stringstream ss;
+        ss << "Could not open file " << file;
+        mWhat = ss.str();
+    }
+
+    const char *what() const noexcept override
+    {
+        return mWhat.c_str();
+    }
+
+private:
+
+    std::string mWhat;
+};
+
 namespace ExceptionHelper
 {
     namespace Strict

@@ -114,4 +114,15 @@ TEST( P( Extra ), LDExp )
 
         ExpectEqual( isnan( Util::FRExp( y.d, &e ) ), isnan( frexp( y.d, &e2 ) ) );
     }
+
+    {
+        int32_t e;
+        int32_t e2;
+
+        ExpectEqual( Util::FRExp( 0.0f, &e ), frexp( 0.0f, &e2 ) );
+        ExpectEqual( e, e2 );
+
+        ExpectEqual( Util::FRExp( 0.0, &e ), frexp( 0.0, &e2 ) );
+        ExpectEqual( e, e2 );
+    }
 }
