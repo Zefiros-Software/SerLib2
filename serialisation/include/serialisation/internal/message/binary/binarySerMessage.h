@@ -294,7 +294,7 @@ public:
     void StoreVector( std::vector< bool > &value, uint8_t index, uint8_t flags )
     {
         flags = flags & 0x1;
-        mMessage.template WriteArrayHeader< tT >( index, value.size(), flags );
+        mMessage.template WriteArrayHeader( index, value.size(), flags );
     }
 
     template< typename tSerialisable, typename tMessage >
