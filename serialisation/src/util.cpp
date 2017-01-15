@@ -21,6 +21,8 @@
  */
 #include "serialisation/util.h"
 
+#include <math.h>
+
 double Util::LDExp( double x, int32_t n )
 {
     union

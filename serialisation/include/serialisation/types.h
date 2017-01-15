@@ -236,7 +236,7 @@ namespace Type
 
     inline std::string ToString( Type type )
     {
-        static char *stringMap[] =
+        static const char *stringMap[] =
         {
             "Terminator",
             "Array",
