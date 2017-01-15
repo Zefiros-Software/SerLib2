@@ -21,7 +21,7 @@ In `.package.json`
 
 In `premake5.lua`
 ```lua
-zpm.uses "Zefiros-Software/Serlib"
+zpm.uses "Zefiros-Software/Serlib2"
 ```
 
 ## Bugs
