@@ -27,6 +27,11 @@
 #include "serialisation/message.h"
 #include "serialisation/util.h"
 
+
+
+template< typename tStreamWriter, size_t tBufferSize = SERIALISATION_FLOAT_BUFFER_SIZE >
+class BinarySerialisationHeaderMessage;
+
 template< typename tStreamWriter, size_t tBufferSize = SERIALISATION_FLOAT_BUFFER_SIZE >
 class BinarySerialisationMessage
 {
