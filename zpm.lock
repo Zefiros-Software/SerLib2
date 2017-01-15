@@ -4,12 +4,14 @@
     {
         "hash": "5e7fd50e17b6edf1cadff973d0ec68966cf3265e",
         "name": "Zefiros-Software/GoogleTest",
+        "tag": "master",
         "type": "library",
         "version": "@head"
     }, 
     {
-        "hash": "4bf28e611b55de8a2d4eece3c335e014f8b0f630",
+        "hash": "b4fdf6e9df82ea5a424440436dcc4ac0474decce",
         "name": "Zefiros-Software/GoogleBenchmark",
+        "tag": "master",
         "type": "library",
         "version": "@head"
     }],
