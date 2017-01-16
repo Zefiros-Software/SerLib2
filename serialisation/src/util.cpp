@@ -187,7 +187,7 @@ float Util::FRExp( float x, int32_t *e )
 
 uint32_t Util::FloatToUInt32( const float f )
 {
-    int32_t exp;
+    int32_t exp = 0;
     float fi = FRExp( f, &exp );
     --exp;
 
@@ -206,7 +206,7 @@ float Util::UInt32ToFloat( const uint32_t i )
 
 uint64_t Util::DoubleToUInt64( const double f )
 {
-    int32_t exp;
+    int32_t exp = 0;
     double fi = FRExp( f, &exp );
     --exp;
 
