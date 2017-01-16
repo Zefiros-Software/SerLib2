@@ -1,0 +1,18 @@
+version: '2'
+services:
+
+    applications:
+        image: tianon/true
+        volumes:
+            - .:/app/
+
+    workspace:
+        build:
+            context: ./docker/
+            args:
+                - INSTALL_WORKSPACE_SSH=true
+        ports:
+            - "2222:22"
+        volumes_from:
+            - applications
+        tty: true
