@@ -73,6 +73,8 @@ public:
     {
     }
 
+    SERIALISATION_ALL_TYPES( SERIALISATION_INTERFACE_PRIMITIVE );
+
     template< typename tSerialisable >
     void Store( uint8_t index, tSerialisable &serialisable, uint8_t flags = Type::GetDefaultFlags<tSerialisable>() )
     {
@@ -81,7 +83,7 @@ public:
         mInternalMessage.StoreObject( serialisable, index, flags, *this );
     }
 
-    SERIALISATION_ALL_TYPES( SERIALISATION_INTERFACE_PRIMITIVE );
+    SERIALISATION_ALL_TYPES( SERIALISATION_INTERFACE_PRIMITIVE_VECTOR );
 
     template< typename tT >
     inline void Store( uint8_t index, std::vector< tT > &value, uint8_t flags = Type::GetDefaultFlags<tT>() )
@@ -90,8 +92,6 @@ public:
 
         mInternalMessage.StoreObjectVector( value, index, flags, *this );
     }
-
-    SERIALISATION_ALL_TYPES( SERIALISATION_INTERFACE_PRIMITIVE_VECTOR );
 
     template< typename tParent, typename tSerialisable >
     void StoreParent( uint8_t index, tSerialisable &serialisable, uint8_t flags = Type::GetDefaultFlags<tParent>() )
