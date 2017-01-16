@@ -75,6 +75,15 @@ public:
 
     SERIALISATION_ALL_TYPES( SERIALISATION_INTERFACE_PRIMITIVE );
 
+#ifdef __clang__
+#   if __clang_major__ <= 3 && __clang_minor__ <= 4
+    inline void Store( uint8_t index, size_t &value, uint8_t flags = Type::GetDefaultFlags<size_t>() )
+    {
+        StorePrimitive( index, value, flags );
+    };
+#   endif
+#endif
+
     template< typename tSerialisable >
     void Store( uint8_t index, tSerialisable &serialisable, uint8_t flags = Type::GetDefaultFlags<tSerialisable>() )
     {
