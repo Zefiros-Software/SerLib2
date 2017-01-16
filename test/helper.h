@@ -32,7 +32,7 @@
 #define P( prefix ) CONCAT( PREFIX, prefix )
 
 #ifndef TEST_FILES_DIR
-#   define TEST_FILES_DIR "../../test/test-files/"
+#   define TEST_FILES_DIR "test/test-files/"
 #endif
 
 #define TEST_FILE_DETAIL( file, suite, seperator, test, extension ) file #suite #seperator #test #extension
