@@ -21,6 +21,8 @@
  */
 #include "testClasses.h"
 
+#include <cmath>
+
 TEST( P( Extra ), CompleteReorder )
 {
     g_seed = 434241;
