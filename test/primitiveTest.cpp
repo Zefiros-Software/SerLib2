@@ -37,16 +37,16 @@ SERIALISATION_TEST( SinglePrimitive, TT, SinglePrimitive< bool >, bool, true, tr
 
 #define SERIALISATION_TEST_SINGLE_PRIMITIVE_INDEXED_NUMERIC( type, index )                      \
 SERIALISATION_TEST( SinglePrimitiveIndexed, Max ## _ ## index,                                  \
-                    SERIALISATION_PP_TEMPLATE2( SinglePrimitiveIndexed, type, index ), type,    \
+                    SinglePrimitiveIndexed< type PP_COMMA() index >, type,    \
                     std::numeric_limits< type >::max(), ( type )( 1 ) );                        \
 SERIALISATION_TEST( SinglePrimitiveIndexed, Min ## _ ## index,                                  \
-                    SERIALISATION_PP_TEMPLATE2( SinglePrimitiveIndexed, type, index ), type,    \
+                    SinglePrimitiveIndexed< type PP_COMMA() index >, type,    \
                     std::numeric_limits< type >::min(), ( type )( 1 ) );                        \
 SERIALISATION_TEST( SinglePrimitiveIndexed, Zebra ## _ ## index,                                \
-                    SERIALISATION_PP_TEMPLATE2( SinglePrimitiveIndexed, type, index ), type,    \
+                    SinglePrimitiveIndexed< type PP_COMMA() index >, type,    \
                     GenerateZebraValue< type >(), ( type )( 1 ) );                              \
 SERIALISATION_TEST( SinglePrimitiveIndexed, InvZebra ## _ ## index,                             \
-                    SERIALISATION_PP_TEMPLATE2( SinglePrimitiveIndexed, type, index ), type,    \
+                    SinglePrimitiveIndexed< type PP_COMMA() index >, type,    \
                     GenerateInvZebraValue< type >(), ( type )( 1 ) );
 
 #ifndef _DEBUG
@@ -72,9 +72,9 @@ SERIALISATION_TEST_SINGLE_PRIMITIVE_INDEXED_NUMERIC( type, 27 );
 
 SERIALISATION_ALL_NUMERIC_TYPES( SERIALISATION_TEST_SINGLE_PRIMITIVE_INDEXED_NUMERIC_ALL_INDICES );
 
-#define  SERIALISATION_TEST_MULTI_PRIMITVE( type1, type2, type3, type4, type5 )                                 \
-SERIALISATION_TEST(  MultiPrimitive, type1 ## type2 ## type3 ## type4 ## type5,                                 \
-                    SERIALISATION_PP_TEMPLATE6( MultiPrimitive, 0, type1, type2, type3, type4, type5 ), type5,  \
+#define  SERIALISATION_TEST_MULTI_PRIMITVE( type1, type2, type3, type4, type5 )                                         \
+SERIALISATION_TEST(  MultiPrimitive, type1 ## type2 ## type3 ## type4 ## type5,                                         \
+    MultiPrimitive< 0 PP_COMMA() type1 PP_COMMA() type2 PP_COMMA() type3 PP_COMMA() type4 PP_COMMA() type5 >, type5,    \
                     MakeSeed<type1>( 424142 ), 424142 );
 
 #define SERIALISATION_TEST_MULTI_PRIMITVE_VARIATIONS( type ) \
@@ -82,11 +82,11 @@ SERIALISATION_TEST(  MultiPrimitive, type1 ## type2 ## type3 ## type4 ## type5, 
 
 SERIALISATION_ALL_TYPES( SERIALISATION_TEST_MULTI_PRIMITVE_VARIATIONS );
 
-#define SERIALISATION_TEST_MULTI_PRIMITVE_REORDERED( type1, type2, type3, type4, type5 )                            \
-SERIALISATION_TEST2(  MultiPrimitiveReordered, type1 ## type2 ## type3 ## type4 ## type5,                           \
-                      SERIALISATION_PP_TEMPLATE6( MultiPrimitiveReordered, 0, type1, type2, type3, type4, type5 ),  \
-                      SERIALISATION_PP_TEMPLATE6( MultiPrimitive, 0, type1, type2, type3, type4, type5 ), type5,    \
-                      MakeSeed<type1>( 424142 ), 424142 );
+#define SERIALISATION_TEST_MULTI_PRIMITVE_REORDERED( type1, type2, type3, type4, type5 )                                \
+SERIALISATION_TEST2(  MultiPrimitiveReordered, type1 ## type2 ## type3 ## type4 ## type5,                               \
+    MultiPrimitiveReordered< 0 PP_COMMA() type1 PP_COMMA() type2 PP_COMMA() type3 PP_COMMA() type4 PP_COMMA() type5 >,  \
+    MultiPrimitive< 0 PP_COMMA() type1 PP_COMMA() type2 PP_COMMA() type3 PP_COMMA() type4 PP_COMMA() type5 >, type5,    \
+    MakeSeed<type1>( 424142 ), 424142 );
 
 #define SERIALISATION_TEST_MULTI_PRIMITVE_REORDERED_VARIATIONS( type ) \
         SERIALISATION_TEST_MULTI_PRIMITVE_REORDERED( uint8_t, int32_t, double, String, type );
@@ -101,6 +101,6 @@ SERIALISATION_ALL_TYPES( SERIALISATION_TEST_PRIMITIVE_SKIPPED );
 
 #define  SERIALISATION_TEST_PRIMITIVE_NON_EXISTING_TEST( type )                                             \
 SERIALISATION_TEST2( NonExisting, Primitive, SinglePrimitive< uint8_t >, SkippedPrimitive< type >, type,    \
-                     SERIALISATION_PP_TEMPLATE2( MakeSeed, type, uint8_t )( 424141 ), GetRandom<uint8_t>() );
+                     MakeSeed< type PP_COMMA() uint8_t >( 424141 ), GetRandom<uint8_t>() );
 
 SERIALISATION_ALL_TYPES( SERIALISATION_TEST_PRIMITIVE_NON_EXISTING_TEST );

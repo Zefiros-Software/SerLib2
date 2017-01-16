@@ -8,3 +8,6 @@ bin/*
 **/*.VC.opendb
 **/My Amplifier XE Results*
 **.opensdf
+
+**/Makefile
+**/serialisation.make

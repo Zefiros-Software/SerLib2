@@ -32,7 +32,7 @@ SERIALISATION_TEST( Object, Tree, TestClassTree<type>, type, MakeSeed<type>( 424
 SERIALISATION_ALL_TYPES( SERIALISATION_TREE_TEST );
 
 #define SERIALISATION_TREE_REORDERED_TEST( type )                                                                                \
-SERIALISATION_TEST2( Object, TreeReordered, SERIALISATION_PP_TEMPLATE2( TestClassTreeReordered, type, 5 ), SERIALISATION_PP_TEMPLATE2( TestClassTree, type, 5 ), type, 4242 * ( std::is_same< type, std::string >::value ? 32 : sizeof( type ) ), 4241 );
+SERIALISATION_TEST2( Object, TreeReordered, TestClassTreeReordered< type PP_COMMA() 5 >, TestClassTree< type PP_COMMA() 5 >, type, 4242 * ( std::is_same< type, std::string >::value ? 32 : sizeof( type ) ), 4241 );
 
 SERIALISATION_ALL_TYPES( SERIALISATION_TREE_REORDERED_TEST );
 

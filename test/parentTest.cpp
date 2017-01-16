@@ -51,6 +51,6 @@ SERIALISATION_ALL_TYPES( SERIALISATION_PARENT_SKIPPING_TEST );
 
 #define SERIALISATION_PARENT_NON_EXISTING_TEST( type )                                              \
 SERIALISATION_TEST2( NonExisting, Parent, SinglePrimitive< uint8_t >, SkippedParent< type >, type,  \
-                     SERIALISATION_PP_TEMPLATE2( MakeSeed, type, uint8_t )( 414141 ), 414141 );
+                     MakeSeed< type PP_COMMA() uint8_t >( 414141 ), 414141 );
 
 SERIALISATION_ALL_TYPES( SERIALISATION_PARENT_NON_EXISTING_TEST );

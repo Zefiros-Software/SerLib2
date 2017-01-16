@@ -45,7 +45,7 @@ TEST( P( Extra ), LDExp )
         float f = GetRandom<float>();
         int32_t exp = GetRandom<uint32_t>() % ( 4 * 127 );
 
-        ExpectEqual( Util::LDExp( f, exp ), ldexp( f, exp ) );
+        ExpectEqual( Util::LDExp( f, exp ), std::ldexp( f, exp ) );
     }
 
     for ( uint32_t i = 0; i < 10000; ++i )
@@ -53,7 +53,7 @@ TEST( P( Extra ), LDExp )
         double d = GetRandom<double>();
         int32_t exp = GetRandom<uint32_t>() % ( 4 * 1023 );
 
-        ExpectEqual( Util::LDExp( d, exp ), ldexp( d, exp ) );
+        ExpectEqual( Util::LDExp( d, exp ), std::ldexp( d, exp ) );
     }
 
     for ( uint32_t i = 0; i < 10000; ++i )
@@ -62,7 +62,7 @@ TEST( P( Extra ), LDExp )
         int32_t exp = GetRandom<uint32_t>() % ( 4 * 126 );
         exp = -exp;
 
-        ExpectEqual( Util::LDExp( f, exp ), ldexp( f, exp ) );
+        ExpectEqual( Util::LDExp( f, exp ), std::ldexp( f, exp ) );
     }
 
     for ( uint32_t i = 0; i < 10000; ++i )
@@ -71,7 +71,7 @@ TEST( P( Extra ), LDExp )
         int32_t exp = GetRandom<uint32_t>() % ( 4 * 1022 );
         exp = -exp;
 
-        ExpectEqual( Util::LDExp( f, exp ), ldexp( f, exp ) );
+        ExpectEqual( Util::LDExp( f, exp ), std::ldexp( f, exp ) );
     }
 
     for ( uint32_t i = 0; i < 10000; ++i )
@@ -86,12 +86,12 @@ TEST( P( Extra ), LDExp )
         int32_t e;
         int32_t e2;
 
-        ExpectEqual( Util::FRExp( y.f, &e ), frexp( y.f, &e2 ) );
+        ExpectEqual( Util::FRExp( y.f, &e ), std::frexp( y.f, &e2 ) );
         ExpectEqual( e, e2 );
 
         y.i |= 0xff << 23;
 
-        ExpectEqual( isnan( Util::FRExp( y.f, &e ) ), isnan( frexp( y.f, &e2 ) ) );
+        ExpectEqual( std::isnan( Util::FRExp( y.f, &e ) ), std::isnan( std::frexp( y.f, &e2 ) ) );
     }
 
     for ( uint32_t i = 0; i < 10000; ++i )
@@ -107,22 +107,22 @@ TEST( P( Extra ), LDExp )
         int32_t e;
         int32_t e2;
 
-        ExpectEqual( Util::FRExp( y.d, &e ), frexp( y.d, &e2 ) );
+        ExpectEqual( Util::FRExp( y.d, &e ), std::frexp( y.d, &e2 ) );
         ExpectEqual( e, e2 );
 
         y.i |= 0x7ffull << 52;
 
-        ExpectEqual( isnan( Util::FRExp( y.d, &e ) ), isnan( frexp( y.d, &e2 ) ) );
+        ExpectEqual( std::isnan( Util::FRExp( y.d, &e ) ), std::isnan( std::frexp( y.d, &e2 ) ) );
     }
 
     {
         int32_t e;
         int32_t e2;
 
-        ExpectEqual( Util::FRExp( 0.0f, &e ), frexp( 0.0f, &e2 ) );
+        ExpectEqual( Util::FRExp( 0.0f, &e ), std::frexp( 0.0f, &e2 ) );
         ExpectEqual( e, e2 );
 
-        ExpectEqual( Util::FRExp( 0.0, &e ), frexp( 0.0, &e2 ) );
+        ExpectEqual( Util::FRExp( 0.0, &e ), std::frexp( 0.0, &e2 ) );
         ExpectEqual( e, e2 );
     }
 }

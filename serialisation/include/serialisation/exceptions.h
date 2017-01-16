@@ -34,8 +34,6 @@ class InvalidTypeException
 public:
 
     InvalidTypeException( Type::Type expected, Type::Type actual )
-        : mExpected( expected ),
-          mActual( actual )
     {
         std::stringstream ss;
         ss << "Expected " << Type::ToString( expected ) << " but got " << Type::ToString( actual );
@@ -50,9 +48,6 @@ public:
 private:
 
     std::string mWhat;
-
-    Type::Type mExpected;
-    Type::Type mActual;
 };
 
 class EndOfStreamException

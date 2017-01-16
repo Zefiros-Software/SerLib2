@@ -28,7 +28,7 @@ workspace "SerLib"
 
 	zefiros.setDefaults( "serialisation", {
         configurations = { "HeaderOnlyDebug", "HeaderOnlyRelease" },
-		headerOnly = true
+		-- headerOnly = true
     } )
 
     filter "not HeaderOnly*"

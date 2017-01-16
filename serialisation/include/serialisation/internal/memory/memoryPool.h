@@ -24,6 +24,7 @@
 #define __SERIALISATION_UNSYNCHRONISEDMEMORYPOOLINSTANTIATOR_H__
 
 #include <assert.h>
+#include <stdlib.h>
 #include <vector>
 
 /// @addtogroup Instantiators

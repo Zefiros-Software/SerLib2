@@ -33,7 +33,7 @@ class BinarySerialisationHeaderMessage;
 template< typename tStreamWriter, size_t tBufferSize >
 class BinarySerialisationValueMessage;
 
-template< typename tStreamWriter, size_t tBufferSize >
+template< typename tStreamWriter, size_t tBufferSize = SERIALISATION_FLOAT_BUFFER_SIZE >
 class BinarySerialisationMessage
 {
 public:
@@ -43,6 +43,9 @@ public:
 
     template< typename tS, size_t tB >
     friend class BinarySerialisationValueMessage;
+
+    typedef Message< BinarySerialisationHeaderMessage< tStreamWriter, tBufferSize > > tHeaderMessage;
+    typedef Message< BinarySerialisationHeaderMessage< tStreamWriter, tBufferSize > > tValueMessage;
 
     template< typename tStream >
     explicit BinarySerialisationMessage( tStream &streamInitializer )
@@ -80,10 +83,10 @@ public:
         if ( flags )
         {
             {
-                Message< BinarySerialisationHeaderMessage< tStreamWriter, tBufferSize > >( *this ).Enter( value[0] );
+                tHeaderMessage( *this ).Enter( value[0] );
             }
 
-            Message< BinarySerialisationValueMessage< tStreamWriter, tBufferSize > > tempMessage( *this );
+            tValueMessage tempMessage( *this );
 
             for ( auto &t : value )
             {
@@ -187,7 +190,7 @@ private:
             {
                 size_t i = 0;
 
-                for ( size_t end = std::min( ( size - j ) / 8ull, 1024ull ); i < end; ++i, j += 8 )
+                for ( size_t end = std::min( ( size - j ) / 8, size_t( 1024 ) ); i < end; ++i, j += 8 )
                 {
                     mBoolPackBuffer[i] = value[j] ? tBit : fBit;
                     mBoolPackBuffer[i] |= value[j + 1] ? ( tBit << 1 ) : fBit;
@@ -259,7 +262,7 @@ private:
     }
 
     template< typename tSerialisable, typename tMessage >
-    void WriteObjectVectorBody( std::vector<tSerialisable> &value, uint8_t flags, tMessage &message )
+    void WriteObjectVectorBody( std::vector<tSerialisable> &value, uint8_t /*flags*/, tMessage &message )
     {
         for ( auto &t : value )
         {
@@ -298,14 +301,15 @@ public:
     }
 
     template< typename tSerialisable, typename tMessage >
-    void StoreObject( tSerialisable &/*serialisable*/, uint8_t index, uint8_t /*flags*/, tMessage &message )
+    void StoreObject( tSerialisable &/*serialisable*/, uint8_t index, uint8_t /*flags*/, tMessage &/*message*/ )
     {
         mMessage.template WriteHeader< tSerialisable >( index );
         mMessage.WritePrimitive( Util::CreateHeader( 0, Type::Terminator ) );
     }
 
     template< typename tSerialisable, typename tMessage >
-    inline void StoreObjectVector( std::vector< tSerialisable > &value, uint8_t index, uint8_t flags, tMessage &message )
+    inline void StoreObjectVector( std::vector< tSerialisable > &value, uint8_t index, uint8_t flags,
+                                   tMessage &/*message*/ )
     {
         flags = flags & 0x0;
         mMessage.template WriteArrayHeader<tSerialisable>( index, value.size(), flags );
@@ -339,31 +343,31 @@ public:
     }
 
     template< typename tT >
-    void Store( const tT &value, uint8_t index, uint8_t /*flags*/ )
+    void Store( const tT &value, uint8_t /*index*/, uint8_t /*flags*/ )
     {
         mMessage.WritePrimitive( value );
     }
 
     template< typename tT >
-    void StoreVector( std::vector< tT > &value, uint8_t index, uint8_t flags )
+    void StoreVector( std::vector< tT > &value, uint8_t /*index*/, uint8_t flags )
     {
         mMessage.WriteVectorBody( value, flags );
     }
 
-    void StoreVector( std::vector< bool > &value, uint8_t index, uint8_t flags )
+    void StoreVector( std::vector< bool > &value, uint8_t /*index*/, uint8_t flags )
     {
         flags = flags & 0x1;
         mMessage.WriteVectorBody( value, flags );
     }
 
     template< typename tSerialisable, typename tMessage >
-    void StoreObjectVector( std::vector< tSerialisable > &value, uint8_t index, uint8_t flags, tMessage &message )
+    void StoreObjectVector( std::vector< tSerialisable > &value, uint8_t /*index*/, uint8_t flags, tMessage &message )
     {
         mMessage.WriteObjectVectorBody( value, flags, message );
     }
 
     template< typename tSerialisable, typename tMessage >
-    void StoreObject( tSerialisable &serialisable, uint8_t index, uint8_t /*flags*/, tMessage &message )
+    void StoreObject( tSerialisable &serialisable, uint8_t /*index*/, uint8_t /*flags*/, tMessage &message )
     {
         SerialisationHelper< tSerialisable >::OnStore( message, serialisable );
     }

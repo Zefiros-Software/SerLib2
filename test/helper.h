@@ -160,13 +160,13 @@ inline T GetRandom()
 inline float GetRandomFloatNormalized()
 {
     // return with max an arbitrary number
-    return float( double( GetFastRand() ) / 0x7FFF );
+    return static_cast<float>( static_cast<double>( GetFastRand() ) / 0x7FFF );
 }
 
 template<>
 inline float GetRandom<float>()
 {
-    return float( GetRandomFloatNormalized() * 100000.0 - 50000.0 );
+    return static_cast<float>( GetRandomFloatNormalized() * 100000.0 - 50000.0 );
 }
 
 template<>
@@ -252,11 +252,8 @@ void SimpleSerialiseDeserialiseFile( tT1 &c1, tT2 &c2 )
     }
 }
 
-#define SERIALISATION_TEST( test, name, testClass, type, init1, init2 )                 \
-        SERIALISATION_TEST2( test, name, testClass, testClass, type, init1, init2 )
-
-#define SERIALISATION_PP_TEMPLATE2( tClass, t1, t2 ) tClass< t1, t2 >
-#define SERIALISATION_PP_TEMPLATE6( tClass, t1, t2, t3, t4, t5, t6 ) tClass< t1, t2, t3, t4, t5, t6 >
+#define  PP_COMMA_DIRECT() ,
+#define PP_COMMA() PP_COMMA_DIRECT()
 
 #define SERIALISATION_TEST2( test, name, testClass, testClass2, type, init1, init2 )    \
 TEST( P( test ), type ## name ## _stream )                                              \
@@ -277,6 +274,27 @@ TEST( P( test ), type ## name ## _backwards )                                   
 {                                                                                       \
     testClass tc1( init1 );                                                             \
     testClass2 tc2( init2 );                                                            \
+    std::string file = TEST_FILE( test, type ## name );                                 \
+    SimpleSerialiseDeserialiseBackwards( file, tc1, tc2 );                              \
+    tc1.TestEqual( tc2 );                                                               \
+}
+
+#define SERIALISATION_TEST( test, name, testClass, type, init1, init2 )                 \
+TEST( P( test ), type ## name ## _stream )                                              \
+{                                                                                       \
+    testClass tc1( init1 ), tc2( init2 );                                               \
+    SimpleSerialiseDeserialiseStream( tc1, tc2 );                                       \
+    tc1.TestEqual( tc2 );                                                               \
+}                                                                                       \
+TEST( P( test ), type ## name ## _file )                                                \
+{                                                                                       \
+    testClass tc1( init1 ), tc2( init2 );                                               \
+    SimpleSerialiseDeserialiseFile( tc1, tc2 );                                         \
+    tc1.TestEqual( tc2 );                                                               \
+}                                                                                       \
+TEST( P( test ), type ## name ## _backwards )                                           \
+{                                                                                       \
+    testClass tc1( init1 ), tc2( init2 );                                               \
     std::string file = TEST_FILE( test, type ## name );                                 \
     SimpleSerialiseDeserialiseBackwards( file, tc1, tc2 );                              \
     tc1.TestEqual( tc2 );                                                               \

@@ -32,6 +32,7 @@
 #include "serialisation/serialisationHelper.h"
 #include "serialisation/exceptions.h"
 #include "serialisation/defines.h"
+#include "serialisation/message.h"
 #include "serialisation/types.h"
 #include "serialisation/util.h"
 
@@ -40,10 +41,18 @@
 #include <vector>
 #include <array>
 
+template< typename tStreamReader, size_t tBufferSize >
+class BinaryDeserialisationValueMessage;
+
 template< typename tStreamReader, size_t tBufferSize = SERIALISATION_FLOAT_BUFFER_SIZE >
 class BinaryDeserialisationMessage
 {
 public:
+
+    template< typename tS, size_t tB >
+    friend class BinaryDeserialisationValueMessage;
+
+    typedef Message< BinaryDeserialisationValueMessage< tStreamReader, tBufferSize > > tValueMessage;
 
     template< typename tStream >
     explicit BinaryDeserialisationMessage( tStream &streamInitializer )
@@ -268,9 +277,18 @@ private:
 
         value.resize( size );
 
-        for ( auto &t : value )
+        flags = flags & 0x1;
+
+        if ( flags )
         {
-            StoreEntryPoint( t, message );
+            tValueMessage tempMessage( *this );
+        }
+        else
+        {
+            for ( auto &t : value )
+            {
+                StoreEntryPoint( t, message );
+            }
         }
     }
 
@@ -441,11 +459,10 @@ private:
             size_t j = 0;
 
             constexpr uint8_t tBit = 0x1;
-            constexpr uint8_t fBit = 0x0;
 
             for ( size_t k = 0, kEnd = ( size + 1023 ) / 1024; k < kEnd; ++k )
             {
-                size_t end = std::min( ( size - j ) / 8ull, 1024ull );
+                size_t end = std::min( ( size - j ) / 8, size_t( 1024 ) );
 
                 mStreamReader.ReadPrimitiveBlock( mBoolPackBuffer, end );
 
@@ -748,6 +765,20 @@ private:
 
     SERIALISATION_DESER_PROXY( StorePrimitiveProxy, AddPendingPrimitive, ReadPrimitive );
     SERIALISATION_DESER_PROXY( StorePrimitiveVectorProxy, AddPendingPrimitiveVector, ReadPrimitiveVector );
+};
+
+template< typename tStreamReader, size_t tBufferSize >
+class BinaryDeserialisationValueMessage
+{
+public:
+
+    explicit BinaryDeserialisationValueMessage( BinaryDeserialisationMessage< tStreamReader, tBufferSize > &message )
+        : mMessage( message )
+    {}
+
+private:
+
+    BinaryDeserialisationMessage< tStreamReader, tBufferSize > &mMessage;
 };
 
 #endif

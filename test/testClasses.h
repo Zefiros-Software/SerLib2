@@ -27,6 +27,17 @@
 
 #include "helper.h"
 
+template< typename tC >
+class SkippedPrimitive;
+template< typename tC, uint8_t tFlags >
+class SkippedArray;
+template< typename tC >
+class SkippedObjectVector;
+template< typename tC >
+class SkippedParent;
+template< typename tC, uint8_t tI >
+class SinglePrimitive;
+
 template< typename tT, uint8_t tIndex = 0 >
 class SinglePrimitive
 {
