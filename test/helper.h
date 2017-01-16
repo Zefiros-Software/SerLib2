@@ -160,13 +160,13 @@ inline T GetRandom()
 inline float GetRandomFloatNormalized()
 {
     // return with max an arbitrary number
-    return static_cast<float>( GetFastRand() ) / 0x7FFF;
+    return float( double( GetFastRand() ) / 0x7FFF );
 }
 
 template<>
 inline float GetRandom<float>()
 {
-    return GetRandomFloatNormalized() * 100000.0f - 50000.0f;
+    return float( GetRandomFloatNormalized() * 100000.0 - 50000.0 );
 }
 
 template<>
@@ -252,6 +252,12 @@ void SimpleSerialiseDeserialiseFile( tT1 &c1, tT2 &c2 )
     }
 }
 
+#define SERIALISATION_TEST( test, name, testClass, type, init1, init2 )                 \
+        SERIALISATION_TEST2( test, name, testClass, testClass, type, init1, init2 )
+
+#define SERIALISATION_PP_TEMPLATE2( tClass, t1, t2 ) tClass< t1, t2 >
+#define SERIALISATION_PP_TEMPLATE6( tClass, t1, t2, t3, t4, t5, t6 ) tClass< t1, t2, t3, t4, t5, t6 >
+
 #define SERIALISATION_TEST2( test, name, testClass, testClass2, type, init1, init2 )    \
 TEST( P( test ), type ## name ## _stream )                                              \
 {                                                                                       \
@@ -275,11 +281,5 @@ TEST( P( test ), type ## name ## _backwards )                                   
     SimpleSerialiseDeserialiseBackwards( file, tc1, tc2 );                              \
     tc1.TestEqual( tc2 );                                                               \
 }
-
-#define SERIALISATION_TEST( test, name, testClass, type, init1, init2 )                 \
-        SERIALISATION_TEST2( test, name, testClass, testClass, type, init1, init2 );
-
-#define SERIALISATION_PP_TEMPLATE2( tClass, t1, t2 ) tClass< t1, t2 >
-#define SERIALISATION_PP_TEMPLATE6( tClass, t1, t2, t3, t4, t5, t6 ) tClass< t1, t2, t3, t4, t5, t6 >
 
 #endif
