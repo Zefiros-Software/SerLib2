@@ -54,12 +54,12 @@ StreamReader::~StreamReader()
     Close();
 }
 
-SERIALISATION_INLINE void StreamReader::ClearBuffer() const
+void StreamReader::ClearBuffer() const
 {
 
 }
 
-SERIALISATION_INLINE void StreamReader::Close()
+void StreamReader::Close()
 {
     ClearBuffer();
 
@@ -69,22 +69,22 @@ SERIALISATION_INLINE void StreamReader::Close()
     }
 }
 
-SERIALISATION_INLINE void StreamReader::ReadBytes( char *const firstByte, size_t byteCount ) const
+void StreamReader::ReadBytes( char *const firstByte, size_t byteCount ) const
 {
     mStream->read( firstByte, byteCount );
 }
 
-SERIALISATION_INLINE void StreamReader::SeekG( std::streamoff count ) const
+void StreamReader::SeekG( std::streamoff count ) const
 {
     mStream->seekg( count, std::ios_base::cur );
 }
 
-SERIALISATION_INLINE std::streamsize StreamReader::GCount() const
+std::streamsize StreamReader::GCount() const
 {
     return mStream->gcount();
 }
 
-SERIALISATION_INLINE void StreamReader::ClearEOF() const
+void StreamReader::ClearEOF() const
 {
     if ( mStream->eof() )
     {

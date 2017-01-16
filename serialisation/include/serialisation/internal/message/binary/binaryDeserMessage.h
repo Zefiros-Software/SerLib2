@@ -81,7 +81,7 @@ public:
     }
 
     template< typename tT >
-    SERIALISATION_FORCEINLINE void Store( tT &value, uint8_t index, uint8_t /*flags*/ )
+    void Store( tT &value, uint8_t index, uint8_t /*flags*/ )
     {
         StoreTemplate( value, index, StorePrimitiveProxy() );
     }
@@ -193,7 +193,7 @@ private:
     }
 
     template< typename tProxy, typename tT >
-    SERIALISATION_FORCEINLINE void StoreTemplate( tT &value, uint8_t index, const tProxy &proxy )
+    void StoreTemplate( tT &value, uint8_t index, const tProxy &proxy )
     {
         if ( mCurrentIndexPending )
         {
@@ -241,7 +241,7 @@ private:
         }
     }
 
-    SERIALISATION_FORCEINLINE void ReadHeader( uint8_t &index, Type::Type &type )
+    void ReadHeader( uint8_t &index, Type::Type &type )
     {
         mStreamReader.ReadPrimitive( index );
 
@@ -249,7 +249,7 @@ private:
         index = Util::GetHeaderIndex( index );
     }
 
-    SERIALISATION_FORCEINLINE void ReadArrayHeader( uint8_t &flags, Type::Type &subType, size_t &size )
+    void ReadArrayHeader( uint8_t &flags, Type::Type &subType, size_t &size )
     {
         ReadHeader( flags, subType );
         size = mStreamReader.ReadSize();
@@ -355,7 +355,7 @@ private:
 #ifndef SERIALISATION_DISABLE_TYPE_CHECKS
 #ifndef SERIALISATION_ENABLE_STRICT_TYPES
 
-        if ( ExceptionHelper::Compat::AssertCompatible<tT>( type, mCleanExit ) )
+        if ( ExceptionHelper::Compat<tT>::AssertCompatible( type, mCleanExit ) )
         {
             ReadPrimitiveType( value, type );
         }
@@ -416,7 +416,7 @@ private:
         }
     }
 
-    SERIALISATION_FORCEINLINE void ReadPrimitive( std::string &value, Type::Type type )
+    void ReadPrimitive( std::string &value, Type::Type type )
     {
         ExceptionHelper::Strict::AssertEqual<InvalidTypeException>( Type::String, type, mCleanExit );
 
@@ -731,13 +731,13 @@ private:
         }                                                                                               \
                                                                                                         \
         template< typename tMessage, typename tT >                                                      \
-        SERIALISATION_FORCEINLINE void AddPending( tMessage &message, tT &value, uint8_t index ) const  \
+         void AddPending( tMessage &message, tT &value, uint8_t index ) const  \
         {                                                                                               \
             message.addPending( value, index, *parentMessage );                                         \
         }                                                                                               \
                                                                                                         \
         template< typename tMessage, typename tT >                                                      \
-        SERIALISATION_FORCEINLINE void Read( tMessage &message, tT &value, Type::Type type ) const      \
+         void Read( tMessage &message, tT &value, Type::Type type ) const      \
         {                                                                                               \
             message.read( value, type, *parentMessage );                                                \
         }                                                                                               \
@@ -751,13 +751,13 @@ private:
     struct primitiveProxy                                                                                   \
     {                                                                                                       \
         template< typename tMessage, typename tT >                                                          \
-        SERIALISATION_FORCEINLINE void AddPending( tMessage &message, tT &value, uint8_t index ) const      \
+         void AddPending( tMessage &message, tT &value, uint8_t index ) const      \
         {                                                                                                   \
             message.addPending( value, index );                                                             \
         }                                                                                                   \
                                                                                                             \
         template< typename tMessage, typename tT >                                                          \
-        SERIALISATION_FORCEINLINE void Read( tMessage &message, tT &value, Type::Type type ) const          \
+         void Read( tMessage &message, tT &value, Type::Type type ) const          \
         {                                                                                                   \
             message.read( value, type );                                                                    \
         }                                                                                                   \

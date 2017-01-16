@@ -60,9 +60,9 @@ public:
 
     struct Buffer
     {
-        Buffer( const char *firstByte, size_t byteCount )
-            : firstByte( firstByte ),
-              byteCount( byteCount )
+        Buffer( const char *fb, size_t bc )
+            : firstByte( fb ),
+              byteCount( bc )
         {
         }
 

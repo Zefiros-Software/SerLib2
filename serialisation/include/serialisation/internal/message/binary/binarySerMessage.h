@@ -75,7 +75,7 @@ public:
     }
 
     template< typename tSerialisable, typename tMessage >
-    inline void StoreObjectVector( std::vector< tSerialisable > &value, uint8_t index, uint8_t flags, tMessage &message )
+    void StoreObjectVector( std::vector< tSerialisable > &value, uint8_t index, uint8_t flags, tMessage &message )
     {
         flags = flags & 0x1;
         WriteArrayHeader<tSerialisable>( index, value.size(), flags );
@@ -100,7 +100,7 @@ public:
     }
 
     template< typename tSerialisable, typename tMessage >
-    inline void StoreObject( tSerialisable &serialisable, uint8_t index, uint8_t /*flags*/, tMessage &message )
+    void StoreObject( tSerialisable &serialisable, uint8_t index, uint8_t /*flags*/, tMessage &message )
     {
         WriteHeader< tSerialisable >( index );
         SerialisationHelper< tSerialisable >::OnStore( message, serialisable );
@@ -108,7 +108,7 @@ public:
     }
 
     template< typename tSerialisable, typename tMessage >
-    inline void StoreEntryPoint( tSerialisable &serialisable, tMessage &message )
+    void StoreEntryPoint( tSerialisable &serialisable, tMessage &message )
     {
         SerialisationHelper< tSerialisable >::OnStore( message, serialisable );
         WritePrimitive( Util::CreateHeader( 0, Type::Terminator ) );
@@ -308,15 +308,15 @@ public:
     }
 
     template< typename tSerialisable, typename tMessage >
-    inline void StoreObjectVector( std::vector< tSerialisable > &value, uint8_t index, uint8_t flags,
-                                   tMessage &/*message*/ )
+    void StoreObjectVector( std::vector< tSerialisable > &value, uint8_t index, uint8_t flags,
+                            tMessage &/*message*/ )
     {
         flags = flags & 0x0;
         mMessage.template WriteArrayHeader<tSerialisable>( index, value.size(), flags );
     }
 
     template< typename tSerialisable, typename tMessage >
-    inline void StoreEntryPoint( tSerialisable &serialisable, tMessage &message )
+    void StoreEntryPoint( tSerialisable &serialisable, tMessage &message )
     {
         SerialisationHelper< tSerialisable >::OnStore( message, serialisable );
         mMessage.WritePrimitive( Util::CreateHeader( 0, Type::Terminator ) );
@@ -373,7 +373,7 @@ public:
     }
 
     template< typename tSerialisable, typename tMessage >
-    inline void StoreEntryPoint( tSerialisable &serialisable, tMessage &message )
+    void StoreEntryPoint( tSerialisable &serialisable, tMessage &message )
     {
         SerialisationHelper< tSerialisable >::OnStore( message, serialisable );
     }

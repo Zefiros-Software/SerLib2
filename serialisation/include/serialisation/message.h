@@ -48,13 +48,13 @@ SERIALISATION_ALL_NUMERIC_TYPES( interfaceMacro )           \
 interfaceMacro( String )
 
 #define SERIALISATION_INTERFACE_PRIMITIVE( type )                                               \
-inline void Store( uint8_t index, type &value, uint8_t flags = Type::GetDefaultFlags<type>() )  \
+void Store( uint8_t index, type &value, uint8_t flags = Type::GetDefaultFlags<type>() )  \
 {                                                                                               \
     StorePrimitive( index ,value, flags );                                                      \
 }
 
 #define SERIALISATION_INTERFACE_PRIMITIVE_CONTAINER( storeContainer, container )                            \
-inline void Store( uint8_t index, container &value, uint8_t flags = Type::GetDefaultFlags<container>() )    \
+void Store( uint8_t index, container &value, uint8_t flags = Type::GetDefaultFlags<container>() )    \
 {                                                                                                           \
     storeContainer( index, value, flags );                                                                  \
 }
@@ -75,15 +75,6 @@ public:
 
     SERIALISATION_ALL_TYPES( SERIALISATION_INTERFACE_PRIMITIVE );
 
-#ifdef __clang__
-#   if __clang_major__ <= 3 && __clang_minor__ <= 4
-    inline void Store( uint8_t index, size_t &value, uint8_t flags = Type::GetDefaultFlags<size_t>() )
-    {
-        StorePrimitive( index, value, flags );
-    };
-#   endif
-#endif
-
     template< typename tSerialisable >
     void Store( uint8_t index, tSerialisable &serialisable, uint8_t flags = Type::GetDefaultFlags<tSerialisable>() )
     {
@@ -95,7 +86,7 @@ public:
     SERIALISATION_ALL_TYPES( SERIALISATION_INTERFACE_PRIMITIVE_VECTOR );
 
     template< typename tT >
-    inline void Store( uint8_t index, std::vector< tT > &value, uint8_t flags = Type::GetDefaultFlags<tT>() )
+    void Store( uint8_t index, std::vector< tT > &value, uint8_t flags = Type::GetDefaultFlags<tT>() )
     {
         SERIALISATION_ASSERT_INDEX_IN_RANGE( index );
 

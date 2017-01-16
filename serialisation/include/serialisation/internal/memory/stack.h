@@ -39,7 +39,7 @@ public:
     {
     }
 
-    SERIALISATION_FORCEINLINE void Push( tT &t )
+    void Push( tT &t )
     {
         if ( mCursor == mSize )
         {
@@ -50,7 +50,7 @@ public:
         mStack[mCursor++] = t;
     }
 
-    SERIALISATION_FORCEINLINE tT Pop()
+    tT Pop()
     {
         return mStack[--mCursor];
     }

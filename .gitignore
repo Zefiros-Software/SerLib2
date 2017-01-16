@@ -11,3 +11,4 @@ bin/*
 
 **/Makefile
 **/serialisation.make
+**/file.bin

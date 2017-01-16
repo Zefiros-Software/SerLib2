@@ -117,7 +117,7 @@ namespace ExceptionHelper
     namespace Strict
     {
         template< typename tException, typename tT >
-        inline void AssertEqual( const tT &expected, const tT &actual, bool &cleanExit )
+        void AssertEqual( const tT &expected, const tT &actual, bool &cleanExit )
         {
 #ifndef SERIALISATION_DISABLE_TYPE_CHECKS
 
@@ -131,35 +131,38 @@ namespace ExceptionHelper
         }
     }
 
-    namespace Compat
+    template< typename tT, bool tIsInteger = std::is_integral<tT>::value >
+    class Compat
     {
-        template< typename tT >
-        inline bool AssertCompatible( const Type::Type &actual, bool &cleanExit )
+    public:
+
+        static  bool AssertCompatible( const Type::Type &actual, bool &cleanExit )
         {
-            switch ( Type::GetHeaderEnum< tT >() )
+            if ( actual != Type::UInt8 && actual != Type::UInt16 && actual != Type::UInt32 && actual != Type::UInt64 )
             {
-            case Type::UInt8:
-            case Type::UInt16:
-            case Type::UInt32:
-            case Type::UInt64:
-                if ( actual != Type::UInt8 && actual != Type::UInt16 && actual != Type::UInt32 && actual != Type::UInt64 )
-                {
-                    cleanExit = false;
-                    throw InvalidTypeException( Type::GetHeaderEnum<tT>(), actual );
-                }
-
-                break;
-
-                CASE_DEFAULT_ASSERT_HAYWIRE;
+                cleanExit = false;
+                throw InvalidTypeException( Type::GetHeaderEnum<tT>(), actual );
             }
 
             // return whether conversion is needed
             return actual != Type::GetHeaderEnum<tT>();
         }
-    }
+    };
+
+    template <typename tT>
+    class Compat<tT, false>
+    {
+    public:
+        static bool AssertCompatible( const Type::Type &, bool & )
+        {
+            assert( false &&
+                    "Whoops! Something went haywire. Please try to reproduce this exception in an example as small as possible and submit it as an issue. Thanks!" );
+            return false;
+        }
+    };
 
     template< typename tException >
-    inline void Assert( bool condition, bool &cleanExit )
+    void Assert( bool condition, bool &cleanExit )
     {
         if ( !condition )
         {
