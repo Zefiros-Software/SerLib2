@@ -116,10 +116,10 @@ inline double GenerateZebraValue()
     return static_cast<double>( GenerateZebraValue<int64_t>() );
 }
 
-template< typename T >
-T GenerateInvZebraValue()
+template< typename tT >
+tT GenerateInvZebraValue()
 {
-    return GenerateZebraValue< T >() ^ std::numeric_limits<T>::max();
+    return GenerateZebraValue< tT >() ^ std::numeric_limits<T>::max();
 }
 
 template<>
@@ -156,10 +156,10 @@ inline int GetFastRand()
     return ( g_seed >> 16 ) & 0x7FFF;
 }
 
-template< typename T >
-inline T GetRandom()
+template< typename tT >
+inline tT GetRandom()
 {
-    return static_cast<T>( GetFastRand() );
+    return static_cast<tT>( GetFastRand() );
 }
 
 inline float GetRandomFloatNormalized()

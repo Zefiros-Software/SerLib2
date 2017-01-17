@@ -86,10 +86,28 @@ namespace Type
     //
     //         bool AreCompatible( const Type type, const Type type2 );
 
-    template< typename T >
-    constexpr Type GetEnum()
+    template< typename tT, size_t tSize = sizeof( tT ) >
+    constexpr Type GetAltEnum()
     {
         return Type::Object;
+    }
+
+    template<>
+    constexpr Type GetAltEnum<size_t, 4>()
+    {
+        return Type::UInt32;
+    }
+
+    template<>
+    constexpr Type GetAltEnum<size_t, 8>()
+    {
+        return Type::UInt64;
+    }
+
+    template< typename tT >
+    constexpr Type GetEnum()
+    {
+        return GetAltEnum<tT>();
     }
 
     template<>
