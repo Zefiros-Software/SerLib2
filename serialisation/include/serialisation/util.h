@@ -100,9 +100,4 @@ namespace Util
     }
 }
 
-
-#ifndef SERIALISATION_NO_HEADER_ONLY
-#   include "../../src/util.cpp"
-#endif
-
 #endif

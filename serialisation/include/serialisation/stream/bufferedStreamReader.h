@@ -203,8 +203,4 @@ private:
     BufferedStreamReader( const BufferedStreamReader & ) = delete;
 };
 
-#ifndef SERIALISATION_NO_HEADER_ONLY
-#   include "../../src/bufferedStreamReader.cpp"
-#endif
-
 #endif

@@ -307,8 +307,4 @@ namespace Type
 //     };
 // }
 
-#ifndef SERIALISATION_NO_HEADER_ONLY
-#   include "../../src/types.cpp"
-#endif
-
 #endif

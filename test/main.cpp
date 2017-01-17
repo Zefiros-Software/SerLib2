@@ -170,9 +170,9 @@ int main( int argc, char **argv )
     //_crtBreakAlloc = 742;
 #endif
 
-    testing::InitGoogleTest( &argc, argv );
+    ::testing::InitGoogleTest( &argc, argv );
 
-    int32_t result = RUN_ALL_TESTS();
+    int32_t result = ::testing::UnitTest::GetInstance()->Run();
 
     ParallelFloatProcessor::TerminateWorkers();
 

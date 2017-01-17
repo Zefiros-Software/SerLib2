@@ -67,8 +67,4 @@ private:
     StreamWriter( const StreamWriter & ) = delete;
 };
 
-#ifndef SERIALISATION_NO_HEADER_ONLY
-#   include "../../src/streamWriter.cpp"
-#endif
-
 #endif

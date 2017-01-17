@@ -146,8 +146,4 @@ private:
     BufferedStreamWriter( const BufferedStreamWriter & ) = delete;
 };
 
-#ifndef SERIALISATION_NO_HEADER_ONLY
-#   include "../../src/bufferedStreamWriter.cpp"
-#endif
-
 #endif

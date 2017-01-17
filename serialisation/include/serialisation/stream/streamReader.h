@@ -61,8 +61,4 @@ private:
 
 };
 
-#ifndef SERIALISATION_NO_HEADER_ONLY
-#   include "../../src/streamReader.cpp"
-#endif
-
 #endif
