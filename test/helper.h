@@ -190,7 +190,7 @@ inline double GetRandomDoubleNormalized()
 template<>
 inline double GetRandom<double>()
 {
-    return GetRandomDoubleNormalized() * 1000000.0 - 500000.0;
+    return static_cast<float>( GetRandomDoubleNormalized() * 1000000.0 - 500000.0 );
 }
 
 std::string GenerateRandomString( bool random = true, uint32_t index = 0 );
