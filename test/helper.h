@@ -53,27 +53,46 @@ typedef int32_t S32;
 typedef int64_t S64;
 
 template< typename tT >
-inline void ExpectEqual( const tT &t1, const tT &t2 )
+inline void ExpectEqual( const tT &t1, const tT &t2, const std::string &message = "" )
 {
-    EXPECT_EQ( t1, t2 );
+switch ( 0 ) case 0:
+default:
+    if ( const ::testing::AssertionResult gtest_ar = ( ::testing::internal::
+                                                       EqHelper<( sizeof( ::testing::internal::IsNullLiteralHelper( t1 ) ) == 1 )>::Compare( "t1", "t2", t1, t2 ) ) ) ;
+    else
+    {
+        ::testing::internal::AssertHelper( ::testing::TestPartResult::kNonFatalFailure, "helper.h", 61,
+                                           gtest_ar.failure_message() ) = ::testing::Message() << message;
+    }
 }
 
 template<>
-inline void ExpectEqual< float >( const float &f1, const float &f2 )
+inline void ExpectEqual< float >( const float &f1, const float &f2, const std::string &message )
 {
-    EXPECT_FLOAT_EQ( f1, f2 );
+    EXPECT_FLOAT_EQ( f1, f2 ) << message;
 }
 
 template<>
-inline void ExpectEqual< double >( const double &d1, const double &d2 )
+inline void ExpectEqual< double >( const double &d1, const double &d2, const std::string &message )
 {
-    EXPECT_DOUBLE_EQ( d1, d2 );
+    EXPECT_DOUBLE_EQ( d1, d2 ) << message;
 }
 
-inline void ExpectEqual( const char *c1, const char *c2 )
+inline void ExpectEqual( const char *c1, const char *c2, const std::string &message = "" )
 {
     std::string s1( c1 ), s2( c2 );
-    EXPECT_EQ( s1, s2 );
+    EXPECT_EQ( s1, s2 ) << message;
+}
+
+template< typename tT >
+inline void ExpectEqual( const std::vector<tT> &t1, const std::vector<tT> &t2, const std::string &message = "" )
+{
+    ExpectEqual( t1.size(), t2.size(), message );
+
+    for ( size_t i = 0, end = t1.size(); i < end; ++i )
+    {
+        ExpectEqual( t1[i], t2[i], " vectors differ at index " +  std::to_string( i ) );
+    }
 }
 
 template< typename tT >

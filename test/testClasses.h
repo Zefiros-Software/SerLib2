@@ -372,12 +372,7 @@ public:
 
     void TestEqual( TestClassArray< tT, tFlags > &t2 )
     {
-        ExpectEqual( mValue1.size(), t2.mValue1.size() );
-
-        for ( size_t i = 0, end = mValue1.size(); i < end; ++i )
-        {
-            ExpectEqual( mValue1[i], t2.mValue1[i] );
-        }
+        ExpectEqual( mValue1, t2.mValue1 );
     }
 
 private:
@@ -419,12 +414,7 @@ public:
 
     void TestEqual( TestClassArrayOfSize< tT, tFlags, tSize > &t2 )
     {
-        ExpectEqual( mValue1.size(), t2.mValue1.size() );
-
-        for ( size_t i = 0, end = mValue1.size(); i < end; ++i )
-        {
-            ExpectEqual( mValue1[i], t2.mValue1[i] );
-        }
+        ExpectEqual( mValue1, t2.mValue1 );
     }
 
 private:
@@ -466,12 +456,7 @@ public:
 
     void TestEqual( TestClassSmallArray< tT > &t2 )
     {
-        ExpectEqual( mValue1.size(), t2.mValue1.size() );
-
-        for ( size_t i = 0, end = mValue1.size(); i < end; ++i )
-        {
-            ExpectEqual( mValue1[i], t2.mValue1[i] );
-        }
+        ExpectEqual( mValue1, t2.mValue1 );
     }
 
 private:
@@ -513,12 +498,7 @@ public:
 
     void TestEqual( TestClassArrayEdgeCaseSize< tT > &t2 )
     {
-        ExpectEqual( mValue1.size(), t2.mValue1.size() );
-
-        for ( size_t i = 0, end = mValue1.size(); i < end; ++i )
-        {
-            ExpectEqual( mValue1[i], t2.mValue1[i] );
-        }
+        ExpectEqual( mValue1, t2.mValue1 );
     }
 
 private:
@@ -564,12 +544,7 @@ public:
     template< typename tC >
     void TestEqual( tC &t2 )
     {
-        ExpectEqual( mValue1.size(), t2.mValue1.size() );
-
-        for ( size_t i = 0, end = mValue1.size(); i < end; ++i )
-        {
-            ExpectEqual( mValue1[i], t2.mValue1[i] );
-        }
+        ExpectEqual( mValue1, t2.mValue1 );
 
         ExpectEqual( mValue2, t2.mValue2 );
     }
@@ -616,12 +591,7 @@ public:
     template< typename tC >
     void TestEqual( tC &t2 )
     {
-        ExpectEqual( mValue1.size(), t2.mValue1.size() );
-
-        for ( size_t i = 0, end = mValue1.size(); i < end; ++i )
-        {
-            ExpectEqual( mValue1[i], t2.mValue1[i] );
-        }
+        ExpectEqual( mValue1, t2.mValue1 );
 
         ExpectEqual( mValue2, t2.mValue2 );
     }
