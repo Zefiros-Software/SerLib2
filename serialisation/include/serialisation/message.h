@@ -80,7 +80,7 @@ public:
     {
         SERIALISATION_ASSERT_INDEX_IN_RANGE( index );
 
-        mInternalMessage.StoreObject( serialisable, index, flags, *this );
+        StoreHelper< tSerialisable >::Store( index, serialisable, flags, this );
     }
 
     SERIALISATION_ALL_TYPES( SERIALISATION_INTERFACE_PRIMITIVE_VECTOR );
@@ -137,6 +137,30 @@ private:
 
         mInternalMessage.StoreVector( value, index, flags );
     }
+
+    template< typename tSerialisable >
+    void StoreObject( uint8_t index, tSerialisable &serialisable, uint8_t flags )
+    {
+        mInternalMessage.StoreObject( serialisable, index, flags, *this );
+    }
+
+    template< typename tSerialisable, bool tIsIntegral = std::is_integral< tSerialisable >::value >
+    struct StoreHelper
+    {
+        static void Store( uint8_t index, tSerialisable &serialisable, uint8_t flags, Message< tInternalMessage > *message )
+        {
+            message->StoreObject( index, serialisable, flags );
+        }
+    };
+
+    template< typename tSerialisable >
+    struct StoreHelper< tSerialisable, true >
+    {
+        static void Store( uint8_t index, tSerialisable &serialisable, uint8_t flags, Message< tInternalMessage > *message )
+        {
+            message->StorePrimitive( index, serialisable, flags );
+        }
+    };
 };
 
 #endif
