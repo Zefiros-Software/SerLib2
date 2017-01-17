@@ -2,6 +2,6 @@ project "SerLib2"
     kind "StaticLib"
 
     zpm.export [[
-        includedirs "bsp/include/"
+        includedirs "serialisation/include/"
         flags "C++11"
     ]]
