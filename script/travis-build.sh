@@ -9,9 +9,8 @@ if [ "$TYPE" == "zpm" ]; then
 
     cd zpm/
     make
-    cd ../../
-
-    test/bin/x86/serialisation-zpm-test
+    cd ../bin/x86/
+    ./serialisation-zpm-test
 
 else
     zpm install-package --allow-install --allow-module
