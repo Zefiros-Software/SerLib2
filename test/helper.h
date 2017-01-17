@@ -119,7 +119,7 @@ inline double GenerateZebraValue()
 template< typename tT >
 tT GenerateInvZebraValue()
 {
-    return GenerateZebraValue< tT >() ^ std::numeric_limits<T>::max();
+    return GenerateZebraValue< tT >() ^ std::numeric_limits<tT>::max();
 }
 
 template<>
