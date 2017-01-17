@@ -34,3 +34,5 @@ workspace "SerLib-ZPM"
             "Zefiros-Software/SerLib2",
             "Zefiros-Software/GoogleTest"
         }
+
+		defines { "TEST_FILES_DIR=\"../../test/test-files/\""}
