@@ -166,10 +166,10 @@ SERIALISATION_NOINLINE void ParallelFloatProcessor::WorkerDeserialiseDouble( siz
     }
 };
 
-ParallelFloatProcessor::ParallelFloatProcessor( size_t size )
-    : mStop( false ),
+ParallelFloatProcessor::ParallelFloatProcessor( uint32_t size )
+    : mBarrier( size ),
+      mStop( false ),
       mCounter( 0 ),
-      mGeneration( 0 ),
       mFloatSourceCursor( nullptr ),
       mDoubleSourceCursor( nullptr ),
       mSourceSize( 0 ),
@@ -185,43 +185,11 @@ ParallelFloatProcessor::ParallelFloatProcessor( size_t size )
         {
             size_t myStart = ( pid + 1 ) * SERIALISATION_FLOAT_BUFFER_SIZE / size;
             size_t myEnd = myStart + SERIALISATION_FLOAT_BUFFER_SIZE / size;
-            ++mCounter;
-            uint32_t myGeneration = 1;
+
+            mBarrier.Wait( mStop );
 
             while ( !mStop )
             {
-                for ( uint32_t waitIter = 0; mGeneration < myGeneration && waitIter < 4 * 40000; ++waitIter )
-                {
-                }
-
-                if ( mGeneration < myGeneration )
-                {
-
-                    mSpinLock.lock();
-                    uint32_t generation = mGeneration;
-
-                    uint32_t iter = 1;
-
-                    while ( generation < myGeneration && !mStop )
-                    {
-                        uint32_t duration = std::max( 10u, iter );
-                        mNotify.wait_for( mSpinLock, std::chrono::milliseconds( duration ), [&]()
-                        {
-                            return myGeneration <= mGeneration || mStop;
-                        } );
-
-                        ++iter;
-                        generation = mGeneration;
-                    }
-
-                    mSpinLock.unlock();
-
-                    if ( mStop )
-                    {
-                        break;
-                    }
-                }
-
                 switch ( mTask )
                 {
                 case Task::SerFloats:
@@ -245,7 +213,8 @@ ParallelFloatProcessor::ParallelFloatProcessor( size_t size )
                 }
 
                 ++mCounter;
-                ++myGeneration;
+
+                mBarrier.Wait( mStop );
             }
         } );
     }
@@ -338,7 +307,7 @@ void ParallelFloatProcessor::TerminateWorkers()
         {
             sProcessor->mStop = true;
         }
-        sProcessor->mNotify.notify_all();
+        sProcessor->mBarrier.NotifyAbort();
 
         for ( auto &t : sProcessor->mWorkers )
         {
@@ -352,7 +321,7 @@ void ParallelFloatProcessor::TerminateWorkers()
     }
 }
 
-ParallelFloatProcessor *ParallelFloatProcessor::GetInstance( size_t size /*= 0*/, bool create /*= true */ )
+ParallelFloatProcessor *ParallelFloatProcessor::GetInstance( uint32_t size /*= 0*/, bool create /*= true */ )
 {
     static ParallelFloatProcessor *sProcessor = nullptr;
 
@@ -373,13 +342,8 @@ ParallelFloatProcessor *ParallelFloatProcessor::GetInstance( size_t size /*= 0*/
 void ParallelFloatProcessor::StartTask( Task task )
 {
     mCounter = 0;
-
-    mSpinLock.lock();
-    ++mGeneration;
     mTask = task;
-    mSpinLock.unlock();
-
-    mNotify.notify_all();
+    mBarrier.Wait( mStop );
 }
 
 void ParallelFloatProcessor::WaitTaskComplete() const

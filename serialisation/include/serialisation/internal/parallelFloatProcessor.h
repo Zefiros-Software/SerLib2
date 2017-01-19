@@ -32,12 +32,13 @@
 #include <atomic>
 #include <thread>
 #include <mutex>
+#include "serialisation/internal/barrier.h"
 
 class ParallelFloatProcessor
 {
 public:
 
-    ParallelFloatProcessor( size_t size );
+    ParallelFloatProcessor( uint32_t size );
 
     uint32_t *GetU32Buffer();
     uint64_t *GetU64Buffer();
@@ -50,7 +51,7 @@ public:
 
     static void TerminateWorkers();
 
-    static ParallelFloatProcessor *GetInstance( size_t size = 0, bool create = true );
+    static ParallelFloatProcessor *GetInstance( uint32_t size = 0, bool create = true );
 
 private:
 
@@ -67,12 +68,10 @@ private:
     uint32_t mU32Buffer[SERIALISATION_FLOAT_BUFFER_SIZE];
     uint64_t mU64Buffer[SERIALISATION_FLOAT_BUFFER_SIZE];
 
-    std::mutex mLock;
-    SpinLock mSpinLock;;
-    std::condition_variable_any mNotify;
+    MixedBarrier mBarrier;
+
     std::atomic_bool mStop;
     std::atomic<uint32_t> mCounter;
-    std::atomic<uint32_t> mGeneration;
 
     float *mFloatSourceCursor;
     double *mDoubleSourceCursor;
