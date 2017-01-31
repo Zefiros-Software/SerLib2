@@ -2,14 +2,14 @@
 {
     "dependencies": [ 
     {
-        "hash": "5e7fd50e17b6edf1cadff973d0ec68966cf3265e",
+        "hash": "9ae086a9ebafabdc49b71bb7f3879f551adee09a",
         "name": "Zefiros-Software/GoogleTest",
         "tag": "master",
         "type": "library",
         "version": "@head"
     }, 
     {
-        "hash": "b4fdf6e9df82ea5a424440436dcc4ac0474decce",
+        "hash": "246ee86428758be3d3af1d2c502086eb6036d9fe",
         "name": "Zefiros-Software/GoogleBenchmark",
         "tag": "master",
         "type": "library",

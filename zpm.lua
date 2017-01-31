@@ -26,5 +26,7 @@ local zefiros = require( "Zefiros-Software/Zefiros-Defaults", "@head" )
 
 workspace "SerLib"
 
+    flags "C++11"
+
 	zefiros.setDefaults( "serialisation", {
     } )
