@@ -44,3 +44,8 @@ uint32_t PendingVariableArray::AnyPending() const
 {
     return mIsPendingMask;
 }
+
+void PendingVariableArray::Clear()
+{
+    mIsPendingMask = 0x0;
+}

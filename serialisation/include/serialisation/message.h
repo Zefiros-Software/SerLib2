@@ -67,9 +67,9 @@ class Message
 {
 public:
 
-    template< typename tStream >
-    explicit Message( tStream &streamInitializer )
-        : mInternalMessage( streamInitializer )
+    template< typename... tArgs >
+    explicit Message( tArgs &&... args )
+        : mInternalMessage( std::forward<tArgs>( args )... )
     {
     }
 

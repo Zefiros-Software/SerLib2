@@ -91,7 +91,7 @@ inline void ExpectEqual( const std::vector<tT> &t1, const std::vector<tT> &t2, c
 
     for ( size_t i = 0, end = t1.size(); i < end; ++i )
     {
-        ExpectEqual( t1[i], t2[i], " vectors differ at index " +  std::to_string( i ) );
+        ExpectEqual( t1[i], t2[i], " vectors differ at index " + std::to_string( i ) );
     }
 }
 
@@ -241,9 +241,9 @@ void SimpleSerialiseDeserialiseStream( tT1 &t1, tT2 &t2 )
 }
 
 template< typename tT1, typename tT2 >
-void SimpleSerialiseDeserialiseBackwards( const std::string &file, tT1 &/*c1*/, tT2 &c2 )
+/* Enable this when you need to regenerate the backwards compatibility files
+void SimpleSerialiseDeserialiseBackwards( const std::string &file, tT1 &c1, tT2 &c2 )
 {
-    /* Enable this when you need to regenerate the backwards compatibility files
     {
         // clear the file if needed
         std::ofstream ofs;
@@ -251,6 +251,9 @@ void SimpleSerialiseDeserialiseBackwards( const std::string &file, tT1 &/*c1*/, 
         ofs.close();
         Serialisation::BinarySerialiser( file ).Enter( c1 );
     }
+    /*/
+void SimpleSerialiseDeserialiseBackwards( const std::string &file, tT1 &, tT2 &c2 )
+{
     /// */
 
     {

@@ -42,6 +42,8 @@ public:
 
     uint32_t AnyPending() const;
 
+    void Clear();
+
     template< typename tFunc >
     void SetPending( uint8_t index, const tFunc &lambda )
     {

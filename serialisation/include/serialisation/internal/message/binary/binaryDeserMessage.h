@@ -23,6 +23,8 @@
 #ifndef __SERIALISATION_BINARYDESERMESSAGE_H__
 #define __SERIALISATION_BINARYDESERMESSAGE_H__
 
+#include "serialisation/internal/message/binary/proxy.h"
+
 #include "serialisation/internal/memory/memoryPool.h"
 #include "serialisation/internal/memory/stack.h"
 
@@ -41,7 +43,7 @@
 #include <vector>
 #include <array>
 
-template< typename tStreamReader, size_t tBufferSize >
+template< typename tStreamReader, size_t tBufferSize, typename tMainMessage >
 class BinaryDeserialisationValueMessage;
 
 template< typename tStreamReader, size_t tBufferSize = SERIALISATION_FLOAT_BUFFER_SIZE >
@@ -49,10 +51,11 @@ class BinaryDeserialisationMessage
 {
 public:
 
-    template< typename tS, size_t tB >
+    template< typename tS, size_t tB, typename tM >
     friend class BinaryDeserialisationValueMessage;
 
-    typedef Message< BinaryDeserialisationValueMessage< tStreamReader, tBufferSize > > tValueMessage;
+    typedef BinaryDeserialisationMessage< tStreamReader, tBufferSize > tMain;
+    typedef BinaryDeserialisationValueMessage< tStreamReader, tBufferSize, Message< tMain > > tValueMessage;
 
     template< typename tStream >
     explicit BinaryDeserialisationMessage( tStream &streamInitializer )
@@ -146,7 +149,10 @@ private:
 
     PendingVariableArray *InitPendingVariableArray()
     {
-        return mPendingPool.Create();
+        PendingVariableArray *pva = mPendingPool.Create();
+        pva->Clear();
+
+        return pva;
     }
 
     void ReleasePendingVariableArray( PendingVariableArray *pva )
@@ -281,7 +287,20 @@ private:
 
         if ( flags )
         {
-            tValueMessage tempMessage( *this );
+            PendingVariableArray *tempPendingVariables = InitPendingVariableArray();
+
+            tValueMessage internalMessage( *this, message, *tempPendingVariables );
+
+            internalMessage.CacheHeaders();
+            {
+                Message< tValueMessage > tempMessage( internalMessage );
+
+                for ( auto &t : value )
+                {
+                    tempMessage.Enter( t );
+                }
+            }
+            ReleasePendingVariableArray( tempPendingVariables );
         }
         else
         {
@@ -718,67 +737,216 @@ private:
         }
     }
 
-
-#define SERIALISATION_DESER_OBJECT_PROXY( objectProxy, addPending, read )                               \
-    template< typename tParentMessage >                                                                 \
-    struct objectProxy                                                                                  \
-    {                                                                                                   \
-        tParentMessage *parentMessage;                                                                  \
-                                                                                                        \
-        objectProxy( tParentMessage &m )                                                                \
-            : parentMessage( &m )                                                                       \
-        {                                                                                               \
-        }                                                                                               \
-                                                                                                        \
-        template< typename tMessage, typename tT >                                                      \
-         void AddPending( tMessage &message, tT &value, uint8_t index ) const  \
-        {                                                                                               \
-            message.addPending( value, index, *parentMessage );                                         \
-        }                                                                                               \
-                                                                                                        \
-        template< typename tMessage, typename tT >                                                      \
-         void Read( tMessage &message, tT &value, Type::Type type ) const      \
-        {                                                                                               \
-            message.read( value, type, *parentMessage );                                                \
-        }                                                                                               \
-    };
+    SERIALISATION_DESER_PROXY( StorePrimitiveProxy, AddPendingPrimitive, ReadPrimitive );
+    SERIALISATION_DESER_PROXY( StorePrimitiveVectorProxy, AddPendingPrimitiveVector, ReadPrimitiveVector );
 
     SERIALISATION_DESER_OBJECT_PROXY( StoreObjectProxy, AddPendingObject, ReadObject );
     SERIALISATION_DESER_OBJECT_PROXY( StoreObjectVectorProxy, AddPendingObjectVector, ReadObjectVector );
-
-
-#define SERIALISATION_DESER_PROXY( primitiveProxy, addPending, read )                                       \
-    struct primitiveProxy                                                                                   \
-    {                                                                                                       \
-        template< typename tMessage, typename tT >                                                          \
-         void AddPending( tMessage &message, tT &value, uint8_t index ) const      \
-        {                                                                                                   \
-            message.addPending( value, index );                                                             \
-        }                                                                                                   \
-                                                                                                            \
-        template< typename tMessage, typename tT >                                                          \
-         void Read( tMessage &message, tT &value, Type::Type type ) const          \
-        {                                                                                                   \
-            message.read( value, type );                                                                    \
-        }                                                                                                   \
-    };
-
-    SERIALISATION_DESER_PROXY( StorePrimitiveProxy, AddPendingPrimitive, ReadPrimitive );
-    SERIALISATION_DESER_PROXY( StorePrimitiveVectorProxy, AddPendingPrimitiveVector, ReadPrimitiveVector );
 };
 
-template< typename tStreamReader, size_t tBufferSize >
+template< typename tStreamReader, size_t tBufferSize, typename tMainMessage >
 class BinaryDeserialisationValueMessage
 {
 public:
 
-    explicit BinaryDeserialisationValueMessage( BinaryDeserialisationMessage< tStreamReader, tBufferSize > &message )
-        : mMessage( message )
-    {}
+    explicit BinaryDeserialisationValueMessage( BinaryDeserialisationMessage< tStreamReader, tBufferSize > &message,
+                                                tMainMessage &parentMessage, PendingVariableArray &pendingVariables )
+        : mMessage( message ),
+          mParentMessage( parentMessage ),
+          mPendingVariables( pendingVariables ),
+          mHeaderIndex( 0 ),
+          mHeaderCount( 0 )
+    {
+        mIndices.reserve( 10 );
+        mTypes.reserve( 10 );
+    }
+
+    void CacheHeaders()
+    {
+        uint8_t index;
+        Type::Type type;
+
+        mMessage.ReadHeader( index, type );
+
+        mHeaderCount = 0;
+
+        mIndices.clear();
+        mTypes.clear();
+
+        while ( type != Type::Terminator )
+        {
+            mIndices.push_back( index );
+            mTypes.push_back( type );
+            mMessage.ReadHeader( index, type );
+            ++mHeaderCount;
+        }
+    }
+
+    template< typename tT >
+    void Store( tT &value, uint8_t index, uint8_t /*flags*/ )
+    {
+        StoreTemplate( value, index, StorePrimitiveProxy() );
+    }
+
+    template< typename tT >
+    void StoreVector( std::vector< tT > &value, uint8_t index, uint8_t /*flags*/ )
+    {
+        StoreTemplate( value, index, StorePrimitiveVectorProxy() );
+    }
+
+    template< typename tSerialisable, typename tMessage >
+    void StoreObject( tSerialisable &serialisable, uint8_t index, uint8_t /*flags*/, tMessage &/*message*/ )
+    {
+        StoreTemplate( serialisable, index, StoreObjectProxy< tMainMessage >( mParentMessage ) );
+    }
+
+    template< typename tSerialisable, typename tMessage >
+    void StoreObjectVector( std::vector< tSerialisable > &value, uint8_t index, uint8_t /*flags*/, tMessage &/*message*/ )
+    {
+        StoreTemplate( value, index, StoreObjectVectorProxy< tMainMessage >( mParentMessage ) );
+    }
+
+    template< typename tSerialisable, typename tMessage >
+    void StoreEntryPoint( tSerialisable &serialisable, tMessage &message )
+    {
+        mPendingVariables.Clear();
+        mHeaderIndex = 0;
+
+        SerialisationHelper< tSerialisable >::OnStore( message, serialisable );
+
+        for ( ; mHeaderIndex < mHeaderCount; ++mHeaderIndex )
+        {
+            const uint8_t index = mIndices[mHeaderIndex];
+
+            if ( mPendingVariables.IsPending( index ) )
+            {
+                mPendingVariables.ReadNow( index, mTypes[mHeaderIndex] );
+            }
+        }
+    }
+
+    void ClearBuffer()
+    {
+    }
 
 private:
 
     BinaryDeserialisationMessage< tStreamReader, tBufferSize > &mMessage;
+    tMainMessage &mParentMessage;
+    PendingVariableArray &mPendingVariables;
+
+    std::vector<uint8_t> mIndices;
+    std::vector<Type::Type> mTypes;
+
+    size_t mHeaderIndex;
+    size_t mHeaderCount;
+
+    template< typename tProxy, typename tT >
+    void StoreTemplate( tT &value, uint8_t index, const tProxy &proxy )
+    {
+        if ( mHeaderIndex >= mHeaderCount )
+        {
+            // the last member of this object has been read
+            return;
+        }
+
+        uint8_t rIndex = mIndices[mHeaderIndex];
+
+        if ( index == rIndex )
+        {
+            proxy.Read( *this, value, mTypes[mHeaderIndex] );
+            ++mHeaderIndex;
+        }
+        else
+        {
+            while ( mPendingVariables.IsPending( rIndex ) )
+            {
+                const Type::Type type = mTypes[mHeaderIndex];
+                mPendingVariables.ReadNow( rIndex, type );
+                rIndex = mIndices[++mHeaderIndex];
+            }
+
+            if ( index == rIndex )
+            {
+                proxy.Read( *this, value, mTypes[mHeaderIndex] );
+            }
+            else
+            {
+                proxy.AddPending( *this, value, index );
+            }
+        }
+    }
+
+    template< typename tT >
+    void ReadPrimitive( tT &value, Type::Type type )
+    {
+        mMessage.ReadPrimitive( value, type );
+    }
+
+    template< typename tT >
+    void ReadPrimitiveVector( std::vector< tT > &value, Type::Type type )
+    {
+        mMessage.ReadPrimitiveVector( value, type );
+    }
+
+    template< typename tSerialisable, typename tMessage  >
+    void ReadObject( tSerialisable &serialisable, Type::Type type, tMessage &message )
+    {
+        ExceptionHelper::Strict::AssertEqual< InvalidTypeException >( Type::Object, type, mMessage.mCleanExit );
+
+        mMessage.StoreEntryPoint( serialisable, message );
+    }
+
+    template< typename tSerialisable, typename tMessage  >
+    void ReadObjectVector( std::vector<tSerialisable> &value, Type::Type type, tMessage &message )
+    {
+        mMessage.ReadObjectVector( value, type, message );
+    }
+
+    template< typename tT >
+    void AddPendingPrimitive( tT &value, uint8_t index )
+    {
+        mPendingVariables.SetPending( index, [this, &value]( Type::Type type )
+        {
+            mMessage.ReadPrimitive( value, type );
+        } );
+    }
+
+
+    template< typename tT >
+    void AddPendingPrimitiveVector( tT &value, uint8_t index )
+    {
+        mPendingVariables.SetPending( index, [this, &value]( Type::Type type )
+        {
+            mMessage.ReadPrimitiveVector( value, type );
+        } );
+    }
+
+    template< typename tSerialisable, typename tMessage >
+    void AddPendingObject( tSerialisable &serialisable, uint8_t index, tMessage &/*message*/ )
+    {
+        mPendingVariables.SetPending( index, [this, &serialisable]( Type::Type type )
+        {
+            ExceptionHelper::Strict::AssertEqual< InvalidTypeException >( Type::Object, type, mMessage.mCleanExit );
+
+            mMessage.StoreEntryPoint( serialisable, mParentMessage );
+        } );
+    }
+
+    template< typename tSerialisable, typename tMessage >
+    void AddPendingObjectVector( std::vector<tSerialisable> &value, uint8_t index, tMessage &/*message*/ )
+    {
+        mPendingVariables.SetPending( index, [this, &value]( Type::Type type )
+        {
+            mMessage.ReadObjectVector( value, type, mParentMessage );
+        } );
+    }
+
+    SERIALISATION_DESER_PROXY( StorePrimitiveProxy, AddPendingPrimitive, ReadPrimitive );
+    SERIALISATION_DESER_PROXY( StorePrimitiveVectorProxy, AddPendingPrimitive, ReadPrimitiveVector );
+
+    SERIALISATION_DESER_OBJECT_PROXY( StoreObjectProxy, AddPendingObject, ReadObject );
+    SERIALISATION_DESER_OBJECT_PROXY( StoreObjectVectorProxy, AddPendingObjectVector, ReadObjectVector );
 };
 
 #endif

@@ -44,8 +44,8 @@ public:
     template< typename tS, size_t tB >
     friend class BinarySerialisationValueMessage;
 
-    typedef Message< BinarySerialisationHeaderMessage< tStreamWriter, tBufferSize > > tHeaderMessage;
-    typedef Message< BinarySerialisationHeaderMessage< tStreamWriter, tBufferSize > > tValueMessage;
+    typedef BinarySerialisationHeaderMessage< tStreamWriter, tBufferSize > tHeaderMessage;
+    typedef BinarySerialisationValueMessage< tStreamWriter, tBufferSize > tValueMessage;
 
     template< typename tStream >
     explicit BinarySerialisationMessage( tStream &streamInitializer )
@@ -63,14 +63,16 @@ public:
     template< typename tT >
     void StoreVector( std::vector< tT > &value, uint8_t index, uint8_t flags )
     {
-        WriteArrayHeader< tT >( index, value.size() );
+        WriteHeader( index, Type::Array );
+        WriteArrayHeader< tT >( value.size() );
         WriteVectorBody( value, flags );
     }
 
     void StoreVector( std::vector< bool > &value, uint8_t index, uint8_t flags )
     {
         flags = flags & 0x1;
-        WriteArrayHeader< bool >( index, value.size(), flags );
+        WriteHeader( index, Type::Array );
+        WriteArrayHeader< bool >( value.size(), flags );
         WriteVectorBody( value, flags );
     }
 
@@ -78,15 +80,16 @@ public:
     void StoreObjectVector( std::vector< tSerialisable > &value, uint8_t index, uint8_t flags, tMessage &message )
     {
         flags = flags & 0x1;
-        WriteArrayHeader<tSerialisable>( index, value.size(), flags );
+        WriteHeader( index, Type::Array );
+        WriteArrayHeader<tSerialisable>( value.size(), flags );
 
         if ( flags )
         {
             {
-                tHeaderMessage( *this ).Enter( value[0] );
+                Message< tHeaderMessage >( *this ).Enter( value[0] );
             }
 
-            tValueMessage tempMessage( *this );
+            Message< tValueMessage > tempMessage( *this, message );
 
             for ( auto &t : value )
             {
@@ -131,10 +134,14 @@ private:
         WritePrimitive( Util::CreateHeader< tT >( index ) );
     }
 
-    template< typename tT >
-    void WriteArrayHeader( uint8_t index, size_t size, uint8_t flags = 0 )
+    void WriteHeader( uint8_t index, Type::Type type )
     {
-        WritePrimitive( Util::CreateHeader( index, Type::Array ) );
+        WritePrimitive( Util::CreateHeader( index, type ) );
+    }
+
+    template< typename tT >
+    void WriteArrayHeader( size_t size, uint8_t flags = 0 )
+    {
         WriteHeader< tT >( flags );
         mStreamWriter.WriteSize( size );
     }
@@ -291,28 +298,25 @@ public:
     template< typename tT >
     void StoreVector( std::vector< tT > &value, uint8_t index, uint8_t flags )
     {
-        mMessage.template WriteArrayHeader< tT >( index, value.size(), flags );
+        mMessage.WriteHeader( index, Type::Array );
     }
 
     void StoreVector( std::vector< bool > &value, uint8_t index, uint8_t flags )
     {
-        flags = flags & 0x1;
-        mMessage.template WriteArrayHeader( index, value.size(), flags );
+        mMessage.WriteHeader( index, Type::Array );
     }
 
     template< typename tSerialisable, typename tMessage >
     void StoreObject( tSerialisable &/*serialisable*/, uint8_t index, uint8_t /*flags*/, tMessage &/*message*/ )
     {
         mMessage.template WriteHeader< tSerialisable >( index );
-        mMessage.WritePrimitive( Util::CreateHeader( 0, Type::Terminator ) );
     }
 
     template< typename tSerialisable, typename tMessage >
     void StoreObjectVector( std::vector< tSerialisable > &value, uint8_t index, uint8_t flags,
                             tMessage &/*message*/ )
     {
-        flags = flags & 0x0;
-        mMessage.template WriteArrayHeader<tSerialisable>( index, value.size(), flags );
+        mMessage.WriteHeader( index, Type::Array );
     }
 
     template< typename tSerialisable, typename tMessage >
@@ -337,8 +341,10 @@ class BinarySerialisationValueMessage
 {
 public:
 
-    explicit BinarySerialisationValueMessage( BinarySerialisationMessage< tStreamWriter, tBufferSize > &message )
-        : mMessage( message )
+    explicit BinarySerialisationValueMessage( BinarySerialisationMessage< tStreamWriter, tBufferSize > &message,
+                                              Message< BinarySerialisationMessage< tStreamWriter, tBufferSize > > &mainMessage )
+        : mMessage( message ),
+          mMainMessage( mainMessage )
     {
     }
 
@@ -351,25 +357,33 @@ public:
     template< typename tT >
     void StoreVector( std::vector< tT > &value, uint8_t /*index*/, uint8_t flags )
     {
+        mMessage.WriteArrayHeader( value.size(), flags );
         mMessage.WriteVectorBody( value, flags );
     }
 
     void StoreVector( std::vector< bool > &value, uint8_t /*index*/, uint8_t flags )
     {
         flags = flags & 0x1;
+        mMessage.WriteArrayHeader( value.size(), flags );
         mMessage.WriteVectorBody( value, flags );
     }
 
     template< typename tSerialisable, typename tMessage >
-    void StoreObjectVector( std::vector< tSerialisable > &value, uint8_t /*index*/, uint8_t flags, tMessage &message )
+    void StoreObjectVector( std::vector< tSerialisable > &value, uint8_t /*index*/, uint8_t flags, tMessage &/*message*/ )
     {
-        mMessage.WriteObjectVectorBody( value, flags, message );
+        mMessage.template WriteArrayHeader<tSerialisable>( value.size(), flags );
+
+        for ( auto &t : value )
+        {
+            SerialisationHelper< tSerialisable >::OnStore( mMainMessage, t );
+        }
     }
 
     template< typename tSerialisable, typename tMessage >
-    void StoreObject( tSerialisable &serialisable, uint8_t /*index*/, uint8_t /*flags*/, tMessage &message )
+    void StoreObject( tSerialisable &serialisable, uint8_t /*index*/, uint8_t /*flags*/, tMessage &/*message*/ )
     {
-        SerialisationHelper< tSerialisable >::OnStore( message, serialisable );
+        SerialisationHelper< tSerialisable >::OnStore( mMainMessage, serialisable );
+        mMessage.WriteHeader( 0, Type::Terminator );
     }
 
     template< typename tSerialisable, typename tMessage >
@@ -383,7 +397,9 @@ public:
     }
 
 private:
+
     BinarySerialisationMessage< tStreamWriter, tBufferSize > &mMessage;
+    Message< BinarySerialisationMessage< tStreamWriter, tBufferSize > > &mMainMessage;
 };
 
 #endif
