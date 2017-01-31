@@ -37,5 +37,8 @@ RUN if [ ${INSTALL_WORKSPACE_SSH} = true ]; then \
     && chmod 400 /root/.ssh/id_rsa \
 ;fi
 
+# rerun from here to get the latest version of zpm without rebuilding half the image
+RUN zpm self-update
+RUN zpm install-module Zefiros-Software/Zefiros-Defaults
 
 WORKDIR /app/
