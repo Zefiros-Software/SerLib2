@@ -19,6 +19,10 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
+#pragma once
+#ifndef __SERIALISATION_BARRIER_H__
+#define __SERIALISATION_BARRIER_H__
+
 class MixedBarrier
 {
 public:
@@ -130,3 +134,5 @@ private:
         tmpCon->notify_all();
     }
 };
+
+#endif
