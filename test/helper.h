@@ -84,6 +84,25 @@ inline void ExpectEqual( const char *c1, const char *c2, const std::string &mess
     EXPECT_EQ( s1, s2 ) << message;
 }
 
+
+template< typename tT >
+struct SizeHelper
+{
+    static size_t GetSize( const tT & )
+    {
+        return sizeof( tT );
+    }
+};
+
+template<>
+struct SizeHelper< std::string >
+{
+    static size_t GetSize( const std::string &str )
+    {
+        return str.size();
+    }
+};
+
 template< typename tT >
 inline void ExpectEqual( const std::vector<tT> &t1, const std::vector<tT> &t2, const std::string &message = "" )
 {

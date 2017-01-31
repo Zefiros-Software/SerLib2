@@ -21,31 +21,8 @@
  */
 #include "testClasses.h"
 
-#define SERIALISATION_TREE_SKIPPING_TEST( type )                                \
-SERIALISATION_TEST2( Skipping, ObjectTree, TestClassTree< type PP_COMMA() 5 >,  \
-                     TestClassTreeSkipping< type PP_COMMA() 5 >, type,          \
-                     MakeSeed<type>( 4242 ), 4241 );
-
-SERIALISATION_ALL_TYPES( SERIALISATION_TREE_SKIPPING_TEST );
-
 #define SERIALISATION_OBJECT_VECTOR_SKIPPING_TEST( type )                                                       \
 SERIALISATION_TEST2( Skipping, ObjectVector, SkippedObjectVector< type >, SinglePrimitive< uint8_t >, type,     \
                      MakeSeed<type>( 414242 ), 34 );
 
 SERIALISATION_ALL_TYPES( SERIALISATION_OBJECT_VECTOR_SKIPPING_TEST );
-
-#define SERIALISATION_OBJECT_VECTORNON_EXISTINGG_TEST( type )                                                   \
-SERIALISATION_TEST2( NonExisting, ObjectVector, SinglePrimitive< uint8_t >, SkippedObjectVector< type >, type,  \
-                     MakeSeed< type PP_COMMA() uint8_t >( 414242 ), 414242 );
-
-SERIALISATION_ALL_TYPES( SERIALISATION_OBJECT_VECTORNON_EXISTINGG_TEST );
-
-#define SERIALISATION_OBJECT_VECTOR_REORDERED_TEST( type )                                                    \
-SERIALISATION_TEST2( Object, VectorReordered, ObjectVector< type >, ObjectVectorReordered< type >, type, MakeSeed<type>( 414241 ), 424242 );
-
-SERIALISATION_ALL_TYPES( SERIALISATION_OBJECT_VECTOR_REORDERED_TEST );
-
-#define SERIALISATION_OBJECT_VECTOR_REORDERED_REVERSE_TEST( type )                                                    \
-SERIALISATION_TEST2( Object, VectorReorderedReverse, ObjectVectorReordered< type >, ObjectVector< type >, type, MakeSeed<type>( 414241 ), 424242 );
-
-SERIALISATION_ALL_TYPES( SERIALISATION_OBJECT_VECTOR_REORDERED_REVERSE_TEST );

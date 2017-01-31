@@ -114,6 +114,11 @@ public:
         ExpectEqual( mValue, static_cast<tT>( other.mValue ) );
     }
 
+    size_t GetMemberSize() const
+    {
+        return SizeHelper<tT>::GetSize( mValue );
+    }
+
 private:
 
     tT mValue;
