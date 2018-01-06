@@ -1,57 +1,90 @@
 sudo: required
 language: generic
 matrix:
-    include:
-        # Use generic language for osx
-        - os: osx
-          osx_image: xcode8.1
-          language: generic    
-          env: TYPE=release ARCH=x86   
-        - os: osx
-          osx_image: xcode8.1
-          language: generic   
-          env: TYPE=debug ARCH=x86
-        - os: osx
-          osx_image: xcode8.1
-          language: generic   
-          env: TYPE=release ARCH=x86_64
-        - os: osx
-          osx_image: xcode8.1
-          language: generic   
-          env: TYPE=debug ARCH=x86_64
-        # Use the built in venv for linux builds
-        - os: linux
-          dist: trusty
-          env: TYPE=release ARCH=x86 VERSION=6
-        - os: linux
-          dist: trusty
-          env: TYPE=debug ARCH=x86 VERSION=6
-        - os: linux
-          dist: trusty
-          env: TYPE=release ARCH=x86_64 VERSION=6
-        - os: linux
-          dist: trusty
-          env: TYPE=coverage ARCH=x86_64 VERSION=6
-        - os: linux
-          dist: trusty
-          env: TYPE=debug ARCH=x86_64 VERSION=6
-        - os: linux
-          dist: trusty
-          env: TYPE=release VERSION=5 ARCH=x86_64
-        - os: linux
-          dist: trusty
-          env: TYPE=release VERSION=6 ARCH=x86_64
-        - os: linux
-          dist: trusty
-          env: TYPE=zpm VERSION=6
-
+  include:
+    # Use generic language for osx
+    - os: osx
+      osx_image: xcode8.3
+      language: generic    
+      env: 
+        - BUILD_CONFIG=release 
+        - BUILD_ARCHITECTURE=x86   
+    - os: osx
+      osx_image: xcode8.3
+      language: generic   
+      env: 
+        - BUILD_CONFIG=debug 
+        - BUILD_ARCHITECTURE=x86
+    - os: osx
+      osx_image: xcode8.3
+      language: generic   
+      env: 
+        - BUILD_CONFIG=release 
+        - BUILD_ARCHITECTURE=x86_64
+    - os: osx
+      osx_image: xcode8.3
+      language: generic   
+      env: 
+        - BUILD_CONFIG=debug 
+        - BUILD_ARCHITECTURE=x86_64
+    # Use the built in venv for linux builds
+    - os: linux
+      dist: trusty
+      env: 
+        - BUILD_CONFIG=release 
+        - BUILD_ARCHITECTURE=x86
+        - GCC_VERSION=6
+    - os: linux
+      dist: trusty
+      env: 
+        - BUILD_CONFIG=debug 
+        - BUILD_ARCHITECTURE=x86
+        - GCC_VERSION=6
+    - os: linux
+      dist: trusty
+      env: 
+        - BUILD_CONFIG=release 
+        - BUILD_ARCHITECTURE=x86_64
+        - GCC_VERSION=6
+    - os: linux
+      dist: trusty
+      env: 
+        - BUILD_CONFIG=coverage 
+        - BUILD_ARCHITECTURE=x86_64
+        - GCC_VERSION=6
+    - os: linux
+      dist: trusty
+      env: 
+        - BUILD_CONFIG=debug 
+        - BUILD_ARCHITECTURE=x86_64
+        - GCC_VERSION=6
+    - os: linux
+      dist: trusty
+      env: 
+        - BUILD_CONFIG=release 
+        - BUILD_ARCHITECTURE=x86_64
+        - GCC_VERSION=5
+    - os: linux
+      dist: trusty
+      env: 
+        - BUILD_CONFIG=release 
+        - BUILD_ARCHITECTURE=x86_64
+        - GCC_VERSION=6
+    - os: linux
+      dist: trusty
+      env: 
+        - BUILD_CONFIG=zpm
+        - GCC_VERSION=6
+global:
+  env:
+    - PROJECT=SerLib
+    - PROJECT_DIRECTORY=serialisation
 install:
-    - bash script/install-unix.sh
-    - wget -O - https://raw.githubusercontent.com/Zefiros-Software/ZPM/master/script/install-zpm-travis.sh | bash
+  - source /dev/stdin <<< "$(curl -s https://raw.githubusercontent.com/Zefiros-Software/ZPM/features/refactor/script/install-zpm.sh)"
 script:
-    - bash script/travis-build.sh
+  - zpm run build-ci-library
 after_success:
-  - if [[ "$TRAVIS_OS_NAME" == "linux" && "$TYPE" = "coverage" ]]; then codecov; fi    
+  - zpm run deploy-ci-library 
 notifications:
     slack:
         secure: "GsDZS4q1vCY8VmJ354c/ohcnQLZWBzNUAnJ8hiednO1Y/GEXWkd8Q0nGvAL0hhhzmJq74Z4geiu3RBk6gexLB8/YugJoWsx+0sG7JNElhXw9VTZW+xCrwpHytQ/VXYU0jud3Tm/XeI1E5bFKejj1PW05WU12mlzXh17ETS5Mks3aGlivgTCMesgh2vxXpPWx8rWRXs+LzJZRNgrO1hjJ4B2O3m/mWy8bprSXAcdMJ7PAt/FMKLcWZ86Z+oLfagzytplNbBGYhYOx/5tr6QdfeNudk9uPKxtEHKsMDXabTQ4dBNvCjt/cniUgeq8saVm7ukt34gMI5IWKmzecsMYzUJvTPpS1VevdzvQiwvFrrZqCTaGKjTdyqjHNPvvDsHngNpBwEXmzBV7aTp7ACeOpdCoVw+L3aPCMl8nNnqdp4LBrsgs+dPJyZzAQxRiinyHL4+Fcuc63PBiwkbCav8ej4gbGF+jzfeKU7M+p1HPqX1qrTIB6+OP4ZWbau9b/g4Wj/mZ+2iuEXjT+vsUPGKKr7MKCWnJ3CH1Bvh88TYYAsTYU1DAjqGIxbVdg4dx2gld2dvB1XFfuAY6oWXnSfbEiOEOeX4mPlzbYoiL+tzAVz4exWEjrv4Ye5b625DVisoN/8/umEKkg/m2A4Bie51qRYozSwNkmUnss6iukjas/wxU="

@@ -22,11 +22,8 @@
 -- @endcond
 --]]
 
-local zefiros = require( "Zefiros-Software/Zefiros-Defaults", "@head" )
-
 workspace "SerLib"
+        
+    cppdialect "C++14"
 
-    flags "C++11"
-
-	zefiros.setDefaults( "serialisation", {
-    } )
+	zefiros.setDefaults("serialisation")
