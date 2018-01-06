@@ -19,4 +19,4 @@ authors:
 development:
   modules:
     - name: Zefiros-Software/Zefiros-Defaults
-      version: '^2.0.0'
+      version: '@head'

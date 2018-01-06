@@ -22,11 +22,9 @@
 -- @endcond
 --]]
 
-local zefiros = require( "Zefiros-Software/Zefiros-Defaults", "@head" )
-
 workspace "SerLib-ZPM"
 
-	zefiros.setTestZPMDefaults( "serialisation" )
+	zefiros.setTestZPMDefaults("serialisation")
     
 	project "serialisation-zpm-test"
 
@@ -35,4 +33,6 @@ workspace "SerLib-ZPM"
             "Zefiros-Software/GoogleTest"
         }
 
-		defines { "TEST_FILES_DIR=\"../../test-files/\""}
+		defines {
+			"TEST_FILES_DIR=\"../../test-files/\""
+		}
