@@ -35,4 +35,4 @@ workspace "SerLib"
                 "TEST_FILES_DIR=\"test/test-files/\""
             }
         
-        filter{}
+        filter {}
