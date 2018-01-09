@@ -4,16 +4,15 @@
   "private": {
     "modules": [ {
       "definition": "https://github.com/Zefiros-Software/ZefirosDefaults.git",
-      "hash": "e24bc49abb1a0b92447b339c0bc5cb4941818ff2",
+      "hash": "27ac3325c0b8fc0d43b95844bc68df2c975292cb",
       "name": "Zefiros-Software/Zefiros-Defaults",
       "public": {
         "libraries": [ {
           "definition": "https://github.com/Zefiros-Software/GoogleTest.git",
-          "hash": "b4d333f14f977b3668de4e794d7d2e00b322d59a",
+          "hash": "e194f52114a181cb3fb420d58d5ae2250207e828",
           "name": "Zefiros-Software/GoogleTest",
           "repository": "https://github.com/google/googletest.git",
-          "tag": "release-1.4.0",
-          "version": "1.4.0",
+          "tag": "HEAD",
           "versionRequirement": "@head || ^1.0.0"
         }, {
           "definition": "https://github.com/Zefiros-Software/GoogleBenchmark.git",
