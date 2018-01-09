@@ -26,4 +26,13 @@ workspace "SerLib"
         
     cppdialect "C++14"
 
-	zefiros.setDefaults("serialisation")
+    zefiros.setDefaults("serialisation")
+    
+    -- use another path in case of a coverage build
+    if os.getenv('BUILD_CONFIGURATION') == 'coverage' then
+        project "serialisation-test"
+        
+            defines {
+                "TEST_FILES_DIR=\"test/test-files/\""
+            }
+    end
