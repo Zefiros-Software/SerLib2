@@ -1,5 +1,7 @@
 /**
- * Copyright (c) 2017 Zefiros Software.
+ * @cond ___LICENSE___
+ *
+ * Copyright (c) 2016-2018 Zefiros Software.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -18,6 +20,8 @@
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
+ *
+ * @endcond
  */
 #pragma once
 #ifndef __SERIALISATION_STREAMREADER_H__
@@ -29,13 +33,13 @@ class StreamReader
 {
 public:
 
-    explicit StreamReader( const std::string &fileName );
+    explicit StreamReader(const std::string &fileName);
 
-    explicit StreamReader( std::ifstream &stream );
+    explicit StreamReader(std::ifstream &stream);
 
-    explicit StreamReader( std::fstream &stream );
+    explicit StreamReader(std::fstream &stream);
 
-    explicit StreamReader( std::istream &stream );
+    explicit StreamReader(std::istream &stream);
 
     ~StreamReader();
 
@@ -43,9 +47,9 @@ public:
 
     void Close();
 
-    void ReadBytes( char *const firstByte, size_t byteCount ) const;
+    void ReadBytes(char *const firstByte, size_t byteCount) const;
 
-    void SeekG( std::streamoff count ) const;
+    void SeekG(std::streamoff count) const;
 
     std::streamsize GCount() const;
 
@@ -56,8 +60,8 @@ private:
     std::ifstream mFileStream;
     std::istream *mStream;
 
-    StreamReader &operator=( const StreamReader & ) = delete;
-    StreamReader( const StreamReader & ) = delete;
+    StreamReader &operator=(const StreamReader &) = delete;
+    StreamReader(const StreamReader &) = delete;
 
 };
 

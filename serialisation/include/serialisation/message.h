@@ -1,5 +1,7 @@
 /**
- * Copyright (c) 2017 Zefiros Software.
+ * @cond ___LICENSE___
+ *
+ * Copyright (c) 2016-2018 Zefiros Software.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -18,6 +20,8 @@
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
+ *
+ * @endcond
  */
 #pragma once
 #ifndef __SERIALISATION_MESSAGE_H__
@@ -31,36 +35,36 @@
 typedef std::string String;
 
 #define SERIALISATION_ALL_NUMERIC_TYPES( interfaceMacro )   \
-interfaceMacro( uint8_t )                                   \
-interfaceMacro( uint16_t )                                  \
-interfaceMacro( uint32_t )                                  \
-interfaceMacro( uint64_t )                                  \
-interfaceMacro( int8_t )                                    \
-interfaceMacro( int16_t )                                   \
-interfaceMacro( int32_t )                                   \
-interfaceMacro( int64_t )                                   \
-interfaceMacro( float )                                     \
-interfaceMacro( double )
+    interfaceMacro( uint8_t )                                   \
+    interfaceMacro( uint16_t )                                  \
+    interfaceMacro( uint32_t )                                  \
+    interfaceMacro( uint64_t )                                  \
+    interfaceMacro( int8_t )                                    \
+    interfaceMacro( int16_t )                                   \
+    interfaceMacro( int32_t )                                   \
+    interfaceMacro( int64_t )                                   \
+    interfaceMacro( float )                                     \
+    interfaceMacro( double )
 
 #define SERIALISATION_ALL_TYPES( interfaceMacro )           \
-interfaceMacro( bool )                                      \
-SERIALISATION_ALL_NUMERIC_TYPES( interfaceMacro )           \
-interfaceMacro( String )
+    interfaceMacro( bool )                                      \
+    SERIALISATION_ALL_NUMERIC_TYPES( interfaceMacro )           \
+    interfaceMacro( String )
 
 #define SERIALISATION_INTERFACE_PRIMITIVE( type )                                               \
-void Store( uint8_t index, type &value, uint8_t flags = Type::GetDefaultFlags<type>() )  \
-{                                                                                               \
-    StorePrimitive( index ,value, flags );                                                      \
-}
+    void Store( uint8_t index, type &value, uint8_t flags = Type::GetDefaultFlags<type>() )  \
+    {                                                                                               \
+        StorePrimitive( index ,value, flags );                                                      \
+    }
 
 #define SERIALISATION_INTERFACE_PRIMITIVE_CONTAINER( storeContainer, container )                            \
-void Store( uint8_t index, container &value, uint8_t flags = Type::GetDefaultFlags<container>() )    \
-{                                                                                                           \
-    storeContainer( index, value, flags );                                                                  \
-}
+    void Store( uint8_t index, container &value, uint8_t flags = Type::GetDefaultFlags<container>() )    \
+    {                                                                                                           \
+        storeContainer( index, value, flags );                                                                  \
+    }
 
 #define SERIALISATION_INTERFACE_PRIMITIVE_VECTOR( type ) \
-        SERIALISATION_INTERFACE_PRIMITIVE_CONTAINER( StoreVector, std::vector< type > )
+    SERIALISATION_INTERFACE_PRIMITIVE_CONTAINER( StoreVector, std::vector< type > )
 
 template< typename tInternalMessage >
 class Message
@@ -68,49 +72,49 @@ class Message
 public:
 
     template< typename... tArgs >
-    explicit Message( tArgs &&... args )
-        : mInternalMessage( std::forward<tArgs>( args )... )
+    explicit Message(tArgs &&... args)
+        : mInternalMessage(std::forward<tArgs>(args)...)
     {
     }
 
-    SERIALISATION_ALL_TYPES( SERIALISATION_INTERFACE_PRIMITIVE );
+    SERIALISATION_ALL_TYPES(SERIALISATION_INTERFACE_PRIMITIVE);
 
     template< typename tSerialisable >
-    void Store( uint8_t index, tSerialisable &serialisable, uint8_t flags = Type::GetDefaultFlags<tSerialisable>() )
+    void Store(uint8_t index, tSerialisable &serialisable, uint8_t flags = Type::GetDefaultFlags<tSerialisable>())
     {
-        SERIALISATION_ASSERT_INDEX_IN_RANGE( index );
+        SERIALISATION_ASSERT_INDEX_IN_RANGE(index);
 
-        StoreHelper< tSerialisable >::Store( index, serialisable, flags, this );
+        StoreHelper< tSerialisable >::Store(index, serialisable, flags, this);
     }
 
-    SERIALISATION_ALL_TYPES( SERIALISATION_INTERFACE_PRIMITIVE_VECTOR );
+    SERIALISATION_ALL_TYPES(SERIALISATION_INTERFACE_PRIMITIVE_VECTOR);
 
     template< typename tT >
-    void Store( uint8_t index, std::vector< tT > &value, uint8_t flags = Type::GetDefaultFlags<tT>() )
+    void Store(uint8_t index, std::vector< tT > &value, uint8_t flags = Type::GetDefaultFlags<tT>())
     {
-        SERIALISATION_ASSERT_INDEX_IN_RANGE( index );
+        SERIALISATION_ASSERT_INDEX_IN_RANGE(index);
 
-        mInternalMessage.StoreObjectVector( value, index, flags, *this );
+        mInternalMessage.StoreObjectVector(value, index, flags, *this);
     }
 
     template< typename tParent, typename tSerialisable >
-    void StoreParent( uint8_t index, tSerialisable &serialisable, uint8_t flags = Type::GetDefaultFlags<tParent>() )
+    void StoreParent(uint8_t index, tSerialisable &serialisable, uint8_t flags = Type::GetDefaultFlags<tParent>())
     {
-        SERIALISATION_ASSERT_PARENT_INDEX_IN_RANGE( index );
+        SERIALISATION_ASSERT_PARENT_INDEX_IN_RANGE(index);
 
-        mInternalMessage.template StoreObject< tParent >( serialisable, index, flags, *this );
+        mInternalMessage.template StoreObject< tParent >(serialisable, index, flags, *this);
     }
 
     template< typename tParent, typename tSerialisable >
-    void StoreParent( uint8_t index, tSerialisable *serialisable, uint8_t flags = Type::GetDefaultFlags<tParent>() )
+    void StoreParent(uint8_t index, tSerialisable *serialisable, uint8_t flags = Type::GetDefaultFlags<tParent>())
     {
-        StoreParent< tParent, tSerialisable >( index, *serialisable, flags );
+        StoreParent< tParent, tSerialisable >(index, *serialisable, flags);
     }
 
     template< typename tSerialisable >
-    void Enter( tSerialisable &serialisable )
+    void Enter(tSerialisable &serialisable)
     {
-        mInternalMessage.StoreEntryPoint( serialisable, *this );
+        mInternalMessage.StoreEntryPoint(serialisable, *this);
     }
 
     void ClearBuffer()
@@ -123,42 +127,42 @@ private:
     tInternalMessage mInternalMessage;
 
     template< typename tT >
-    void StorePrimitive( uint8_t index, tT &value, uint8_t flags )
+    void StorePrimitive(uint8_t index, tT &value, uint8_t flags)
     {
-        SERIALISATION_ASSERT_INDEX_IN_RANGE( index );
+        SERIALISATION_ASSERT_INDEX_IN_RANGE(index);
 
-        mInternalMessage.Store( value, index, flags );
+        mInternalMessage.Store(value, index, flags);
     }
 
     template< typename tT >
-    void StoreVector( uint8_t index, std::vector< tT > &value, uint8_t flags )
+    void StoreVector(uint8_t index, std::vector< tT > &value, uint8_t flags)
     {
-        SERIALISATION_ASSERT_INDEX_IN_RANGE( index );
+        SERIALISATION_ASSERT_INDEX_IN_RANGE(index);
 
-        mInternalMessage.StoreVector( value, index, flags );
+        mInternalMessage.StoreVector(value, index, flags);
     }
 
     template< typename tSerialisable >
-    void StoreObject( uint8_t index, tSerialisable &serialisable, uint8_t flags )
+    void StoreObject(uint8_t index, tSerialisable &serialisable, uint8_t flags)
     {
-        mInternalMessage.StoreObject( serialisable, index, flags, *this );
+        mInternalMessage.StoreObject(serialisable, index, flags, *this);
     }
 
     template< typename tSerialisable, bool tIsIntegral = std::is_integral< tSerialisable >::value >
     struct StoreHelper
     {
-        static void Store( uint8_t index, tSerialisable &serialisable, uint8_t flags, Message< tInternalMessage > *message )
+        static void Store(uint8_t index, tSerialisable &serialisable, uint8_t flags, Message< tInternalMessage > *message)
         {
-            message->StoreObject( index, serialisable, flags );
+            message->StoreObject(index, serialisable, flags);
         }
     };
 
     template< typename tSerialisable >
     struct StoreHelper< tSerialisable, true >
     {
-        static void Store( uint8_t index, tSerialisable &serialisable, uint8_t flags, Message< tInternalMessage > *message )
+        static void Store(uint8_t index, tSerialisable &serialisable, uint8_t flags, Message< tInternalMessage > *message)
         {
-            message->StorePrimitive( index, serialisable, flags );
+            message->StorePrimitive(index, serialisable, flags);
         }
     };
 };

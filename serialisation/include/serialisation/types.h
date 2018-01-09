@@ -1,5 +1,7 @@
 /**
- * Copyright (c) 2017 Zefiros Software.
+ * @cond ___LICENSE___
+ *
+ * Copyright (c) 2016-2018 Zefiros Software.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -18,6 +20,8 @@
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
+ *
+ * @endcond
  */
 #pragma once
 #ifndef __SERIALISATION_TYPES_H__
@@ -86,7 +90,7 @@ namespace Type
     //
     //         bool AreCompatible( const Type type, const Type type2 );
 
-    template< typename tT, size_t tSize = sizeof( tT ) >
+    template< typename tT, size_t tSize = sizeof(tT) >
     constexpr Type GetAltEnum()
     {
         return Type::Object;
@@ -230,9 +234,9 @@ namespace Type
         return GetEnum<uint8_t>();
     }
 
-    inline size_t GetSize( Type type )
+    inline size_t GetSize(Type type)
     {
-        switch ( type )
+        switch (type)
         {
         case Type::UInt8:
             return 1;
@@ -252,7 +256,7 @@ namespace Type
         return 1;
     }
 
-    inline std::string ToString( Type type )
+    inline std::string ToString(Type type)
     {
         static const char *stringMap[] =
         {

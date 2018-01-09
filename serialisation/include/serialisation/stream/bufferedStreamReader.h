@@ -1,5 +1,7 @@
 /**
- * Copyright (c) 2017 Zefiros Software.
+ * @cond ___LICENSE___
+ *
+ * Copyright (c) 2016-2018 Zefiros Software.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -18,6 +20,8 @@
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
+ *
+ * @endcond
  */
 #pragma once
 #ifndef __SERIALISATION_READBUFFER_H__
@@ -33,11 +37,11 @@ public:
 
     template< typename tStream >
 
-    explicit BufferedStreamReader( tStream &stream, bool &cleanExit )
-        : mStreamReader( stream ),
-          mReadIndex( 0 ),
-          mReadSize( 0 ),
-          mCleanExit( cleanExit )
+    explicit BufferedStreamReader(tStream &stream, bool &cleanExit)
+        : mStreamReader(stream),
+          mReadIndex(0),
+          mReadSize(0),
+          mCleanExit(cleanExit)
     {
     }
 
@@ -48,7 +52,7 @@ public:
 
     void ClearBuffer()
     {
-        mStreamReader.SeekG( static_cast< std::streamoff >( mReadIndex ) - mReadSize );
+        mStreamReader.SeekG(static_cast< std::streamoff >(mReadIndex) - mReadSize);
         mStreamReader.ClearEOF();
 
         mReadIndex = 0;
@@ -62,15 +66,15 @@ public:
         mStreamReader.Close();
     }
 
-    void ReadBytes( char *const firstByte, size_t byteCount )
+    void ReadBytes(char *const firstByte, size_t byteCount)
     {
         uint32_t diff = mReadSize - mReadIndex;
 
         char *c = firstByte;
 
-        while ( diff < byteCount )
+        while (diff < byteCount)
         {
-            memcpy( c, mReadBuffer + mReadIndex, diff );
+            memcpy(c, mReadBuffer + mReadIndex, diff);
 
             mReadIndex += diff;
             c += diff;
@@ -81,25 +85,25 @@ public:
             diff = mReadSize - mReadIndex;
         }
 
-        memcpy( c, mReadBuffer + mReadIndex, byteCount );
-        mReadIndex += static_cast<uint32_t>( byteCount );
+        memcpy(c, mReadBuffer + mReadIndex, byteCount);
+        mReadIndex += static_cast<uint32_t>(byteCount);
     }
 
-    void ReadBlock( char *const firstByte, size_t byteCount )
+    void ReadBlock(char *const firstByte, size_t byteCount)
     {
         uint32_t diff = mReadSize - mReadIndex;
 
-        if ( byteCount < diff )
+        if (byteCount < diff)
         {
-            memcpy( firstByte, mReadBuffer + mReadIndex, byteCount );
-            mReadIndex += static_cast<uint32_t>( byteCount );
+            memcpy(firstByte, mReadBuffer + mReadIndex, byteCount);
+            mReadIndex += static_cast<uint32_t>(byteCount);
         }
         else
         {
-            memcpy( firstByte, mReadBuffer + mReadIndex, diff );
+            memcpy(firstByte, mReadBuffer + mReadIndex, diff);
             mReadIndex = mReadSize;
 
-            mStreamReader.ReadBytes( firstByte + diff, byteCount - diff );
+            mStreamReader.ReadBytes(firstByte + diff, byteCount - diff);
         }
     }
 
@@ -110,16 +114,16 @@ public:
 
         uint8_t byte;
 
-        ReadPrimitive( byte );
+        ReadPrimitive(byte);
 
-        while ( byte & 0x80 )
+        while (byte & 0x80)
         {
-            size |= static_cast<size_t>( byte & 0x7F ) << shift;
-            ReadPrimitive( byte );
+            size |= static_cast<size_t>(byte & 0x7F) << shift;
+            ReadPrimitive(byte);
             shift += 7;
         }
 
-        size |= static_cast<size_t>( byte ) << shift;
+        size |= static_cast<size_t>(byte) << shift;
 
         return size;
     }
@@ -132,48 +136,48 @@ public:
     //  }
 
     template< typename tPrimitive >
-    void ReadPrimitive( tPrimitive &value )
+    void ReadPrimitive(tPrimitive &value)
     {
         uint32_t diff = mReadSize - mReadIndex;
 
-        if ( diff > sizeof( tPrimitive ) )
+        if (diff > sizeof(tPrimitive))
         {
-            value = *reinterpret_cast<tPrimitive *>( mReadBuffer + mReadIndex );
-            mReadIndex += sizeof( tPrimitive );
+            value = *reinterpret_cast<tPrimitive *>(mReadBuffer + mReadIndex);
+            mReadIndex += sizeof(tPrimitive);
         }
         else
         {
-            ReadBytes( reinterpret_cast<char *const>( &value ), sizeof( tPrimitive ) );
+            ReadBytes(reinterpret_cast<char *const>(&value), sizeof(tPrimitive));
         }
     }
 
     template< typename tPrimitive >
-    void ReadPrimitiveBlock( tPrimitive *first, size_t count )
+    void ReadPrimitiveBlock(tPrimitive *first, size_t count)
     {
-        const size_t maxBlockSize = std::numeric_limits< size_t >::max() / sizeof( tPrimitive );
+        const size_t maxBlockSize = std::numeric_limits< size_t >::max() / sizeof(tPrimitive);
 
-        while ( count > 0 )
+        while (count > 0)
         {
             const size_t readBlockSize = count > maxBlockSize ? maxBlockSize : count;
 
-            ReadBlock( reinterpret_cast< char *const >( first ), readBlockSize * sizeof( tPrimitive ) );
+            ReadBlock(reinterpret_cast< char *const >(first), readBlockSize * sizeof(tPrimitive));
             count -= readBlockSize;
             first += readBlockSize;
         }
     }
 
-    void Skip( size_t byteCount )
+    void Skip(size_t byteCount)
     {
         uint32_t diff = mReadSize - mReadIndex;
 
-        if ( diff < byteCount )
+        if (diff < byteCount)
         {
-            mStreamReader.SeekG( byteCount - diff );
+            mStreamReader.SeekG(byteCount - diff);
             mReadIndex = mReadSize;
         }
         else
         {
-            mReadIndex += static_cast<int32_t>( byteCount );
+            mReadIndex += static_cast<int32_t>(byteCount);
         }
     }
 
@@ -191,16 +195,16 @@ private:
     void FillReadBuffer()
     {
         mReadIndex = 0;
-        mStreamReader.ReadBytes( mReadBuffer, SERIALISATION_SERIALISERS_BUFFERSIZE );
-        mReadSize = static_cast<uint32_t>( mStreamReader.GCount() );
+        mStreamReader.ReadBytes(mReadBuffer, SERIALISATION_SERIALISERS_BUFFERSIZE);
+        mReadSize = static_cast<uint32_t>(mStreamReader.GCount());
 
         mStreamReader.ClearEOF();
 
-        ExceptionHelper::Assert<EndOfStreamException>( mReadSize > mReadIndex, mCleanExit );
+        ExceptionHelper::Assert<EndOfStreamException>(mReadSize > mReadIndex, mCleanExit);
     }
 
-    BufferedStreamReader &operator=( const BufferedStreamReader & ) = delete;
-    BufferedStreamReader( const BufferedStreamReader & ) = delete;
+    BufferedStreamReader &operator=(const BufferedStreamReader &) = delete;
+    BufferedStreamReader(const BufferedStreamReader &) = delete;
 };
 
 #endif

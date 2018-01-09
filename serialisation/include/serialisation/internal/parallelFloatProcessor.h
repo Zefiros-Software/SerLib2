@@ -1,5 +1,7 @@
 /**
- * Copyright (c) 2017 Zefiros Software.
+ * @cond ___LICENSE___
+ *
+ * Copyright (c) 2016-2018 Zefiros Software.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -18,6 +20,8 @@
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
+ *
+ * @endcond
  */
 #pragma once
 #ifndef __SERIALISATION_PARALLELFLOATPROCESSOR_H__
@@ -38,20 +42,20 @@ class ParallelFloatProcessor
 {
 public:
 
-    ParallelFloatProcessor( uint32_t size );
+    ParallelFloatProcessor(uint32_t size);
 
     uint32_t *GetU32Buffer();
     uint64_t *GetU64Buffer();
 
-    void SerialiseFloats( float *cursor, size_t size );
-    void DeserialiseFloats( float *cursor, size_t size );
+    void SerialiseFloats(float *cursor, size_t size);
+    void DeserialiseFloats(float *cursor, size_t size);
 
-    void SerialiseDoubles( double *cursor, size_t size );
-    void DeserialiseDoubles( double *cursor, size_t size );
+    void SerialiseDoubles(double *cursor, size_t size);
+    void DeserialiseDoubles(double *cursor, size_t size);
 
     static void TerminateWorkers();
 
-    static ParallelFloatProcessor *GetInstance( uint32_t size = 0, bool create = true );
+    static ParallelFloatProcessor *GetInstance(uint32_t size = 0, bool create = true);
 
 private:
 
@@ -83,13 +87,13 @@ private:
 
     Task mTask;
 
-    void StartTask( Task task );
+    void StartTask(Task task);
     void WaitTaskComplete() const;
 
-    void WorkerSerialiseFloat( size_t start, size_t end );
-    void WorkerDeserialiseFloat( size_t start, size_t end );
-    void WorkerSerialiseDouble( size_t start, size_t end );
-    void WorkerDeserialiseDouble( size_t start, size_t end );
+    void WorkerSerialiseFloat(size_t start, size_t end);
+    void WorkerDeserialiseFloat(size_t start, size_t end);
+    void WorkerSerialiseDouble(size_t start, size_t end);
+    void WorkerDeserialiseDouble(size_t start, size_t end);
 };
 
 #endif

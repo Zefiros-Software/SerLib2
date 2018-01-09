@@ -22,8 +22,8 @@
 #include "testClasses.h"
 
 #define SERIALISATION_ARRAY_REORDERED_TEST( type )                                                          \
-SERIALISATION_TEST2( Container, VectorReordered, TestClassArrayWithMemberReordered< type >,                 \
-                     TestClassArrayWithMember< type >, type, MakeSeed<type>( 42 ), GetRandom<uint32_t>() );
+    SERIALISATION_TEST2( Container, VectorReordered, TestClassArrayWithMemberReordered< type >,                 \
+                         TestClassArrayWithMember< type >, type, MakeSeed<type>( 42 ), GetRandom<uint32_t>() );
 
 
-SERIALISATION_ALL_TYPES( SERIALISATION_ARRAY_REORDERED_TEST );
+SERIALISATION_ALL_TYPES(SERIALISATION_ARRAY_REORDERED_TEST);

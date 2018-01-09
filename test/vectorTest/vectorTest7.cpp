@@ -22,5 +22,5 @@
 #include "testClasses.h"
 
 typedef SkippedArray< bool, 0x1 > SkippedBoolVectorPacked;
-SERIALISATION_TEST2( Skipping, VectorPacked, SkippedBoolVectorPacked, SinglePrimitive<uint8_t>, bool,
-                     MakeSeed<bool>( 44 ), GetRandom<uint8_t>() );
+SERIALISATION_TEST2(Skipping, VectorPacked, SkippedBoolVectorPacked, SinglePrimitive<uint8_t>, bool,
+                    MakeSeed<bool>(44), GetRandom<uint8_t>());

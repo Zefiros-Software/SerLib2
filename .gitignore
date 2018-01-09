@@ -1,14 +1,36 @@
-**/My Inspector Results*
+-- artifacts
 bin/*
-**/.vs
-**/*.vcxproj*
-**/*.sdf
-**/*.sln
-**/*.VC.db
-**/*.VC.opendb
-**/My Amplifier XE Results*
-**.opensdf
+test/obj/*
+test/bin/*
 
-**/Makefile
-**/serialisation.make
-**/file.bin
+-- zpm
+.config.json
+.config.yml
+
+-- git
+*.orig
+
+-- make
+Makefile
+*.make
+
+-- visual studio code
+*/.vs/*
+
+-- visual studio
+*.sdf
+*.sln
+*.suo
+*.VC.*
+*.opensdf
+*.vcxproj*
+
+-- Intel Tools
+*Amplifier*
+
+-- Docs
+*.chi
+*.chm
+
+-- Astyle
+.astylerc

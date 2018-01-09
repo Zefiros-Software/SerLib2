@@ -1,5 +1,7 @@
 /**
- * Copyright (c) 2017 Zefiros Software.
+ * @cond ___LICENSE___
+ *
+ * Copyright (c) 2016-2018 Zefiros Software.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -18,6 +20,8 @@
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
+ *
+ * @endcond
  */
 #pragma once
 #ifndef __SERIALISATION_EXCEPTIONS_H__
@@ -33,10 +37,10 @@ class InvalidTypeException
 {
 public:
 
-    InvalidTypeException( Type::Type expected, Type::Type actual )
+    InvalidTypeException(Type::Type expected, Type::Type actual)
     {
         std::stringstream ss;
-        ss << "Expected " << Type::ToString( expected ) << " but got " << Type::ToString( actual );
+        ss << "Expected " << Type::ToString(expected) << " but got " << Type::ToString(actual);
         mWhat = ss.str();
     }
 
@@ -56,7 +60,7 @@ class EndOfStreamException
 public:
 
     EndOfStreamException()
-        : mWhat( "Unexpected end of stream" )
+        : mWhat("Unexpected end of stream")
     {
     }
 
@@ -76,7 +80,7 @@ class NoCleanExitException
 public:
 
     NoCleanExitException()
-        : mWhat( "Attempted to reuse message after unclean exit" )
+        : mWhat("Attempted to reuse message after unclean exit")
     {
     }
 
@@ -95,7 +99,7 @@ class FileOpenException
 {
 public:
 
-    explicit FileOpenException( const std::string &file )
+    explicit FileOpenException(const std::string &file)
     {
         std::stringstream ss;
         ss << "Could not open file " << file;
@@ -117,14 +121,14 @@ namespace ExceptionHelper
     namespace Strict
     {
         template< typename tException, typename tT >
-        void AssertEqual( const tT &expected, const tT &actual, bool &cleanExit )
+        void AssertEqual(const tT &expected, const tT &actual, bool &cleanExit)
         {
 #ifndef SERIALISATION_DISABLE_TYPE_CHECKS
 
-            if ( expected != actual )
+            if (expected != actual)
             {
                 cleanExit = false;
-                throw tException( expected, actual );
+                throw tException(expected, actual);
             }
 
 #endif
@@ -136,12 +140,12 @@ namespace ExceptionHelper
     {
     public:
 
-        static  bool AssertCompatible( const Type::Type &actual, bool &cleanExit )
+        static  bool AssertCompatible(const Type::Type &actual, bool &cleanExit)
         {
-            if ( actual != Type::UInt8 && actual != Type::UInt16 && actual != Type::UInt32 && actual != Type::UInt64 )
+            if (actual != Type::UInt8 && actual != Type::UInt16 && actual != Type::UInt32 && actual != Type::UInt64)
             {
                 cleanExit = false;
-                throw InvalidTypeException( Type::GetHeaderEnum<tT>(), actual );
+                throw InvalidTypeException(Type::GetHeaderEnum<tT>(), actual);
             }
 
             // return whether conversion is needed
@@ -153,18 +157,18 @@ namespace ExceptionHelper
     class Compat<tT, false>
     {
     public:
-        static bool AssertCompatible( const Type::Type &, bool & )
+        static bool AssertCompatible(const Type::Type &, bool &)
         {
-            assert( false &&
-                    "Whoops! Something went haywire. Please try to reproduce this exception in an example as small as possible and submit it as an issue. Thanks!" );
+            assert(false &&
+                   "Whoops! Something went haywire. Please try to reproduce this exception in an example as small as possible and submit it as an issue. Thanks!");
             return false;
         }
     };
 
     template< typename tException >
-    void Assert( bool condition, bool &cleanExit )
+    void Assert(bool condition, bool &cleanExit)
     {
-        if ( !condition )
+        if (!condition)
         {
             cleanExit = false;
             throw tException();

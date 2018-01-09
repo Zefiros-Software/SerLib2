@@ -22,6 +22,6 @@
 #include "testClasses.h"
 
 #define SERIALISATION_OBJECT_VECTOR_REORDERED_TEST( type )                                                    \
-SERIALISATION_TEST2( Object, VectorReordered, ObjectVector< type >, ObjectVectorReordered< type >, type, MakeSeed<type>( 414241 ), 424242 );
+    SERIALISATION_TEST2( Object, VectorReordered, ObjectVector< type >, ObjectVectorReordered< type >, type, MakeSeed<type>( 414241 ), 424242 );
 
-SERIALISATION_ALL_TYPES( SERIALISATION_OBJECT_VECTOR_REORDERED_TEST );
+SERIALISATION_ALL_TYPES(SERIALISATION_OBJECT_VECTOR_REORDERED_TEST);

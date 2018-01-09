@@ -1,5 +1,7 @@
 /**
- * Copyright (c) 2017 Zefiros Software.
+ * @cond ___LICENSE___
+ *
+ * Copyright (c) 2016-2018 Zefiros Software.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -18,6 +20,8 @@
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
+ *
+ * @endcond
  */
 #pragma once
 #ifndef __SERIALISATION_STREAMWRITER_H__
@@ -33,13 +37,13 @@ class StreamWriter
 {
 public:
 
-    explicit StreamWriter( const std::string &fileName );
+    explicit StreamWriter(const std::string &fileName);
 
-    explicit StreamWriter( std::ofstream &stream );
+    explicit StreamWriter(std::ofstream &stream);
 
-    explicit StreamWriter( std::fstream &stream );
+    explicit StreamWriter(std::fstream &stream);
 
-    explicit StreamWriter( std::ostream &stream );
+    explicit StreamWriter(std::ostream &stream);
 
     ~StreamWriter();
 
@@ -47,14 +51,14 @@ public:
 
     void Close();
 
-    void WriteBytes( const char *const firstByte, size_t byteCount ) const
+    void WriteBytes(const char *const firstByte, size_t byteCount) const
     {
-        mStream->write( firstByte, byteCount );
+        mStream->write(firstByte, byteCount);
     }
 
-    void WriteBlock( const char *const firstByte, size_t byteCount ) const;
+    void WriteBlock(const char *const firstByte, size_t byteCount) const;
 
-    void WriteSize( size_t size );
+    void WriteSize(size_t size);
 
 private:
 
@@ -63,8 +67,8 @@ private:
     std::ofstream mFileStream;
     std::ostream *mStream;
 
-    StreamWriter &operator=( const StreamWriter & ) = delete;
-    StreamWriter( const StreamWriter & ) = delete;
+    StreamWriter &operator=(const StreamWriter &) = delete;
+    StreamWriter(const StreamWriter &) = delete;
 };
 
 #endif

@@ -1,5 +1,7 @@
 /**
- * Copyright (c) 2017 Zefiros Software.
+ * @cond ___LICENSE___
+ *
+ * Copyright (c) 2016-2018 Zefiros Software.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -18,6 +20,8 @@
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
+ *
+ * @endcond
  */
 #include "serialisation/internal/parallelFloatProcessor.h"
 
@@ -27,14 +31,14 @@
     SERIALISATION_NOINLINE void ParallelFloatProcessor::workerFunction( size_t start, size_t end )  \
     {                                                                                               \
         end = std::min( end, mSourceSize );                                                         \
-                                                                                                    \
+        \
         if ( end <= start )                                                                         \
         {                                                                                           \
             return;                                                                                 \
         }                                                                                           \
-                                                                                                    \
+        \
         size_t j = start;                                                                           \
-                                                                                                    \
+        \
         for ( size_t i = 0, blocks = ( end - start ) / 8; i < blocks; ++i, j += 8 )                 \
         {                                                                                           \
             dest[j] = Util::job( source[j] );                                                       \
@@ -46,166 +50,166 @@
             dest[j + 6] = Util::job( source[j + 6] );                                               \
             dest[j + 7] = Util::job( source[j + 7] );                                               \
         }                                                                                           \
-                                                                                                    \
+        \
         for ( ; j < end; ++j )                                                                      \
         {                                                                                           \
             dest[j] = Util::job( source[j] );                                                       \
         }                                                                                           \
     }
 
-SERIALISATION_NOINLINE void ParallelFloatProcessor::WorkerSerialiseFloat( size_t start, size_t end )
+SERIALISATION_NOINLINE void ParallelFloatProcessor::WorkerSerialiseFloat(size_t start, size_t end)
 {
-    end = std::min( end, mSourceSize );
+    end = std::min(end, mSourceSize);
 
-    if ( end <= start )
+    if (end <= start)
     {
         return;
     }
 
     size_t j = start;
 
-    for ( size_t i = 0, blocks = ( end - start ) / 8; i < blocks; ++i, j += 8 )
+    for (size_t i = 0, blocks = (end - start) / 8; i < blocks; ++i, j += 8)
     {
-        mU32Buffer[j] = Util::FloatToUInt32( mFloatSourceCursor[j] );
-        mU32Buffer[j + 1] = Util::FloatToUInt32( mFloatSourceCursor[j + 1] );
-        mU32Buffer[j + 2] = Util::FloatToUInt32( mFloatSourceCursor[j + 2] );
-        mU32Buffer[j + 3] = Util::FloatToUInt32( mFloatSourceCursor[j + 3] );
-        mU32Buffer[j + 4] = Util::FloatToUInt32( mFloatSourceCursor[j + 4] );
-        mU32Buffer[j + 5] = Util::FloatToUInt32( mFloatSourceCursor[j + 5] );
-        mU32Buffer[j + 6] = Util::FloatToUInt32( mFloatSourceCursor[j + 6] );
-        mU32Buffer[j + 7] = Util::FloatToUInt32( mFloatSourceCursor[j + 7] );
+        mU32Buffer[j] = Util::FloatToUInt32(mFloatSourceCursor[j]);
+        mU32Buffer[j + 1] = Util::FloatToUInt32(mFloatSourceCursor[j + 1]);
+        mU32Buffer[j + 2] = Util::FloatToUInt32(mFloatSourceCursor[j + 2]);
+        mU32Buffer[j + 3] = Util::FloatToUInt32(mFloatSourceCursor[j + 3]);
+        mU32Buffer[j + 4] = Util::FloatToUInt32(mFloatSourceCursor[j + 4]);
+        mU32Buffer[j + 5] = Util::FloatToUInt32(mFloatSourceCursor[j + 5]);
+        mU32Buffer[j + 6] = Util::FloatToUInt32(mFloatSourceCursor[j + 6]);
+        mU32Buffer[j + 7] = Util::FloatToUInt32(mFloatSourceCursor[j + 7]);
     }
 
-    for ( ; j < end; ++j )
+    for (; j < end; ++j)
     {
-        mU32Buffer[j] = Util::FloatToUInt32( mFloatSourceCursor[j] );
+        mU32Buffer[j] = Util::FloatToUInt32(mFloatSourceCursor[j]);
     }
 };
-SERIALISATION_NOINLINE void ParallelFloatProcessor::WorkerDeserialiseFloat( size_t start, size_t end )
+SERIALISATION_NOINLINE void ParallelFloatProcessor::WorkerDeserialiseFloat(size_t start, size_t end)
 {
-    end = std::min( end, mSourceSize );
+    end = std::min(end, mSourceSize);
 
-    if ( end <= start )
+    if (end <= start)
     {
         return;
     }
 
     size_t j = start;
 
-    for ( size_t i = 0, blocks = ( end - start ) / 8; i < blocks; ++i, j += 8 )
+    for (size_t i = 0, blocks = (end - start) / 8; i < blocks; ++i, j += 8)
     {
-        mFloatSourceCursor[j] = Util::UInt32ToFloat( mU32Buffer[j] );
-        mFloatSourceCursor[j + 1] = Util::UInt32ToFloat( mU32Buffer[j + 1] );
-        mFloatSourceCursor[j + 2] = Util::UInt32ToFloat( mU32Buffer[j + 2] );
-        mFloatSourceCursor[j + 3] = Util::UInt32ToFloat( mU32Buffer[j + 3] );
-        mFloatSourceCursor[j + 4] = Util::UInt32ToFloat( mU32Buffer[j + 4] );
-        mFloatSourceCursor[j + 5] = Util::UInt32ToFloat( mU32Buffer[j + 5] );
-        mFloatSourceCursor[j + 6] = Util::UInt32ToFloat( mU32Buffer[j + 6] );
-        mFloatSourceCursor[j + 7] = Util::UInt32ToFloat( mU32Buffer[j + 7] );
+        mFloatSourceCursor[j] = Util::UInt32ToFloat(mU32Buffer[j]);
+        mFloatSourceCursor[j + 1] = Util::UInt32ToFloat(mU32Buffer[j + 1]);
+        mFloatSourceCursor[j + 2] = Util::UInt32ToFloat(mU32Buffer[j + 2]);
+        mFloatSourceCursor[j + 3] = Util::UInt32ToFloat(mU32Buffer[j + 3]);
+        mFloatSourceCursor[j + 4] = Util::UInt32ToFloat(mU32Buffer[j + 4]);
+        mFloatSourceCursor[j + 5] = Util::UInt32ToFloat(mU32Buffer[j + 5]);
+        mFloatSourceCursor[j + 6] = Util::UInt32ToFloat(mU32Buffer[j + 6]);
+        mFloatSourceCursor[j + 7] = Util::UInt32ToFloat(mU32Buffer[j + 7]);
     }
 
-    for ( ; j < end; ++j )
+    for (; j < end; ++j)
     {
-        mFloatSourceCursor[j] = Util::UInt32ToFloat( mU32Buffer[j] );
+        mFloatSourceCursor[j] = Util::UInt32ToFloat(mU32Buffer[j]);
     }
 };
-SERIALISATION_NOINLINE void ParallelFloatProcessor::WorkerSerialiseDouble( size_t start, size_t end )
+SERIALISATION_NOINLINE void ParallelFloatProcessor::WorkerSerialiseDouble(size_t start, size_t end)
 {
-    end = std::min( end, mSourceSize );
+    end = std::min(end, mSourceSize);
 
-    if ( end <= start )
+    if (end <= start)
     {
         return;
     }
 
     size_t j = start;
 
-    for ( size_t i = 0, blocks = ( end - start ) / 8; i < blocks; ++i, j += 8 )
+    for (size_t i = 0, blocks = (end - start) / 8; i < blocks; ++i, j += 8)
     {
-        mU64Buffer[j] = Util::DoubleToUInt64( mDoubleSourceCursor[j] );
-        mU64Buffer[j + 1] = Util::DoubleToUInt64( mDoubleSourceCursor[j + 1] );
-        mU64Buffer[j + 2] = Util::DoubleToUInt64( mDoubleSourceCursor[j + 2] );
-        mU64Buffer[j + 3] = Util::DoubleToUInt64( mDoubleSourceCursor[j + 3] );
-        mU64Buffer[j + 4] = Util::DoubleToUInt64( mDoubleSourceCursor[j + 4] );
-        mU64Buffer[j + 5] = Util::DoubleToUInt64( mDoubleSourceCursor[j + 5] );
-        mU64Buffer[j + 6] = Util::DoubleToUInt64( mDoubleSourceCursor[j + 6] );
-        mU64Buffer[j + 7] = Util::DoubleToUInt64( mDoubleSourceCursor[j + 7] );
+        mU64Buffer[j] = Util::DoubleToUInt64(mDoubleSourceCursor[j]);
+        mU64Buffer[j + 1] = Util::DoubleToUInt64(mDoubleSourceCursor[j + 1]);
+        mU64Buffer[j + 2] = Util::DoubleToUInt64(mDoubleSourceCursor[j + 2]);
+        mU64Buffer[j + 3] = Util::DoubleToUInt64(mDoubleSourceCursor[j + 3]);
+        mU64Buffer[j + 4] = Util::DoubleToUInt64(mDoubleSourceCursor[j + 4]);
+        mU64Buffer[j + 5] = Util::DoubleToUInt64(mDoubleSourceCursor[j + 5]);
+        mU64Buffer[j + 6] = Util::DoubleToUInt64(mDoubleSourceCursor[j + 6]);
+        mU64Buffer[j + 7] = Util::DoubleToUInt64(mDoubleSourceCursor[j + 7]);
     }
 
-    for ( ; j < end; ++j )
+    for (; j < end; ++j)
     {
-        mU64Buffer[j] = Util::DoubleToUInt64( mDoubleSourceCursor[j] );
+        mU64Buffer[j] = Util::DoubleToUInt64(mDoubleSourceCursor[j]);
     }
 };
-SERIALISATION_NOINLINE void ParallelFloatProcessor::WorkerDeserialiseDouble( size_t start, size_t end )
+SERIALISATION_NOINLINE void ParallelFloatProcessor::WorkerDeserialiseDouble(size_t start, size_t end)
 {
-    end = std::min( end, mSourceSize );
+    end = std::min(end, mSourceSize);
 
-    if ( end <= start )
+    if (end <= start)
     {
         return;
     }
 
     size_t j = start;
 
-    for ( size_t i = 0, blocks = ( end - start ) / 8; i < blocks; ++i, j += 8 )
+    for (size_t i = 0, blocks = (end - start) / 8; i < blocks; ++i, j += 8)
     {
-        mDoubleSourceCursor[j] = Util::UInt64ToDouble( mU64Buffer[j] );
-        mDoubleSourceCursor[j + 1] = Util::UInt64ToDouble( mU64Buffer[j + 1] );
-        mDoubleSourceCursor[j + 2] = Util::UInt64ToDouble( mU64Buffer[j + 2] );
-        mDoubleSourceCursor[j + 3] = Util::UInt64ToDouble( mU64Buffer[j + 3] );
-        mDoubleSourceCursor[j + 4] = Util::UInt64ToDouble( mU64Buffer[j + 4] );
-        mDoubleSourceCursor[j + 5] = Util::UInt64ToDouble( mU64Buffer[j + 5] );
-        mDoubleSourceCursor[j + 6] = Util::UInt64ToDouble( mU64Buffer[j + 6] );
-        mDoubleSourceCursor[j + 7] = Util::UInt64ToDouble( mU64Buffer[j + 7] );
+        mDoubleSourceCursor[j] = Util::UInt64ToDouble(mU64Buffer[j]);
+        mDoubleSourceCursor[j + 1] = Util::UInt64ToDouble(mU64Buffer[j + 1]);
+        mDoubleSourceCursor[j + 2] = Util::UInt64ToDouble(mU64Buffer[j + 2]);
+        mDoubleSourceCursor[j + 3] = Util::UInt64ToDouble(mU64Buffer[j + 3]);
+        mDoubleSourceCursor[j + 4] = Util::UInt64ToDouble(mU64Buffer[j + 4]);
+        mDoubleSourceCursor[j + 5] = Util::UInt64ToDouble(mU64Buffer[j + 5]);
+        mDoubleSourceCursor[j + 6] = Util::UInt64ToDouble(mU64Buffer[j + 6]);
+        mDoubleSourceCursor[j + 7] = Util::UInt64ToDouble(mU64Buffer[j + 7]);
     }
 
-    for ( ; j < end; ++j )
+    for (; j < end; ++j)
     {
-        mDoubleSourceCursor[j] = Util::UInt64ToDouble( mU64Buffer[j] );
+        mDoubleSourceCursor[j] = Util::UInt64ToDouble(mU64Buffer[j]);
     }
 };
 
-ParallelFloatProcessor::ParallelFloatProcessor( uint32_t size )
-    : mBarrier( size ),
-      mStop( false ),
-      mCounter( 0 ),
-      mFloatSourceCursor( nullptr ),
-      mDoubleSourceCursor( nullptr ),
-      mSourceSize( 0 ),
-      mWorkerCount( static_cast<uint32_t>( size - 1 ) )
+ParallelFloatProcessor::ParallelFloatProcessor(uint32_t size)
+    : mBarrier(size),
+      mStop(false),
+      mCounter(0),
+      mFloatSourceCursor(nullptr),
+      mDoubleSourceCursor(nullptr),
+      mSourceSize(0),
+      mWorkerCount(static_cast<uint32_t>(size - 1))
 {
-    uint32_t nWorkers = static_cast<uint32_t>( size - 1 );
-    mWorkers.reserve( nWorkers );
-    mMainEnd = static_cast<uint32_t>( SERIALISATION_FLOAT_BUFFER_SIZE / size );
+    uint32_t nWorkers = static_cast<uint32_t>(size - 1);
+    mWorkers.reserve(nWorkers);
+    mMainEnd = static_cast<uint32_t>(SERIALISATION_FLOAT_BUFFER_SIZE / size);
 
-    for ( uint32_t pid = 0; pid < nWorkers; ++pid )
+    for (uint32_t pid = 0; pid < nWorkers; ++pid)
     {
-        mWorkers.emplace_back( [pid, size, this]()
+        mWorkers.emplace_back([pid, size, this]()
         {
-            size_t myStart = ( pid + 1 ) * SERIALISATION_FLOAT_BUFFER_SIZE / size;
+            size_t myStart = (pid + 1) * SERIALISATION_FLOAT_BUFFER_SIZE / size;
             size_t myEnd = myStart + SERIALISATION_FLOAT_BUFFER_SIZE / size;
 
-            mBarrier.Wait( mStop );
+            mBarrier.Wait(mStop);
 
-            while ( !mStop )
+            while (!mStop)
             {
-                switch ( mTask )
+                switch (mTask)
                 {
                 case Task::SerFloats:
-                    WorkerSerialiseFloat( myStart, myEnd );
+                    WorkerSerialiseFloat(myStart, myEnd);
                     break;
 
                 case Task::SerDoubles:
-                    WorkerSerialiseDouble( myStart, myEnd );
+                    WorkerSerialiseDouble(myStart, myEnd);
                     break;
 
                 case Task::DeserFloats:
-                    WorkerDeserialiseFloat( myStart, myEnd );
+                    WorkerDeserialiseFloat(myStart, myEnd);
                     break;
 
                 case Task::DeserDoubles:
-                    WorkerDeserialiseDouble( myStart, myEnd );
+                    WorkerDeserialiseDouble(myStart, myEnd);
                     break;
 
                 default:
@@ -214,9 +218,9 @@ ParallelFloatProcessor::ParallelFloatProcessor( uint32_t size )
 
                 ++mCounter;
 
-                mBarrier.Wait( mStop );
+                mBarrier.Wait(mStop);
             }
-        } );
+        });
     }
 }
 
@@ -230,70 +234,70 @@ uint64_t *ParallelFloatProcessor::GetU64Buffer()
     return mU64Buffer;
 }
 
-void ParallelFloatProcessor::SerialiseFloats( float *cursor, size_t size )
+void ParallelFloatProcessor::SerialiseFloats(float *cursor, size_t size)
 {
     mFloatSourceCursor = cursor;
     mSourceSize = size;
 
-    if ( size < 1024 )
+    if (size < 1024)
     {
-        WorkerSerialiseFloat( 0, mSourceSize );
+        WorkerSerialiseFloat(0, mSourceSize);
     }
     else
     {
-        StartTask( Task::SerFloats );
-        WorkerSerialiseFloat( 0, mMainEnd );
+        StartTask(Task::SerFloats);
+        WorkerSerialiseFloat(0, mMainEnd);
         WaitTaskComplete();
     }
 }
 
-void ParallelFloatProcessor::DeserialiseFloats( float *cursor, size_t size )
+void ParallelFloatProcessor::DeserialiseFloats(float *cursor, size_t size)
 {
     mFloatSourceCursor = cursor;
     mSourceSize = size;
 
-    if ( size < 1024 )
+    if (size < 1024)
     {
-        WorkerDeserialiseFloat( 0, mSourceSize );
+        WorkerDeserialiseFloat(0, mSourceSize);
     }
     else
     {
-        StartTask( Task::DeserFloats );
-        WorkerDeserialiseFloat( 0, mMainEnd );
+        StartTask(Task::DeserFloats);
+        WorkerDeserialiseFloat(0, mMainEnd);
         WaitTaskComplete();
     }
 }
 
-void ParallelFloatProcessor::SerialiseDoubles( double *cursor, size_t size )
+void ParallelFloatProcessor::SerialiseDoubles(double *cursor, size_t size)
 {
     mDoubleSourceCursor = cursor;
     mSourceSize = size;
 
-    if ( size < 1024 )
+    if (size < 1024)
     {
-        WorkerSerialiseDouble( 0, mSourceSize );
+        WorkerSerialiseDouble(0, mSourceSize);
     }
     else
     {
-        StartTask( Task::SerDoubles );
-        WorkerSerialiseDouble( 0, mMainEnd );
+        StartTask(Task::SerDoubles);
+        WorkerSerialiseDouble(0, mMainEnd);
         WaitTaskComplete();
     }
 }
 
-void ParallelFloatProcessor::DeserialiseDoubles( double *cursor, size_t size )
+void ParallelFloatProcessor::DeserialiseDoubles(double *cursor, size_t size)
 {
     mDoubleSourceCursor = cursor;
     mSourceSize = size;
 
-    if ( size < 1024 )
+    if (size < 1024)
     {
-        WorkerDeserialiseDouble( 0, mSourceSize );
+        WorkerDeserialiseDouble(0, mSourceSize);
     }
     else
     {
-        StartTask( Task::DeserDoubles );
-        WorkerDeserialiseDouble( 0, mMainEnd );
+        StartTask(Task::DeserDoubles);
+        WorkerDeserialiseDouble(0, mMainEnd);
         WaitTaskComplete();
     }
 }
@@ -302,35 +306,35 @@ void ParallelFloatProcessor::TerminateWorkers()
 {
     ParallelFloatProcessor *sProcessor = GetInstance();
 
-    if ( sProcessor )
+    if (sProcessor)
     {
         {
             sProcessor->mStop = true;
         }
         sProcessor->mBarrier.NotifyAbort();
 
-        for ( auto &t : sProcessor->mWorkers )
+        for (auto &t : sProcessor->mWorkers)
         {
-            if ( t.joinable() )
+            if (t.joinable())
             {
                 t.join();
             }
         }
 
-        GetInstance( 0, false );
+        GetInstance(0, false);
     }
 }
 
-ParallelFloatProcessor *ParallelFloatProcessor::GetInstance( uint32_t size /*= 0*/, bool create /*= true */ )
+ParallelFloatProcessor *ParallelFloatProcessor::GetInstance(uint32_t size /*= 0*/, bool create /*= true */)
 {
     static ParallelFloatProcessor *sProcessor = nullptr;
 
-    if ( !sProcessor && size )
+    if (!sProcessor && size)
     {
-        sProcessor = new ParallelFloatProcessor( size );
+        sProcessor = new ParallelFloatProcessor(size);
     }
 
-    if ( !create )
+    if (!create)
     {
         delete sProcessor;
         sProcessor = nullptr;
@@ -339,16 +343,16 @@ ParallelFloatProcessor *ParallelFloatProcessor::GetInstance( uint32_t size /*= 0
     return sProcessor;
 }
 
-void ParallelFloatProcessor::StartTask( Task task )
+void ParallelFloatProcessor::StartTask(Task task)
 {
     mCounter = 0;
     mTask = task;
-    mBarrier.Wait( mStop );
+    mBarrier.Wait(mStop);
 }
 
 void ParallelFloatProcessor::WaitTaskComplete() const
 {
-    while ( mCounter < mWorkerCount )
+    while (mCounter < mWorkerCount)
     {
     }
 }

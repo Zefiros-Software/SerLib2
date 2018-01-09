@@ -45,7 +45,7 @@
 #include "testClasses.h"
 
 #define  SERIALISATION_TEST_PRIMITIVE_SKIPPED( type )                                                   \
-SERIALISATION_TEST2( Skipping, Primitive, SkippedPrimitive< type >, SinglePrimitive< uint8_t >, type,   \
-                     MakeSeed<type>( 424141 ), GetRandom<uint8_t>() );
+    SERIALISATION_TEST2( Skipping, Primitive, SkippedPrimitive< type >, SinglePrimitive< uint8_t >, type,   \
+                         MakeSeed<type>( 424141 ), GetRandom<uint8_t>() );
 
-SERIALISATION_ALL_TYPES( SERIALISATION_TEST_PRIMITIVE_SKIPPED );
+SERIALISATION_ALL_TYPES(SERIALISATION_TEST_PRIMITIVE_SKIPPED);

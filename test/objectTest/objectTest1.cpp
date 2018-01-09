@@ -22,6 +22,6 @@
 #include "testClasses.h"
 
 #define SERIALISATION_NESTED_TEST( type )                                                                               \
-SERIALISATION_TEST( Object, Nested_Zebra, NestedObject< type >, type, GenerateZebraValue<type>(), GetRandom<type>() );
+    SERIALISATION_TEST( Object, Nested_Zebra, NestedObject< type >, type, GenerateZebraValue<type>(), GetRandom<type>() );
 
-SERIALISATION_ALL_TYPES( SERIALISATION_NESTED_TEST );
+SERIALISATION_ALL_TYPES(SERIALISATION_NESTED_TEST);

@@ -22,6 +22,6 @@
 #include "testClasses.h"
 
 #define SERIALISATION_TREE_TEST( type )                                                                                \
-SERIALISATION_TEST( Object, Tree, TestClassTree<type>, type, MakeSeed<type>( 4242 ), 4241 );
+    SERIALISATION_TEST( Object, Tree, TestClassTree<type>, type, MakeSeed<type>( 4242 ), 4241 );
 
-SERIALISATION_ALL_TYPES( SERIALISATION_TREE_TEST );
+SERIALISATION_ALL_TYPES(SERIALISATION_TREE_TEST);

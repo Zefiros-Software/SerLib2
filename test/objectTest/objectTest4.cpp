@@ -22,6 +22,6 @@
 #include "testClasses.h"
 
 #define SERIALISATION_OBJECT_VECTOR_TEST( type )                                                    \
-SERIALISATION_TEST( Object, Vector, ObjectVector< type >, type, 424242 * ( std::is_same< type, std::string >::value ? 32 : sizeof( type ) ), 424242 );
+    SERIALISATION_TEST( Object, Vector, ObjectVector< type >, type, 424242 * ( std::is_same< type, std::string >::value ? 32 : sizeof( type ) ), 424242 );
 
-SERIALISATION_ALL_TYPES( SERIALISATION_OBJECT_VECTOR_TEST );
+SERIALISATION_ALL_TYPES(SERIALISATION_OBJECT_VECTOR_TEST);

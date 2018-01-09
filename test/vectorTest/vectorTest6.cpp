@@ -22,7 +22,7 @@
 #include "testClasses.h"
 
 #define SERIALISATION_ARRAY_SKIPPED_TEST( type )                                                                    \
-SERIALISATION_TEST2( Skipping, Vector, SkippedArray< type >, SinglePrimitive<uint8_t>, type, MakeSeed<type>( 42 ),  \
-                     GetRandom<uint8_t>() );
+    SERIALISATION_TEST2( Skipping, Vector, SkippedArray< type >, SinglePrimitive<uint8_t>, type, MakeSeed<type>( 42 ),  \
+                         GetRandom<uint8_t>() );
 
-SERIALISATION_ALL_TYPES( SERIALISATION_ARRAY_SKIPPED_TEST );
+SERIALISATION_ALL_TYPES(SERIALISATION_ARRAY_SKIPPED_TEST);

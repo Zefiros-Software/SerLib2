@@ -22,6 +22,6 @@
 #include "testClasses.h"
 
 #define SERIALISATION_OBJECT_VECTOR_REORDERED_REVERSE_TEST( type )                                                    \
-SERIALISATION_TEST2( Object, VectorReorderedReverse, ObjectVectorReordered< type >, ObjectVector< type >, type, MakeSeed<type>( 414241 ), 424242 );
+    SERIALISATION_TEST2( Object, VectorReorderedReverse, ObjectVectorReordered< type >, ObjectVector< type >, type, MakeSeed<type>( 414241 ), 424242 );
 
-SERIALISATION_ALL_TYPES( SERIALISATION_OBJECT_VECTOR_REORDERED_REVERSE_TEST );
+SERIALISATION_ALL_TYPES(SERIALISATION_OBJECT_VECTOR_REORDERED_REVERSE_TEST);

@@ -23,7 +23,7 @@
 
 uint32_t g_seed = 0;
 
-std::string GenerateRandomString( bool random /*= true*/, uint32_t index /*= 0*/ )
+std::string GenerateRandomString(bool random /*= true*/, uint32_t index /*= 0*/)
 {
     // Imagine the boredom it took to write this :)
     // Sometimes I wonder whether this is the real life...
@@ -101,5 +101,5 @@ std::string GenerateRandomString( bool random /*= true*/, uint32_t index /*= 0*/
         "Anyway the wind blows."
     };
 
-    return lyrics[ random ? ( GetRandom< uint16_t >() % 57 ) : index];
+    return lyrics[ random ? (GetRandom< uint16_t >() % 57) : index];
 }

@@ -22,7 +22,7 @@
 #include "testClasses.h"
 
 #define SERIALISATION_OBJECT_VECTOR_SKIPPING_TEST( type )                                                       \
-SERIALISATION_TEST2( Skipping, ObjectVector, SkippedObjectVector< type >, SinglePrimitive< uint8_t >, type,     \
-                     MakeSeed<type>( 414242 ), 34 );
+    SERIALISATION_TEST2( Skipping, ObjectVector, SkippedObjectVector< type >, SinglePrimitive< uint8_t >, type,     \
+                         MakeSeed<type>( 414242 ), 34 );
 
-SERIALISATION_ALL_TYPES( SERIALISATION_OBJECT_VECTOR_SKIPPING_TEST );
+SERIALISATION_ALL_TYPES(SERIALISATION_OBJECT_VECTOR_SKIPPING_TEST);

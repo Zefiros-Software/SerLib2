@@ -22,6 +22,6 @@
 #include "testClasses.h"
 
 #define SERIALISATION_TREE_REORDERED_TEST( type )                                                                                \
-SERIALISATION_TEST2( Object, TreeReordered, TestClassTreeReordered< type PP_COMMA() 5 >, TestClassTree< type PP_COMMA() 5 >, type, 4242 * ( std::is_same< type, std::string >::value ? 32 : sizeof( type ) ), 4241 );
+    SERIALISATION_TEST2( Object, TreeReordered, TestClassTreeReordered< type PP_COMMA() 5 >, TestClassTree< type PP_COMMA() 5 >, type, 4242 * ( std::is_same< type, std::string >::value ? 32 : sizeof( type ) ), 4241 );
 
-SERIALISATION_ALL_TYPES( SERIALISATION_TREE_REORDERED_TEST );
+SERIALISATION_ALL_TYPES(SERIALISATION_TREE_REORDERED_TEST);

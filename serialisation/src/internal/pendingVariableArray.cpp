@@ -1,5 +1,7 @@
 /**
- * Copyright (c) 2017 Zefiros Software.
+ * @cond ___LICENSE___
+ *
+ * Copyright (c) 2016-2018 Zefiros Software.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -18,24 +20,26 @@
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
+ *
+ * @endcond
  */
 #include "serialisation/internal/pendingVariableArray.h"
 
-PendingVariableArray::PendingVariableArray() : mIsPendingMask( 0 )
+PendingVariableArray::PendingVariableArray() : mIsPendingMask(0)
 {
 
 }
 
-uint32_t PendingVariableArray::IsPending( uint8_t index ) const
+uint32_t PendingVariableArray::IsPending(uint8_t index) const
 {
-    return ( mIsPendingMask >> index ) & 0x1;
+    return (mIsPendingMask >> index) & 0x1;
 }
 
-void PendingVariableArray::ReadNow( uint8_t index, Type::Type type )
+void PendingVariableArray::ReadNow(uint8_t index, Type::Type type)
 {
-    assert( ( mIsPendingMask >> index ) & 0x1 );
+    assert((mIsPendingMask >> index) & 0x1);
 
-    mPendingVariables[index]( type );
+    mPendingVariables[index](type);
 
     mIsPendingMask ^= 1u << index;
 }

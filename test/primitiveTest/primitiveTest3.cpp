@@ -22,18 +22,18 @@
 #include "testClasses.h"
 
 #define SERIALISATION_TEST_SINGLE_PRIMITIVE_INDEXED_NUMERIC( type, index )                      \
-SERIALISATION_TEST( SinglePrimitiveIndexed, Max ## _ ## index,                                  \
-                    SinglePrimitiveIndexed< type PP_COMMA() index >, type,    \
-                    std::numeric_limits< type >::max(), ( type )( 1 ) );                        \
-SERIALISATION_TEST( SinglePrimitiveIndexed, Min ## _ ## index,                                  \
-                    SinglePrimitiveIndexed< type PP_COMMA() index >, type,    \
-                    std::numeric_limits< type >::min(), ( type )( 1 ) );                        \
-SERIALISATION_TEST( SinglePrimitiveIndexed, Zebra ## _ ## index,                                \
-                    SinglePrimitiveIndexed< type PP_COMMA() index >, type,    \
-                    GenerateZebraValue< type >(), ( type )( 1 ) );                              \
-SERIALISATION_TEST( SinglePrimitiveIndexed, InvZebra ## _ ## index,                             \
-                    SinglePrimitiveIndexed< type PP_COMMA() index >, type,    \
-                    GenerateInvZebraValue< type >(), ( type )( 1 ) );
+    SERIALISATION_TEST( SinglePrimitiveIndexed, Max ## _ ## index,                                  \
+                        SinglePrimitiveIndexed< type PP_COMMA() index >, type,    \
+                        std::numeric_limits< type >::max(), ( type )( 1 ) );                        \
+    SERIALISATION_TEST( SinglePrimitiveIndexed, Min ## _ ## index,                                  \
+                        SinglePrimitiveIndexed< type PP_COMMA() index >, type,    \
+                        std::numeric_limits< type >::min(), ( type )( 1 ) );                        \
+    SERIALISATION_TEST( SinglePrimitiveIndexed, Zebra ## _ ## index,                                \
+                        SinglePrimitiveIndexed< type PP_COMMA() index >, type,    \
+                        GenerateZebraValue< type >(), ( type )( 1 ) );                              \
+    SERIALISATION_TEST( SinglePrimitiveIndexed, InvZebra ## _ ## index,                             \
+                        SinglePrimitiveIndexed< type PP_COMMA() index >, type,    \
+                        GenerateInvZebraValue< type >(), ( type )( 1 ) );
 
 #ifdef _DEBUG
 #   define SERIALISATION_LIMIT_INDICES_TEST
@@ -44,23 +44,23 @@ SERIALISATION_TEST( SinglePrimitiveIndexed, InvZebra ## _ ## index,             
 
 #ifndef SERIALISATION_LIMIT_INDICES_TEST
 #define  SERIALISATION_TEST_SINGLE_PRIMITIVE_INDEXED_NUMERIC_ALL_INDICES( type )    \
-SERIALISATION_TEST_SINGLE_PRIMITIVE_INDEXED_NUMERIC( type, 0 );                     \
-SERIALISATION_TEST_SINGLE_PRIMITIVE_INDEXED_NUMERIC( type, 1 );                     \
-SERIALISATION_TEST_SINGLE_PRIMITIVE_INDEXED_NUMERIC( type, 2 );                     \
-SERIALISATION_TEST_SINGLE_PRIMITIVE_INDEXED_NUMERIC( type, 3 );                     \
-SERIALISATION_TEST_SINGLE_PRIMITIVE_INDEXED_NUMERIC( type, 5 );                     \
-SERIALISATION_TEST_SINGLE_PRIMITIVE_INDEXED_NUMERIC( type, 7 );                     \
-SERIALISATION_TEST_SINGLE_PRIMITIVE_INDEXED_NUMERIC( type, 11 );                    \
-SERIALISATION_TEST_SINGLE_PRIMITIVE_INDEXED_NUMERIC( type, 13 );                    \
-SERIALISATION_TEST_SINGLE_PRIMITIVE_INDEXED_NUMERIC( type, 17 );                    \
-SERIALISATION_TEST_SINGLE_PRIMITIVE_INDEXED_NUMERIC( type, 19 );                    \
-SERIALISATION_TEST_SINGLE_PRIMITIVE_INDEXED_NUMERIC( type, 23 );                    \
-SERIALISATION_TEST_SINGLE_PRIMITIVE_INDEXED_NUMERIC( type, 27 );
+    SERIALISATION_TEST_SINGLE_PRIMITIVE_INDEXED_NUMERIC( type, 0 );                     \
+    SERIALISATION_TEST_SINGLE_PRIMITIVE_INDEXED_NUMERIC( type, 1 );                     \
+    SERIALISATION_TEST_SINGLE_PRIMITIVE_INDEXED_NUMERIC( type, 2 );                     \
+    SERIALISATION_TEST_SINGLE_PRIMITIVE_INDEXED_NUMERIC( type, 3 );                     \
+    SERIALISATION_TEST_SINGLE_PRIMITIVE_INDEXED_NUMERIC( type, 5 );                     \
+    SERIALISATION_TEST_SINGLE_PRIMITIVE_INDEXED_NUMERIC( type, 7 );                     \
+    SERIALISATION_TEST_SINGLE_PRIMITIVE_INDEXED_NUMERIC( type, 11 );                    \
+    SERIALISATION_TEST_SINGLE_PRIMITIVE_INDEXED_NUMERIC( type, 13 );                    \
+    SERIALISATION_TEST_SINGLE_PRIMITIVE_INDEXED_NUMERIC( type, 17 );                    \
+    SERIALISATION_TEST_SINGLE_PRIMITIVE_INDEXED_NUMERIC( type, 19 );                    \
+    SERIALISATION_TEST_SINGLE_PRIMITIVE_INDEXED_NUMERIC( type, 23 );                    \
+    SERIALISATION_TEST_SINGLE_PRIMITIVE_INDEXED_NUMERIC( type, 27 );
 #else
 #define  SERIALISATION_TEST_SINGLE_PRIMITIVE_INDEXED_NUMERIC_ALL_INDICES( type )    \
-SERIALISATION_TEST_SINGLE_PRIMITIVE_INDEXED_NUMERIC( type, 0 );                     \
-SERIALISATION_TEST_SINGLE_PRIMITIVE_INDEXED_NUMERIC( type, 7 );                     \
-SERIALISATION_TEST_SINGLE_PRIMITIVE_INDEXED_NUMERIC( type, 27 );
+    SERIALISATION_TEST_SINGLE_PRIMITIVE_INDEXED_NUMERIC( type, 0 );                     \
+    SERIALISATION_TEST_SINGLE_PRIMITIVE_INDEXED_NUMERIC( type, 7 );                     \
+    SERIALISATION_TEST_SINGLE_PRIMITIVE_INDEXED_NUMERIC( type, 27 );
 #endif // !SERIALISATION_LIMIT_INDICES_TEST
 
-SERIALISATION_ALL_NUMERIC_TYPES( SERIALISATION_TEST_SINGLE_PRIMITIVE_INDEXED_NUMERIC_ALL_INDICES );
+SERIALISATION_ALL_NUMERIC_TYPES(SERIALISATION_TEST_SINGLE_PRIMITIVE_INDEXED_NUMERIC_ALL_INDICES);

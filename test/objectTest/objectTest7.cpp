@@ -22,7 +22,7 @@
 #include "testClasses.h"
 
 #define SERIALISATION_OBJECT_VECTORNON_EXISTINGG_TEST( type )                                                   \
-SERIALISATION_TEST2( NonExisting, ObjectVector, SinglePrimitive< uint8_t >, SkippedObjectVector< type >, type,  \
-                     MakeSeed< type PP_COMMA() uint8_t >( 414242 ), 414242 );
+    SERIALISATION_TEST2( NonExisting, ObjectVector, SinglePrimitive< uint8_t >, SkippedObjectVector< type >, type,  \
+                         MakeSeed< type PP_COMMA() uint8_t >( 414242 ), 414242 );
 
-SERIALISATION_ALL_TYPES( SERIALISATION_OBJECT_VECTORNON_EXISTINGG_TEST );
+SERIALISATION_ALL_TYPES(SERIALISATION_OBJECT_VECTORNON_EXISTINGG_TEST);

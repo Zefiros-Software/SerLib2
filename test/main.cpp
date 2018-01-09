@@ -36,18 +36,18 @@ public:
 
         mValue1 = rand();
 
-        while ( ( mValue2 = Util::UInt32ToFloat( rand() ) ) == std::numeric_limits< float >::infinity() )
+        while ((mValue2 = Util::UInt32ToFloat(rand())) == std::numeric_limits< float >::infinity())
         {};
 
         mValue3 = ss.str();
     }
 
     template< typename tT >
-    void SERIALISATION_CUSTOM_INTERFACE( Message< tT > &message )
+    void SERIALISATION_CUSTOM_INTERFACE(Message< tT > &message)
     {
-        message.Store( 0, mValue1 );
-        message.Store( 1, mValue2 );
-        message.Store( 2, mValue3 );
+        message.Store(0, mValue1);
+        message.Store(1, mValue2);
+        message.Store(2, mValue3);
     }
 
 private:
@@ -101,19 +101,19 @@ public:
 
         mValue1 = rand();
 
-        while ( ( mValue2 = Util::UInt32ToFloat( rand() ) ) == std::numeric_limits< float >::infinity() )
+        while ((mValue2 = Util::UInt32ToFloat(rand())) == std::numeric_limits< float >::infinity())
         {};
 
         mValue3 = ss.str();
     }
 
     template<typename tMessage>
-    void SERIALISATION_CUSTOM_INTERFACE( tMessage &message )
+    void SERIALISATION_CUSTOM_INTERFACE(tMessage &message)
     {
-        message.Store( 3, mValue4 );
-        message.Store( 2, mValue3 );
-        message.Store( 1, mValue2 );
-        message.Store( 0, mValue1 );
+        message.Store(3, mValue4);
+        message.Store(2, mValue3);
+        message.Store(1, mValue2);
+        message.Store(0, mValue1);
     }
 
 private:
@@ -136,18 +136,18 @@ public:
 
         mValue1 = rand();
 
-        while ( ( mValue2 = Util::UInt32ToFloat( rand() ) ) == std::numeric_limits< float >::infinity() )
+        while ((mValue2 = Util::UInt32ToFloat(rand())) == std::numeric_limits< float >::infinity())
         {};
 
         mValue3 = ss.str();
     }
 
     template<typename tMessage>
-    void SERIALISATION_CUSTOM_INTERFACE( tMessage &message )
+    void SERIALISATION_CUSTOM_INTERFACE(tMessage &message)
     {
-        message.Store( 0, mValue1 );
-        message.Store( 1, mValue2 );
-        message.Store( 3, mValue4 );
+        message.Store(0, mValue1);
+        message.Store(1, mValue2);
+        message.Store(3, mValue4);
         //message.Store( 2, mValue3 );
     }
 
@@ -160,17 +160,17 @@ private:
 };
 
 
-int main( int argc, char **argv )
+int main(int argc, char **argv)
 {
 
 #ifdef _WIN32
-    _CrtSetDbgFlag( _CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF );
-    _CrtSetReportMode( _CRT_ASSERT, _CRTDBG_MODE_FILE );
-    _CrtSetReportFile( _CRT_ASSERT, _CRTDBG_FILE_STDERR );
+    _CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
+    _CrtSetReportMode(_CRT_ASSERT, _CRTDBG_MODE_FILE);
+    _CrtSetReportFile(_CRT_ASSERT, _CRTDBG_FILE_STDERR);
     //_crtBreakAlloc = 742;
 #endif
 
-    ::testing::InitGoogleTest( &argc, argv );
+    ::testing::InitGoogleTest(&argc, argv);
 
     int32_t result = ::testing::UnitTest::GetInstance()->Run();
 

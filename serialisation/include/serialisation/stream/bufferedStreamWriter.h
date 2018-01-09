@@ -1,5 +1,7 @@
 /**
- * Copyright (c) 2017 Zefiros Software.
+ * @cond ___LICENSE___
+ *
+ * Copyright (c) 2016-2018 Zefiros Software.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -18,6 +20,8 @@
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
+ *
+ * @endcond
  */
 #pragma once
 #ifndef __SERIALISATION_WRITEBUFFER_H__
@@ -32,9 +36,9 @@ class BufferedStreamWriter
 public:
 
     template< typename tStream >
-    BufferedStreamWriter( tStream &streamInitializer )
-        : mStreamWriter( streamInitializer ),
-          mWriteIndex( 0 )
+    BufferedStreamWriter(tStream &streamInitializer)
+        : mStreamWriter(streamInitializer),
+          mWriteIndex(0)
     {
     }
 
@@ -45,7 +49,7 @@ public:
 
     void ClearBuffer()
     {
-        mStreamWriter.WriteBytes( mWriteBuffer, mWriteIndex );
+        mStreamWriter.WriteBytes(mWriteBuffer, mWriteIndex);
         mWriteIndex = 0;
 
         mStreamWriter.ClearBuffer();
@@ -60,9 +64,9 @@ public:
 
     struct Buffer
     {
-        Buffer( const char *fb, size_t bc )
-            : firstByte( fb ),
-              byteCount( bc )
+        Buffer(const char *fb, size_t bc)
+            : firstByte(fb),
+              byteCount(bc)
         {
         }
 
@@ -70,63 +74,63 @@ public:
         size_t byteCount;
     };
 
-    void WriteBytes( const Buffer &value )
+    void WriteBytes(const Buffer &value)
     {
         uint32_t diff = tBufferSize - mWriteIndex;
 
-        if ( value.byteCount <= diff )
+        if (value.byteCount <= diff)
         {
-            memcpy( mWriteBuffer + mWriteIndex, value.firstByte, value.byteCount );
-            mWriteIndex += static_cast<uint32_t>( value.byteCount );
+            memcpy(mWriteBuffer + mWriteIndex, value.firstByte, value.byteCount);
+            mWriteIndex += static_cast<uint32_t>(value.byteCount);
         }
         else
         {
             ClearBuffer();
 
-            mStreamWriter.WriteBytes( value.firstByte, value.byteCount );
+            mStreamWriter.WriteBytes(value.firstByte, value.byteCount);
         }
     }
 
-    void WriteSize( size_t size )
+    void WriteSize(size_t size)
     {
         uint8_t bufferIndex;
 
-        for ( bufferIndex = 0; size >= 0x80; size >>= 7, ++bufferIndex )
+        for (bufferIndex = 0; size >= 0x80; size >>= 7, ++bufferIndex)
         {
-            mVarIntBuffer[bufferIndex] = static_cast<uint8_t>( ( size & 0x7F ) | 0x80 );
+            mVarIntBuffer[bufferIndex] = static_cast<uint8_t>((size & 0x7F) | 0x80);
         }
 
-        mVarIntBuffer[bufferIndex] = static_cast<uint8_t>( size );
+        mVarIntBuffer[bufferIndex] = static_cast<uint8_t>(size);
 
-        WriteBytes( {reinterpret_cast<char *>( mVarIntBuffer ), ++bufferIndex} );
+        WriteBytes({reinterpret_cast<char *>(mVarIntBuffer), ++bufferIndex});
     }
 
     template< typename tPrimitive >
-    void WritePrimitive( const tPrimitive &value )
+    void WritePrimitive(const tPrimitive &value)
     {
         uint32_t diff = tBufferSize - mWriteIndex;
 
-        if ( sizeof( tPrimitive ) <= diff )
+        if (sizeof(tPrimitive) <= diff)
         {
-            *reinterpret_cast< tPrimitive * >( mWriteBuffer + mWriteIndex ) = value;
-            mWriteIndex += sizeof( tPrimitive );
+            *reinterpret_cast< tPrimitive * >(mWriteBuffer + mWriteIndex) = value;
+            mWriteIndex += sizeof(tPrimitive);
         }
         else
         {
-            WriteBytes( {reinterpret_cast< const char *const >( &value ), sizeof( tPrimitive )} );
+            WriteBytes({reinterpret_cast< const char *const >(&value), sizeof(tPrimitive)});
         }
     }
 
     template< typename tPrimitive >
-    SERIALISATION_NOINLINE void WritePrimitiveBlock( const tPrimitive *first, size_t count )
+    SERIALISATION_NOINLINE void WritePrimitiveBlock(const tPrimitive *first, size_t count)
     {
-        const size_t maxBlockSize = std::numeric_limits< size_t >::max() / sizeof( tPrimitive );
+        const size_t maxBlockSize = std::numeric_limits< size_t >::max() / sizeof(tPrimitive);
 
-        while ( count > 0 )
+        while (count > 0)
         {
             const size_t writeBlockSize = count > maxBlockSize ? maxBlockSize : count;
 
-            WriteBytes( {reinterpret_cast< const char *const >( first ), writeBlockSize * sizeof( tPrimitive )} );
+            WriteBytes({reinterpret_cast< const char *const >(first), writeBlockSize * sizeof(tPrimitive)});
             count -= writeBlockSize;
             first += writeBlockSize;
         }
@@ -142,8 +146,8 @@ private:
 
     uint32_t mWriteIndex;
 
-    BufferedStreamWriter &operator=( const BufferedStreamWriter & ) = delete;
-    BufferedStreamWriter( const BufferedStreamWriter & ) = delete;
+    BufferedStreamWriter &operator=(const BufferedStreamWriter &) = delete;
+    BufferedStreamWriter(const BufferedStreamWriter &) = delete;
 };
 
 #endif

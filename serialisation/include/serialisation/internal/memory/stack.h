@@ -1,5 +1,7 @@
 /**
- * Copyright (c) 2017 Zefiros Software.
+ * @cond ___LICENSE___
+ *
+ * Copyright (c) 2016-2018 Zefiros Software.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -18,6 +20,8 @@
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
+ *
+ * @endcond
  */
 #pragma once
 #ifndef __SERIALISATION_STACK_H__
@@ -32,19 +36,19 @@ class Stack
 {
 public:
 
-    explicit Stack( size_t size )
-        : mStack( size ),
-          mSize( size ),
-          mCursor( 0 )
+    explicit Stack(size_t size)
+        : mStack(size),
+          mSize(size),
+          mCursor(0)
     {
     }
 
-    void Push( tT &t )
+    void Push(tT &t)
     {
-        if ( mCursor == mSize )
+        if (mCursor == mSize)
         {
-            mSize = static_cast<size_t>( mSize * 1.6 ) + 1;
-            mStack.resize( mSize );
+            mSize = static_cast<size_t>(mSize * 1.6) + 1;
+            mStack.resize(mSize);
         }
 
         mStack[mCursor++] = t;

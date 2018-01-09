@@ -22,15 +22,15 @@
 #include "testClasses.h"
 
 #define SERIALISATION_TEST_SINGLE_PRIMITIVE_NUMERIC( type )                                                                   \
-SERIALISATION_TEST( SinglePrimitive, Max, SinglePrimitive< type >, type, std::numeric_limits< type >::max(), ( type )( 1 ) ); \
-SERIALISATION_TEST( SinglePrimitive, Min, SinglePrimitive< type >, type, std::numeric_limits< type >::min(), ( type )( 1 ) ); \
-SERIALISATION_TEST( SinglePrimitive, Zebra, SinglePrimitive< type >, type, GenerateZebraValue< type >(), ( type )( 1 ) );     \
-SERIALISATION_TEST( SinglePrimitive, InvZebra, SinglePrimitive< type >, type, GenerateInvZebraValue< type >(), ( type )( 1 ) );
+    SERIALISATION_TEST( SinglePrimitive, Max, SinglePrimitive< type >, type, std::numeric_limits< type >::max(), ( type )( 1 ) ); \
+    SERIALISATION_TEST( SinglePrimitive, Min, SinglePrimitive< type >, type, std::numeric_limits< type >::min(), ( type )( 1 ) ); \
+    SERIALISATION_TEST( SinglePrimitive, Zebra, SinglePrimitive< type >, type, GenerateZebraValue< type >(), ( type )( 1 ) );     \
+    SERIALISATION_TEST( SinglePrimitive, InvZebra, SinglePrimitive< type >, type, GenerateInvZebraValue< type >(), ( type )( 1 ) );
 
-SERIALISATION_ALL_NUMERIC_TYPES( SERIALISATION_TEST_SINGLE_PRIMITIVE_NUMERIC );
-SERIALISATION_TEST( SinglePrimitive, 0_1, SinglePrimitive< String >, String, GenerateRandomString( false, 0 ),
-                    GenerateRandomString( false, 1 ) );
-SERIALISATION_TEST( SinglePrimitive, FF, SinglePrimitive< bool >, bool, false, false );
-SERIALISATION_TEST( SinglePrimitive, FT, SinglePrimitive< bool >, bool, false, true );
-SERIALISATION_TEST( SinglePrimitive, TF, SinglePrimitive< bool >, bool, true, false );
-SERIALISATION_TEST( SinglePrimitive, TT, SinglePrimitive< bool >, bool, true, true );
+SERIALISATION_ALL_NUMERIC_TYPES(SERIALISATION_TEST_SINGLE_PRIMITIVE_NUMERIC);
+SERIALISATION_TEST(SinglePrimitive, 0_1, SinglePrimitive< String >, String, GenerateRandomString(false, 0),
+                   GenerateRandomString(false, 1));
+SERIALISATION_TEST(SinglePrimitive, FF, SinglePrimitive< bool >, bool, false, false);
+SERIALISATION_TEST(SinglePrimitive, FT, SinglePrimitive< bool >, bool, false, true);
+SERIALISATION_TEST(SinglePrimitive, TF, SinglePrimitive< bool >, bool, true, false);
+SERIALISATION_TEST(SinglePrimitive, TT, SinglePrimitive< bool >, bool, true, true);

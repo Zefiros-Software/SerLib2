@@ -59,8 +59,8 @@ public:
         mValue = GetRandom<tT>();
     }
 
-    explicit SinglePrimitive( const tT &val )
-        : mValue( val )
+    explicit SinglePrimitive(const tT &val)
+        : mValue(val)
     {
     }
 
@@ -74,49 +74,49 @@ public:
     }
 
     template< typename tM >
-    void OnStore( Message< tM > &message )
+    void OnStore(Message< tM > &message)
     {
-        message.Store( tIndex, mValue );
+        message.Store(tIndex, mValue);
     }
 
-    void TestEqual( SinglePrimitive< tT, tIndex > &other )
+    void TestEqual(SinglePrimitive< tT, tIndex > &other)
     {
-        ExpectEqual( mValue, other.mValue );
+        ExpectEqual(mValue, other.mValue);
     }
 
     template< typename tC >
-    void TestEqual( SkippedPrimitive< tC > &other )
+    void TestEqual(SkippedPrimitive< tC > &other)
     {
-        other.TestEqual( *this );
+        other.TestEqual(*this);
     }
 
     template< typename tC, uint8_t tFlags >
-    void TestEqual( SkippedArray< tC, tFlags > &other )
+    void TestEqual(SkippedArray< tC, tFlags > &other)
     {
-        other.TestEqual( *this );
+        other.TestEqual(*this);
     }
 
     template< typename tC >
-    void TestEqual( SkippedObjectVector< tC > &other )
+    void TestEqual(SkippedObjectVector< tC > &other)
     {
-        other.TestEqual( *this );
+        other.TestEqual(*this);
     }
 
     template< typename tC >
-    void TestEqual( SkippedParent< tC > &other )
+    void TestEqual(SkippedParent< tC > &other)
     {
-        other.TestEqual( *this );
+        other.TestEqual(*this);
     }
 
     template< typename tC >
-    void TestEqual( SinglePrimitive< tC > &other )
+    void TestEqual(SinglePrimitive< tC > &other)
     {
-        ExpectEqual( mValue, static_cast<tT>( other.mValue ) );
+        ExpectEqual(mValue, static_cast<tT>(other.mValue));
     }
 
     size_t GetMemberSize() const
     {
-        return SizeHelper<tT>::GetSize( mValue );
+        return SizeHelper<tT>::GetSize(mValue);
     }
 
 private:
@@ -135,32 +135,32 @@ public:
         mExtra = GetRandom<uint8_t>();
     }
 
-    explicit SkippedPrimitive( uint32_t seed )
+    explicit SkippedPrimitive(uint32_t seed)
     {
         g_seed = seed;
         Init();
     }
 
-    SkippedPrimitive(): mExtra( 0 )
+    SkippedPrimitive(): mExtra(0)
     {
     }
 
     template< typename tM >
-    void OnStore( Message< tM > &message )
+    void OnStore(Message< tM > &message)
     {
-        message.Store( 1, mValue );
-        message.Store( 0, mExtra );
+        message.Store(1, mValue);
+        message.Store(0, mExtra);
     }
 
-    void TestEqual( SkippedPrimitive< tT > &other )
+    void TestEqual(SkippedPrimitive< tT > &other)
     {
-        ExpectEqual( mValue, other.mValue );
-        ExpectEqual( mExtra, other.mExtra );
+        ExpectEqual(mValue, other.mValue);
+        ExpectEqual(mExtra, other.mExtra);
     }
 
-    void TestEqual( SinglePrimitive< uint8_t, 0 > &other ) const
+    void TestEqual(SinglePrimitive< uint8_t, 0 > &other) const
     {
-        ExpectEqual( mExtra, other.mValue );
+        ExpectEqual(mExtra, other.mValue);
     }
 
 private:
@@ -176,37 +176,37 @@ public:
 
     void Init()
     {
-        mValue1.resize( ( GetRandom< uint32_t >() % 8192 ) + 8192 );
+        mValue1.resize((GetRandom< uint32_t >() % 8192) + 8192);
 
-        for ( auto it = mValue1.begin(); it != mValue1.end(); ++it )
+        for (auto it = mValue1.begin(); it != mValue1.end(); ++it)
         {
-            *it = static_cast<tT>( GetRandom< tT >() );
+            *it = static_cast<tT>(GetRandom< tT >());
         }
 
         mValue2 = GetRandom<uint8_t>();
     }
 
-    explicit SkippedArray( uint32_t seed )
+    explicit SkippedArray(uint32_t seed)
     {
         g_seed = seed;
         Init();
     }
 
     template< typename tM >
-    void OnStore( Message< tM > &message )
+    void OnStore(Message< tM > &message)
     {
-        message.Store( 1, mValue1, tFlags );
-        message.Store( 0, mValue2 );
+        message.Store(1, mValue1, tFlags);
+        message.Store(0, mValue2);
     }
 
     size_t GetMemberSize()
     {
-        return mValue1.size() * sizeof( tT );
+        return mValue1.size() * sizeof(tT);
     }
 
-    void TestEqual( SinglePrimitive< uint8_t > &t2 ) const
+    void TestEqual(SinglePrimitive< uint8_t > &t2) const
     {
-        ExpectEqual( mValue2, t2.mValue );
+        ExpectEqual(mValue2, t2.mValue);
     }
 
 private:
@@ -220,21 +220,21 @@ class SinglePrimitiveIndexed
 {
 public:
 
-    explicit SinglePrimitiveIndexed( const tT &val )
-        : mValue( val ),
-          mIndex( tIndex )
+    explicit SinglePrimitiveIndexed(const tT &val)
+        : mValue(val),
+          mIndex(tIndex)
     {
     }
 
     template< typename tM >
-    void OnStore( Message< tM > &message )
+    void OnStore(Message< tM > &message)
     {
-        message.Store( mIndex, mValue );
+        message.Store(mIndex, mValue);
     }
 
-    void TestEqual( SinglePrimitiveIndexed< tT, tIndex > &other )
+    void TestEqual(SinglePrimitiveIndexed< tT, tIndex > &other)
     {
-        ExpectEqual( mValue, other.mValue );
+        ExpectEqual(mValue, other.mValue);
     }
 
 private:
@@ -260,24 +260,24 @@ public:
 
     }
 
-    explicit MultiPrimitive( uint32_t seed )
+    explicit MultiPrimitive(uint32_t seed)
     {
         g_seed = seed;
         Init();
     }
 
     template< typename tM >
-    void OnStore( Message< tM > &message )
+    void OnStore(Message< tM > &message)
     {
-        message.Store( tIndex, mValue );
-        MultiPrimitive < tIndex + 1, tRest... >::OnStore( message );
+        message.Store(tIndex, mValue);
+        MultiPrimitive < tIndex + 1, tRest... >::OnStore(message);
     }
 
-    void TestEqual( MultiPrimitive< tIndex, tT, tRest... > &other )
+    void TestEqual(MultiPrimitive< tIndex, tT, tRest... > &other)
     {
-        ExpectEqual( mValue, other.mValue );
-        MultiPrimitive < tIndex + 1, tRest... >::TestEqual( static_cast <  MultiPrimitive < tIndex + 1,
-                                                            tRest... > & >( other ) );
+        ExpectEqual(mValue, other.mValue);
+        MultiPrimitive < tIndex + 1, tRest... >::TestEqual(static_cast <  MultiPrimitive < tIndex + 1,
+                                                           tRest... > & >(other));
     }
 
     tT mValue;
@@ -301,31 +301,31 @@ public:
 
     }
 
-    explicit MultiPrimitiveReordered( uint32_t seed )
+    explicit MultiPrimitiveReordered(uint32_t seed)
     {
         g_seed = seed;
         Init();
     }
 
     template< typename tM >
-    void OnStore( Message< tM > &message )
+    void OnStore(Message< tM > &message)
     {
-        MultiPrimitiveReordered < tIndex + 1, tRest... >::OnStore( message );
-        message.Store( tIndex, mValue );
+        MultiPrimitiveReordered < tIndex + 1, tRest... >::OnStore(message);
+        message.Store(tIndex, mValue);
     }
 
-    void TestEqual( MultiPrimitiveReordered< tIndex, tT, tRest... > &other )
+    void TestEqual(MultiPrimitiveReordered< tIndex, tT, tRest... > &other)
     {
-        ExpectEqual( mValue, other.mValue );
-        MultiPrimitiveReordered < tIndex + 1, tRest... >::TestEqual( static_cast < MultiPrimitiveReordered < tIndex + 1,
-                                                                     tRest... > & >( other ) );
+        ExpectEqual(mValue, other.mValue);
+        MultiPrimitiveReordered < tIndex + 1, tRest... >::TestEqual(static_cast < MultiPrimitiveReordered < tIndex + 1,
+                                                                    tRest... > & >(other));
     }
 
-    void TestEqual( MultiPrimitive< tIndex, tT, tRest... > &other )
+    void TestEqual(MultiPrimitive< tIndex, tT, tRest... > &other)
     {
-        ExpectEqual( mValue, other.mValue );
-        MultiPrimitiveReordered < tIndex + 1, tRest... >::TestEqual( static_cast < MultiPrimitive < tIndex + 1,
-                                                                     tRest... > & >( other ) );
+        ExpectEqual(mValue, other.mValue);
+        MultiPrimitiveReordered < tIndex + 1, tRest... >::TestEqual(static_cast < MultiPrimitive < tIndex + 1,
+                                                                    tRest... > & >(other));
     }
 
     tT mValue;
@@ -350,34 +350,34 @@ public:
 
     void Init()
     {
-        mValue1.resize( ( GetRandom< uint32_t >() % 8192 ) + 8192 );
+        mValue1.resize((GetRandom< uint32_t >() % 8192) + 8192);
 
-        for ( auto it = mValue1.begin(); it != mValue1.end(); ++it )
+        for (auto it = mValue1.begin(); it != mValue1.end(); ++it)
         {
-            *it = static_cast<tT>( GetRandom< tT >() );
+            *it = static_cast<tT>(GetRandom< tT >());
         }
     }
 
-    explicit TestClassArray( uint32_t seed )
+    explicit TestClassArray(uint32_t seed)
     {
         g_seed = seed;
         Init();
     }
 
     template< typename tM >
-    void OnStore( Message< tM > &message )
+    void OnStore(Message< tM > &message)
     {
-        message.Store( 0, mValue1, tFlags );
+        message.Store(0, mValue1, tFlags);
     }
 
     size_t GetMemberSize()
     {
-        return mValue1.size() * sizeof( tT );
+        return mValue1.size() * sizeof(tT);
     }
 
-    void TestEqual( TestClassArray< tT, tFlags > &t2 )
+    void TestEqual(TestClassArray< tT, tFlags > &t2)
     {
-        ExpectEqual( mValue1, t2.mValue1 );
+        ExpectEqual(mValue1, t2.mValue1);
     }
 
 private:
@@ -392,34 +392,34 @@ public:
 
     void Init()
     {
-        mValue1.resize( tSize );
+        mValue1.resize(tSize);
 
-        for ( auto it = mValue1.begin(); it != mValue1.end(); ++it )
+        for (auto it = mValue1.begin(); it != mValue1.end(); ++it)
         {
-            *it = static_cast<tT>( GetRandom< tT >() );
+            *it = static_cast<tT>(GetRandom< tT >());
         }
     }
 
-    explicit TestClassArrayOfSize( uint32_t seed )
+    explicit TestClassArrayOfSize(uint32_t seed)
     {
         g_seed = seed;
         Init();
     }
 
     template< typename tM >
-    void OnStore( Message< tM > &message )
+    void OnStore(Message< tM > &message)
     {
-        message.Store( 0, mValue1, tFlags );
+        message.Store(0, mValue1, tFlags);
     }
 
     size_t GetMemberSize()
     {
-        return mValue1.size() * sizeof( tT );
+        return mValue1.size() * sizeof(tT);
     }
 
-    void TestEqual( TestClassArrayOfSize< tT, tFlags, tSize > &t2 )
+    void TestEqual(TestClassArrayOfSize< tT, tFlags, tSize > &t2)
     {
-        ExpectEqual( mValue1, t2.mValue1 );
+        ExpectEqual(mValue1, t2.mValue1);
     }
 
 private:
@@ -434,34 +434,34 @@ public:
 
     void Init()
     {
-        mValue1.resize( ( GetRandom< uint32_t >() % 1024 ) );
+        mValue1.resize((GetRandom< uint32_t >() % 1024));
 
-        for ( auto it = mValue1.begin(); it != mValue1.end(); ++it )
+        for (auto it = mValue1.begin(); it != mValue1.end(); ++it)
         {
-            *it = static_cast<tT>( GetRandom< tT >() );
+            *it = static_cast<tT>(GetRandom< tT >());
         }
     }
 
-    explicit TestClassSmallArray( uint32_t seed )
+    explicit TestClassSmallArray(uint32_t seed)
     {
         g_seed = seed;
         Init();
     }
 
     template< typename tM >
-    void OnStore( Message< tM > &message )
+    void OnStore(Message< tM > &message)
     {
-        message.Store( 0, mValue1 );
+        message.Store(0, mValue1);
     }
 
     size_t GetMemberSize()
     {
-        return mValue1.size() * sizeof( tT );
+        return mValue1.size() * sizeof(tT);
     }
 
-    void TestEqual( TestClassSmallArray< tT > &t2 )
+    void TestEqual(TestClassSmallArray< tT > &t2)
     {
-        ExpectEqual( mValue1, t2.mValue1 );
+        ExpectEqual(mValue1, t2.mValue1);
     }
 
 private:
@@ -476,34 +476,34 @@ public:
 
     void Init()
     {
-        mValue1.resize( 1025 );
+        mValue1.resize(1025);
 
-        for ( auto it = mValue1.begin(); it != mValue1.end(); ++it )
+        for (auto it = mValue1.begin(); it != mValue1.end(); ++it)
         {
-            *it = static_cast<tT>( GetRandom< tT >() );
+            *it = static_cast<tT>(GetRandom< tT >());
         }
     }
 
-    explicit TestClassArrayEdgeCaseSize( uint32_t seed )
+    explicit TestClassArrayEdgeCaseSize(uint32_t seed)
     {
         g_seed = seed;
         Init();
     }
 
     template< typename tM >
-    void OnStore( Message< tM > &message )
+    void OnStore(Message< tM > &message)
     {
-        message.Store( 0, mValue1 );
+        message.Store(0, mValue1);
     }
 
     size_t GetMemberSize()
     {
-        return mValue1.size() * sizeof( tT );
+        return mValue1.size() * sizeof(tT);
     }
 
-    void TestEqual( TestClassArrayEdgeCaseSize< tT > &t2 )
+    void TestEqual(TestClassArrayEdgeCaseSize< tT > &t2)
     {
-        ExpectEqual( mValue1, t2.mValue1 );
+        ExpectEqual(mValue1, t2.mValue1);
     }
 
 private:
@@ -518,40 +518,40 @@ public:
 
     void Init()
     {
-        mValue1.resize( ( GetRandom< uint32_t >() % 8192 ) + 8192 );
+        mValue1.resize((GetRandom< uint32_t >() % 8192) + 8192);
 
-        for ( auto it = mValue1.begin(); it != mValue1.end(); ++it )
+        for (auto it = mValue1.begin(); it != mValue1.end(); ++it)
         {
-            *it = static_cast<tT>( GetRandom< tT >() );
+            *it = static_cast<tT>(GetRandom< tT >());
         }
 
         mValue2 = GetRandom< tT >();
     }
 
-    explicit TestClassArrayWithMember( uint32_t seed )
+    explicit TestClassArrayWithMember(uint32_t seed)
     {
         g_seed = seed;
         Init();
     }
 
     template< typename tM >
-    void OnStore( Message< tM > &message )
+    void OnStore(Message< tM > &message)
     {
-        message.Store( 0, mValue1, tFlags );
-        message.Store( 1, mValue2 );
+        message.Store(0, mValue1, tFlags);
+        message.Store(1, mValue2);
     }
 
     size_t GetMemberSize()
     {
-        return mValue1.size() * sizeof( tT );
+        return mValue1.size() * sizeof(tT);
     }
 
     template< typename tC >
-    void TestEqual( tC &t2 )
+    void TestEqual(tC &t2)
     {
-        ExpectEqual( mValue1, t2.mValue1 );
+        ExpectEqual(mValue1, t2.mValue1);
 
-        ExpectEqual( mValue2, t2.mValue2 );
+        ExpectEqual(mValue2, t2.mValue2);
     }
 
     std::vector<tT> mValue1;
@@ -565,40 +565,40 @@ public:
 
     void Init()
     {
-        mValue1.resize( ( GetRandom< uint32_t >() % 8192 ) + 8192 );
+        mValue1.resize((GetRandom< uint32_t >() % 8192) + 8192);
 
-        for ( auto it = mValue1.begin(); it != mValue1.end(); ++it )
+        for (auto it = mValue1.begin(); it != mValue1.end(); ++it)
         {
-            *it = static_cast<tT>( GetRandom< tT >() );
+            *it = static_cast<tT>(GetRandom< tT >());
         }
 
         mValue2 = GetRandom< tT >();
     }
 
-    explicit TestClassArrayWithMemberReordered( uint32_t seed )
+    explicit TestClassArrayWithMemberReordered(uint32_t seed)
     {
         g_seed = seed;
         Init();
     }
 
     template< typename tM >
-    void OnStore( Message< tM > &message )
+    void OnStore(Message< tM > &message)
     {
-        message.Store( 1, mValue2 );
-        message.Store( 0, mValue1, tFlags );
+        message.Store(1, mValue2);
+        message.Store(0, mValue1, tFlags);
     }
 
     size_t GetMemberSize()
     {
-        return mValue1.size() * sizeof( tT );
+        return mValue1.size() * sizeof(tT);
     }
 
     template< typename tC >
-    void TestEqual( tC &t2 )
+    void TestEqual(tC &t2)
     {
-        ExpectEqual( mValue1, t2.mValue1 );
+        ExpectEqual(mValue1, t2.mValue1);
 
-        ExpectEqual( mValue2, t2.mValue2 );
+        ExpectEqual(mValue2, t2.mValue2);
     }
 
     std::vector<tT> mValue1;
@@ -613,9 +613,9 @@ public:
     NestedObject()
     {}
 
-    explicit NestedObject( const tT &value )
-        : mValue( value ),
-          mObject( value )
+    explicit NestedObject(const tT &value)
+        : mValue(value),
+          mObject(value)
     {
     }
 
@@ -626,17 +626,17 @@ public:
     }
 
     template< typename tM >
-    void OnStore( Message< tM > &message )
+    void OnStore(Message< tM > &message)
     {
-        message.Store( 0, mValue );
-        message.Store( 1, mObject );
+        message.Store(0, mValue);
+        message.Store(1, mObject);
     }
 
-    void TestEqual( NestedObject< tT > &t2 )
+    void TestEqual(NestedObject< tT > &t2)
     {
-        ExpectEqual( mValue, t2.mValue );
+        ExpectEqual(mValue, t2.mValue);
 
-        mObject.TestEqual( t2.mObject );
+        mObject.TestEqual(t2.mObject);
     }
 
     tT mValue;
@@ -657,29 +657,29 @@ public:
           mObject()
     {}
 
-    explicit ClassWithParent( const tT &value )
-        : tParent( value ),
-          mValue( value ),
-          mObject( value )
+    explicit ClassWithParent(const tT &value)
+        : tParent(value),
+          mValue(value),
+          mObject(value)
     {
     }
 
     template< typename tM >
-    void OnStore( Message< tM > &message )
+    void OnStore(Message< tM > &message)
     {
-        message.template StoreParent< tParent >( 0, this );
-        message.Store( 1, mObject );
-        message.Store( 2, mValue );
+        message.template StoreParent< tParent >(0, this);
+        message.Store(1, mObject);
+        message.Store(2, mValue);
     }
 
     template< typename tC >
-    void TestEqual( tC &t2 )
+    void TestEqual(tC &t2)
     {
-        tParent::TestEqual( t2 );
+        tParent::TestEqual(t2);
 
-        mObject.TestEqual( t2.mObject );
+        mObject.TestEqual(t2.mObject);
 
-        ExpectEqual( mValue, t2.mValue );
+        ExpectEqual(mValue, t2.mValue);
     }
 
     tT mValue;
@@ -695,7 +695,7 @@ public:
 
     typedef SinglePrimitive< tT > tParent;
 
-    explicit SkippedParent( uint32_t seed )
+    explicit SkippedParent(uint32_t seed)
     {
         g_seed = seed;
         SinglePrimitive<tT>::Init();
@@ -703,15 +703,15 @@ public:
     }
 
     template< typename tM >
-    void OnStore( Message< tM > &message )
+    void OnStore(Message< tM > &message)
     {
-        message.template StoreParent< tParent >( 1, this );
-        message.Store( 0, mValue );
+        message.template StoreParent< tParent >(1, this);
+        message.Store(0, mValue);
     }
 
-    void TestEqual( SinglePrimitive<uint8_t> &t2 ) const
+    void TestEqual(SinglePrimitive<uint8_t> &t2) const
     {
-        ExpectEqual( mValue, t2.mValue );
+        ExpectEqual(mValue, t2.mValue);
     }
 
     uint8_t mValue;
@@ -730,30 +730,30 @@ public:
           mObject()
     {}
 
-    explicit ClassWithParentReordered( const tT &value )
-        : tParent( value ),
-          mValue( value ),
-          mObject( value )
+    explicit ClassWithParentReordered(const tT &value)
+        : tParent(value),
+          mValue(value),
+          mObject(value)
     {
     }
 
     template< typename tM >
-    void OnStore( Message< tM > &message )
+    void OnStore(Message< tM > &message)
     {
-        message.Store( 2, mValue );
-        message.Store( 1, mObject );
-        message.template StoreParent< tParent >( 0, this );
+        message.Store(2, mValue);
+        message.Store(1, mObject);
+        message.template StoreParent< tParent >(0, this);
     }
 
 
     template< typename tC >
-    void TestEqual( tC &t2 )
+    void TestEqual(tC &t2)
     {
-        tParent::TestEqual( t2 );
+        tParent::TestEqual(t2);
 
-        mObject.TestEqual( t2.mObject );
+        mObject.TestEqual(t2.mObject);
 
-        ExpectEqual( mValue, t2.mValue );
+        ExpectEqual(mValue, t2.mValue);
     }
 
     tT mValue;
@@ -776,37 +776,37 @@ class ClassWithMultipleParents
     typedef ClassWithParent< tT > tParent1;
 public:
 
-    explicit ClassWithMultipleParents( const tT &value )
-        : tParent1( value ),
-          SingleFloat( 1.0f * value ),
-          SingleU8( static_cast<uint8_t>( value ) ),
-          SingleU16( static_cast<uint16_t>( value ) ),
-          mValue( value ),
-          mObject( value )
+    explicit ClassWithMultipleParents(const tT &value)
+        : tParent1(value),
+          SingleFloat(1.0f * value),
+          SingleU8(static_cast<uint8_t>(value)),
+          SingleU16(static_cast<uint16_t>(value)),
+          mValue(value),
+          mObject(value)
     {
     }
 
     template< typename tM >
-    void OnStore( Message< tM > &message )
+    void OnStore(Message< tM > &message)
     {
-        message.template StoreParent< tParent1 >( 0, this );
-        message.template StoreParent< SingleFloat >( 1, this );
-        message.template StoreParent< SingleU8 >( 2, this );
-        message.template StoreParent< SingleU16 >( 3, this );
-        message.Store( 1, mObject );
-        message.Store( 2, mValue );
+        message.template StoreParent< tParent1 >(0, this);
+        message.template StoreParent< SingleFloat >(1, this);
+        message.template StoreParent< SingleU8 >(2, this);
+        message.template StoreParent< SingleU16 >(3, this);
+        message.Store(1, mObject);
+        message.Store(2, mValue);
     }
 
-    void TestEqual( ClassWithMultipleParents< tT > &t2 )
+    void TestEqual(ClassWithMultipleParents< tT > &t2)
     {
-        tParent1::TestEqual( static_cast<tParent1 &>( t2 ) );
-        SingleFloat::TestEqual( static_cast<SingleFloat &>( t2 ) );
-        SingleU8::TestEqual( static_cast<SingleU8 &>( t2 ) );
-        SingleU16::TestEqual( static_cast<SingleU16 &>( t2 ) );
+        tParent1::TestEqual(static_cast<tParent1 &>(t2));
+        SingleFloat::TestEqual(static_cast<SingleFloat &>(t2));
+        SingleU8::TestEqual(static_cast<SingleU8 &>(t2));
+        SingleU16::TestEqual(static_cast<SingleU16 &>(t2));
 
-        mObject.TestEqual( t2.mObject );
+        mObject.TestEqual(t2.mObject);
 
-        ExpectEqual( mValue, t2.mValue );
+        ExpectEqual(mValue, t2.mValue);
     }
 
 private:
@@ -823,37 +823,37 @@ public:
 
     void Init()
     {
-        mObjects.resize( ( GetRandom< uint32_t >() % 8192 ) + 8192 );
+        mObjects.resize((GetRandom< uint32_t >() % 8192) + 8192);
 
-        for ( auto it = mObjects.begin(); it != mObjects.end(); ++it )
+        for (auto it = mObjects.begin(); it != mObjects.end(); ++it)
         {
-            *it = SinglePrimitive<tT>( GetRandom< tT >() );
+            *it = SinglePrimitive<tT>(GetRandom< tT >());
         }
 
         mValue = GetRandom<uint8_t>();
     }
 
-    explicit ObjectVector( uint32_t seed )
+    explicit ObjectVector(uint32_t seed)
     {
         g_seed = seed;
         Init();
     }
 
     template< typename tM >
-    void OnStore( Message< tM > &message )
+    void OnStore(Message< tM > &message)
     {
-        message.Store( 0, mObjects );
-        message.Store( 1, mValue );
+        message.Store(0, mObjects);
+        message.Store(1, mValue);
     }
 
     template< typename tC >
-    void TestEqual( tC &t2 )
+    void TestEqual(tC &t2)
     {
-        ExpectEqual( mObjects.size(), t2.mObjects.size() );
+        ExpectEqual(mObjects.size(), t2.mObjects.size());
 
-        for ( size_t i = 0, end = mObjects.size(); i < end; ++i )
+        for (size_t i = 0, end = mObjects.size(); i < end; ++i)
         {
-            mObjects[i].TestEqual( t2.mObjects[i] );
+            mObjects[i].TestEqual(t2.mObjects[i]);
         }
     }
 
@@ -869,37 +869,37 @@ public:
 
     void Init()
     {
-        mObjects.resize( ( GetRandom< uint32_t >() % 8192 ) + 8192 );
+        mObjects.resize((GetRandom< uint32_t >() % 8192) + 8192);
 
-        for ( auto it = mObjects.begin(); it != mObjects.end(); ++it )
+        for (auto it = mObjects.begin(); it != mObjects.end(); ++it)
         {
-            *it = SinglePrimitive<tT>( GetRandom< tT >() );
+            *it = SinglePrimitive<tT>(GetRandom< tT >());
         }
 
         mValue = GetRandom<uint8_t>();
     }
 
-    explicit ObjectVectorReordered( uint32_t seed )
+    explicit ObjectVectorReordered(uint32_t seed)
     {
         g_seed = seed;
         Init();
     }
 
     template< typename tM >
-    void OnStore( Message< tM > &message )
+    void OnStore(Message< tM > &message)
     {
-        message.Store( 1, mValue );
-        message.Store( 0, mObjects );
+        message.Store(1, mValue);
+        message.Store(0, mObjects);
     }
 
     template< typename tC >
-    void TestEqual( tC &t2 )
+    void TestEqual(tC &t2)
     {
-        ExpectEqual( mObjects.size(), t2.mObjects.size() );
+        ExpectEqual(mObjects.size(), t2.mObjects.size());
 
-        for ( size_t i = 0, end = mObjects.size(); i < end; ++i )
+        for (size_t i = 0, end = mObjects.size(); i < end; ++i)
         {
-            mObjects[i].TestEqual( t2.mObjects[i] );
+            mObjects[i].TestEqual(t2.mObjects[i]);
         }
     }
 
@@ -915,32 +915,32 @@ public:
 
     void Init()
     {
-        mObjects.resize( ( GetRandom< uint32_t >() % 8192 ) + 8192 );
+        mObjects.resize((GetRandom< uint32_t >() % 8192) + 8192);
 
-        for ( auto it = mObjects.begin(); it != mObjects.end(); ++it )
+        for (auto it = mObjects.begin(); it != mObjects.end(); ++it)
         {
-            *it = SinglePrimitive<tT>( GetRandom< tT >() );
+            *it = SinglePrimitive<tT>(GetRandom< tT >());
         }
 
         mValue = GetRandom<uint8_t>();
     }
 
-    explicit SkippedObjectVector( uint32_t seed )
+    explicit SkippedObjectVector(uint32_t seed)
     {
         g_seed = seed;
         Init();
     }
 
     template< typename tM >
-    void OnStore( Message< tM > &message )
+    void OnStore(Message< tM > &message)
     {
-        message.Store( 1, mObjects );
-        message.Store( 0, mValue );
+        message.Store(1, mObjects);
+        message.Store(0, mValue);
     }
 
-    void TestEqual( SinglePrimitive< uint8_t > &other ) const
+    void TestEqual(SinglePrimitive< uint8_t > &other) const
     {
-        ExpectEqual( mValue, other.mValue );
+        ExpectEqual(mValue, other.mValue);
     }
 
     std::vector< SinglePrimitive< tT > > mObjects;
@@ -956,22 +956,22 @@ public:
     TestClassTreeSkipping()
     {}
 
-    explicit TestClassTreeSkipping( uint32_t seed )
+    explicit TestClassTreeSkipping(uint32_t seed)
     {
         g_seed = seed;
     }
 
     template< typename tM >
-    void OnStore( Message< tM > &message )
+    void OnStore(Message< tM > &message)
     {
-        message.Store( 1, mRight );
+        message.Store(1, mRight);
     }
 
 
     template< typename tC >
-    void TestEqual( tC &t2 )
+    void TestEqual(tC &t2)
     {
-        mRight.TestEqual( t2.mRight );
+        mRight.TestEqual(t2.mRight);
     }
 
     TestClassTreeSkipping < tT, tLevel - 1 > mRight;
@@ -985,29 +985,29 @@ public:
     TestClassTree()
     {}
 
-    explicit TestClassTree( uint32_t seed )
+    explicit TestClassTree(uint32_t seed)
     {
         g_seed = seed;
     }
 
     template< typename tM >
-    void OnStore( Message< tM > &message )
+    void OnStore(Message< tM > &message)
     {
-        message.Store( 0, mLeft );
-        message.Store( 1, mRight );
+        message.Store(0, mLeft);
+        message.Store(1, mRight);
     }
 
 
     template< typename tC >
-    void TestEqual( tC &t2 )
+    void TestEqual(tC &t2)
     {
-        mLeft.TestEqual( t2.mLeft );
-        mRight.TestEqual( t2.mRight );
+        mLeft.TestEqual(t2.mLeft);
+        mRight.TestEqual(t2.mRight);
     }
 
-    void TestEqual( TestClassTreeSkipping< tT, tLevel > &other )
+    void TestEqual(TestClassTreeSkipping< tT, tLevel > &other)
     {
-        mRight.TestEqual( other.mRight );
+        mRight.TestEqual(other.mRight);
     }
 
     TestClassTree < tT, tLevel - 1 > mLeft;
@@ -1022,30 +1022,30 @@ public:
     TestClassTreeReordered()
     {}
 
-    explicit TestClassTreeReordered( uint32_t seed )
+    explicit TestClassTreeReordered(uint32_t seed)
     {
         g_seed = seed;
     }
 
     template< typename tM >
-    void OnStore( Message< tM > &message )
+    void OnStore(Message< tM > &message)
     {
-        message.Store( 1, mRight );
-        message.Store( 0, mLeft );
+        message.Store(1, mRight);
+        message.Store(0, mLeft);
     }
 
-    void TestEqual( TestClassTreeReordered< tT, tLevel > &t2 )
+    void TestEqual(TestClassTreeReordered< tT, tLevel > &t2)
     {
-        mLeft.TestEqual( t2.mLeft );
-        mRight.TestEqual( t2.mRight );
+        mLeft.TestEqual(t2.mLeft);
+        mRight.TestEqual(t2.mRight);
     }
 
 
     template< typename tC >
-    void TestEqual( tC &t2 )
+    void TestEqual(tC &t2)
     {
-        mLeft.TestEqual( t2.mLeft );
-        mRight.TestEqual( t2.mRight );
+        mLeft.TestEqual(t2.mLeft);
+        mRight.TestEqual(t2.mRight);
     }
 
     TestClassTreeReordered < tT, tLevel - 1 > mLeft;
@@ -1058,19 +1058,19 @@ class TestClassTree< tT, 0 >
 public:
 
     TestClassTree()
-        : mValue( GetRandom<tT>() )
+        : mValue(GetRandom<tT>())
     {}
 
     template< typename tM >
-    void OnStore( Message< tM > &message )
+    void OnStore(Message< tM > &message)
     {
-        message.Store( 0, mValue );
+        message.Store(0, mValue);
     }
 
     template< typename tC >
-    void TestEqual( tC &t2 )
+    void TestEqual(tC &t2)
     {
-        ExpectEqual( mValue, t2.mValue );
+        ExpectEqual(mValue, t2.mValue);
     }
 
     tT mValue;
@@ -1088,19 +1088,19 @@ class TestClassTreeReordered< tT, 0 >
 public:
 
     TestClassTreeReordered()
-        : mValue( GetRandom<tT>() )
+        : mValue(GetRandom<tT>())
     {}
 
     template< typename tM >
-    void OnStore( Message< tM > &message )
+    void OnStore(Message< tM > &message)
     {
-        message.Store( 0, mValue );
+        message.Store(0, mValue);
     }
 
     template< typename tC >
-    void TestEqual( tC &t2 )
+    void TestEqual(tC &t2)
     {
-        ExpectEqual( mValue, t2.mValue );
+        ExpectEqual(mValue, t2.mValue);
     }
 
     tT mValue;
@@ -1111,12 +1111,12 @@ class CompleteNormalOrder
 public:
 
     CompleteNormalOrder()
-        : mValue1( GetRandom<uint8_t>() ),
-          mValue2( GetRandom<uint16_t>() ),
-          mValue3( GetRandom<uint32_t>() ),
-          mValue4( GetRandom<uint64_t>() ),
-          mValue5( GetRandom<float>() ),
-          mValue6( GetRandom<double>() )
+        : mValue1(GetRandom<uint8_t>()),
+          mValue2(GetRandom<uint16_t>()),
+          mValue3(GetRandom<uint32_t>()),
+          mValue4(GetRandom<uint64_t>()),
+          mValue5(GetRandom<float>()),
+          mValue6(GetRandom<double>())
     {
         mObject.Init();
     }
@@ -1125,35 +1125,35 @@ public:
     {}
 
     template< typename tM >
-    void OnStore( Message< tM > &message )
+    void OnStore(Message< tM > &message)
     {
-        message.Store( 2, mValue1 );
-        message.Store( 3, mValue2 );
-        message.Store( 4, mValue3 );
-        message.Store( 5, mValue4 );
-        message.Store( 6, mValue5 );
-        message.Store( 7, mValue6 );
-        message.Store( 0, mObject );
-        message.Store( 1, mObject2 );
+        message.Store(2, mValue1);
+        message.Store(3, mValue2);
+        message.Store(4, mValue3);
+        message.Store(5, mValue4);
+        message.Store(6, mValue5);
+        message.Store(7, mValue6);
+        message.Store(0, mObject);
+        message.Store(1, mObject2);
     }
 
     template< typename tC >
-    void TestEqual( tC &t2 )
+    void TestEqual(tC &t2)
     {
-        ExpectEqual( mValue1, t2.mValue1 );
-        ExpectEqual( mValue2, t2.mValue2 );
-        ExpectEqual( mValue3, t2.mValue3 );
-        ExpectEqual( mValue4, t2.mValue4 );
-        ExpectEqual( mValue5, t2.mValue5 );
-        ExpectEqual( mValue6, t2.mValue6 );
+        ExpectEqual(mValue1, t2.mValue1);
+        ExpectEqual(mValue2, t2.mValue2);
+        ExpectEqual(mValue3, t2.mValue3);
+        ExpectEqual(mValue4, t2.mValue4);
+        ExpectEqual(mValue5, t2.mValue5);
+        ExpectEqual(mValue6, t2.mValue6);
     }
 
-    virtual void TestEqual( CompleteNormalOrder &t2 )
+    virtual void TestEqual(CompleteNormalOrder &t2)
     {
-        TestEqual< CompleteNormalOrder >( t2 );
+        TestEqual< CompleteNormalOrder >(t2);
 
-        mObject.TestEqual( t2.mObject );
-        mObject2.mObjectVector.TestEqual( t2.mObject2.mObjectVector );
+        mObject.TestEqual(t2.mObject);
+        mObject2.mObjectVector.TestEqual(t2.mObject2.mObjectVector);
     }
 
     NestedObject< std::string > mObject;
@@ -1163,13 +1163,13 @@ public:
         ObjectVector<bool> mObjectVector;
 
         Private()
-            : mObjectVector( GetRandom<uint32_t>() )
+            : mObjectVector(GetRandom<uint32_t>())
         {}
 
         template< typename tM >
-        void OnStore( Message<tM> &message )
+        void OnStore(Message<tM> &message)
         {
-            message.Store( 0, mObjectVector );
+            message.Store(0, mObjectVector);
         }
     } mObject2;
 
@@ -1188,21 +1188,21 @@ class CompleteReordered
 public:
 
     template< typename tM >
-    void OnStore( Message< tM > &message )
+    void OnStore(Message< tM > &message)
     {
         //message.Store(0, mObject);
         //message.Store(2, mObjectVector);
-        message.Store( 3, mValue2 );
-        message.Store( 6, mValue5 );
-        message.Store( 4, mValue3 );
-        message.Store( 5, mValue4 );
-        message.Store( 2, mValue1 );
-        message.Store( 7, mValue6 );
+        message.Store(3, mValue2);
+        message.Store(6, mValue5);
+        message.Store(4, mValue3);
+        message.Store(5, mValue4);
+        message.Store(2, mValue1);
+        message.Store(7, mValue6);
     }
 
-    void TestEqual( CompleteNormalOrder &t2 ) override
+    void TestEqual(CompleteNormalOrder &t2) override
     {
-        CompleteNormalOrder::TestEqual< CompleteNormalOrder >( t2 );
+        CompleteNormalOrder::TestEqual< CompleteNormalOrder >(t2);
     }
 };
 

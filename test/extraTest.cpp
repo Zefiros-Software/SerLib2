@@ -23,7 +23,7 @@
 
 #include <cmath>
 
-TEST( P( Extra ), CompleteReorder )
+TEST(P(Extra), CompleteReorder)
 {
     g_seed = 434241;
 
@@ -32,71 +32,71 @@ TEST( P( Extra ), CompleteReorder )
 
     std::stringstream ss;
 
-    Serialisation::BinarySerialiser( ss ).Enter( t1 );
-    Serialisation::BinaryDeserialiser( ss ).Enter( t2 );
+    Serialisation::BinarySerialiser(ss).Enter(t1);
+    Serialisation::BinaryDeserialiser(ss).Enter(t2);
 
-    t1.TestEqual( t2 );
+    t1.TestEqual(t2);
 }
 
-TEST( P( Extra ), LDExp )
+TEST(P(Extra), LDExp)
 {
     g_seed = 454142;
 
-    for ( uint32_t i = 0; i < 10000; ++i )
+    for (uint32_t i = 0; i < 10000; ++i)
     {
         float f = GetRandom<float>();
-        int32_t exp = GetRandom<uint32_t>() % ( 4 * 127 );
+        int32_t exp = GetRandom<uint32_t>() % (4 * 127);
 
-        ExpectEqual( Util::LDExp( f, exp ), std::ldexp( f, exp ) );
+        ExpectEqual(Util::LDExp(f, exp), std::ldexp(f, exp));
     }
 
-    for ( uint32_t i = 0; i < 10000; ++i )
+    for (uint32_t i = 0; i < 10000; ++i)
     {
         double d = GetRandom<double>();
-        int32_t exp = GetRandom<uint32_t>() % ( 4 * 1023 );
+        int32_t exp = GetRandom<uint32_t>() % (4 * 1023);
 
-        ExpectEqual( Util::LDExp( d, exp ), std::ldexp( d, exp ) );
+        ExpectEqual(Util::LDExp(d, exp), std::ldexp(d, exp));
     }
 
-    for ( uint32_t i = 0; i < 10000; ++i )
+    for (uint32_t i = 0; i < 10000; ++i)
     {
         float f = GetRandom<float>();
-        int32_t exp = GetRandom<uint32_t>() % ( 4 * 126 );
+        int32_t exp = GetRandom<uint32_t>() % (4 * 126);
         exp = -exp;
 
-        ExpectEqual( Util::LDExp( f, exp ), std::ldexp( f, exp ) );
+        ExpectEqual(Util::LDExp(f, exp), std::ldexp(f, exp));
     }
 
-    for ( uint32_t i = 0; i < 10000; ++i )
+    for (uint32_t i = 0; i < 10000; ++i)
     {
         double f = GetRandom<double>();
-        int32_t exp = GetRandom<uint32_t>() % ( 4 * 1022 );
+        int32_t exp = GetRandom<uint32_t>() % (4 * 1022);
         exp = -exp;
 
-        ExpectEqual( Util::LDExp( f, exp ), std::ldexp( f, exp ) );
+        ExpectEqual(Util::LDExp(f, exp), std::ldexp(f, exp));
     }
 
-    for ( uint32_t i = 0; i < 10000; ++i )
+    for (uint32_t i = 0; i < 10000; ++i)
     {
         union
         {
             float f;
             uint32_t i;
         } y;
-        y.i = GetFastRand() & ( ( 1 << 23 ) - 1 );
+        y.i = GetFastRand() & ((1 << 23) - 1);
 
         int32_t e;
         int32_t e2;
 
-        ExpectEqual( Util::FRExp( y.f, &e ), std::frexp( y.f, &e2 ) );
-        ExpectEqual( e, e2 );
+        ExpectEqual(Util::FRExp(y.f, &e), std::frexp(y.f, &e2));
+        ExpectEqual(e, e2);
 
         y.i |= 0xff << 23;
 
-        ExpectEqual( std::isnan( Util::FRExp( y.f, &e ) ), std::isnan( std::frexp( y.f, &e2 ) ) );
+        ExpectEqual(std::isnan(Util::FRExp(y.f, &e)), std::isnan(std::frexp(y.f, &e2)));
     }
 
-    for ( uint32_t i = 0; i < 10000; ++i )
+    for (uint32_t i = 0; i < 10000; ++i)
     {
         union
         {
@@ -104,27 +104,27 @@ TEST( P( Extra ), LDExp )
             uint64_t i;
         } y;
 
-        y.i = GetFastRand() & ( ( 1ull << 52 ) - 1 );
+        y.i = GetFastRand() & ((1ull << 52) - 1);
 
         int32_t e;
         int32_t e2;
 
-        ExpectEqual( Util::FRExp( y.d, &e ), std::frexp( y.d, &e2 ) );
-        ExpectEqual( e, e2 );
+        ExpectEqual(Util::FRExp(y.d, &e), std::frexp(y.d, &e2));
+        ExpectEqual(e, e2);
 
         y.i |= 0x7ffull << 52;
 
-        ExpectEqual( std::isnan( Util::FRExp( y.d, &e ) ), std::isnan( std::frexp( y.d, &e2 ) ) );
+        ExpectEqual(std::isnan(Util::FRExp(y.d, &e)), std::isnan(std::frexp(y.d, &e2)));
     }
 
     {
         int32_t e;
         int32_t e2;
 
-        ExpectEqual( Util::FRExp( 0.0f, &e ), std::frexp( 0.0f, &e2 ) );
-        ExpectEqual( e, e2 );
+        ExpectEqual(Util::FRExp(0.0f, &e), std::frexp(0.0f, &e2));
+        ExpectEqual(e, e2);
 
-        ExpectEqual( Util::FRExp( 0.0, &e ), std::frexp( 0.0, &e2 ) );
-        ExpectEqual( e, e2 );
+        ExpectEqual(Util::FRExp(0.0, &e), std::frexp(0.0, &e2));
+        ExpectEqual(e, e2);
     }
 }

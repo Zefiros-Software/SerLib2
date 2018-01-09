@@ -1,5 +1,7 @@
 /**
- * Copyright (c) 2017 Zefiros Software.
+ * @cond ___LICENSE___
+ *
+ * Copyright (c) 2016-2018 Zefiros Software.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -18,6 +20,8 @@
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
+ *
+ * @endcond
  */
 #pragma once
 #ifndef __SERIALISATION_SERIALISATION_H__
@@ -34,7 +38,7 @@ struct VarIntSecond
 {
     static constexpr uint16_t GetValue()
     {
-        return ( ( ( tRemainingSize & 0x7F ) | 0x80 ) << 8 ) | ( ( tRemainingSize >> 7 ) & 0x7F );
+        return (((tRemainingSize & 0x7F) | 0x80) << 8) | ((tRemainingSize >> 7) & 0x7F);
     }
 };
 
@@ -43,7 +47,7 @@ struct VarIntSecond< tRemainingSize, false >
 {
     static constexpr uint16_t GetValue()
     {
-        return ( tRemainingSize & 0x7F ) << 8;
+        return (tRemainingSize & 0x7F) << 8;
     }
 };
 
@@ -52,10 +56,10 @@ struct VarIntFirst
 {
     static constexpr std::pair< uint64_t, uint16_t > GetValue()
     {
-        return VarIntFirst < ( tRemainingSize >> 7 ),
-               ( ( tRemainingSize >> 7 ) >= 0x80 ),
+        return VarIntFirst < (tRemainingSize >> 7),
+               ((tRemainingSize >> 7) >= 0x80),
                tByteIndex + 1,
-               ( tFirstEightBytes << 8 ) | ( tRemainingSize & 0x7F ) | 0x80 >::GetValue();
+               (tFirstEightBytes << 8) | (tRemainingSize & 0x7F) | 0x80 >::GetValue();
     }
 };
 
@@ -64,7 +68,7 @@ struct VarIntFirst< tRemainingSize, false, tByteIndex, tFirstEightBytes >
 {
     static constexpr std::pair< uint64_t, uint16_t > GetValue()
     {
-        return std::pair< uint64_t, uint16_t >( ( tFirstEightBytes << 8 ) | ( tRemainingSize & 0x7F ), 0 );
+        return std::pair< uint64_t, uint16_t >((tFirstEightBytes << 8) | (tRemainingSize & 0x7F), 0);
     }
 };
 
@@ -73,15 +77,15 @@ struct VarIntFirst< tRemainingSize, true, 8, tFirstEightBytes >
 {
     static constexpr std::pair< uint64_t, uint16_t > GetValue()
     {
-        return std::pair< uint64_t, uint16_t >( tFirstEightBytes, VarIntSecond < tRemainingSize,
-                                                ( tRemainingSize >= 0x80 ) >::GetValue() );
+        return std::pair< uint64_t, uint16_t >(tFirstEightBytes, VarIntSecond < tRemainingSize,
+                                               (tRemainingSize >= 0x80) >::GetValue());
     }
 };
 
 template< uint64_t tSize >
 constexpr std::pair< uint64_t, uint16_t > VarInt()
 {
-    return VarIntFirst < tSize, ( tSize >= 0x80 ) >::GetValue();
+    return VarIntFirst < tSize, (tSize >= 0x80) >::GetValue();
 }
 
 template< uint64_t tVarIntValue, uint64_t tVarIntFirst, uint16_t tVarIntSecond >
@@ -89,8 +93,8 @@ struct FromVarIntHelper
 {
     static constexpr uint64_t GetValue()
     {
-        return FromVarIntHelper < ( tVarIntValue << 7 ) | ( tVarIntSecond & 0x7F ), tVarIntFirst,
-               ( tVarIntSecond >> 8 ) >::GetValue();
+        return FromVarIntHelper < (tVarIntValue << 7) | (tVarIntSecond & 0x7F), tVarIntFirst,
+               (tVarIntSecond >> 8) >::GetValue();
     }
 };
 
@@ -99,7 +103,7 @@ struct FromVarIntHelper< tVarIntValue, tVarIntFirst, 0 >
 {
     static constexpr uint64_t GetValue()
     {
-        return FromVarIntHelper < ( tVarIntValue << 7 ) | ( tVarIntFirst & 0x7F ), ( tVarIntFirst >> 8 ), 0 >::GetValue();
+        return FromVarIntHelper < (tVarIntValue << 7) | (tVarIntFirst & 0x7F), (tVarIntFirst >> 8), 0 >::GetValue();
     }
 };
 
@@ -115,13 +119,13 @@ struct FromVarIntHelper< tVarIntValue, 0, 0 >
 template< uint64_t tVarIntFirst, uint16_t tVarIntSecond, typename tT = uint64_t >
 constexpr tT FromVarInt()
 {
-    return static_cast<tT>( FromVarIntHelper< 0, tVarIntFirst, tVarIntSecond >::GetValue() );
+    return static_cast<tT>(FromVarIntHelper< 0, tVarIntFirst, tVarIntSecond >::GetValue());
 }
 
 template< uint64_t tSize, bool tBytesLeft >
 struct VarIntSizeHelper
 {
-    static constexpr uint8_t value = VarIntSizeHelper < ( tSize >> 7 ), ( ( tSize >> 7 ) >= 0x80 ) >::value + 1;
+    static constexpr uint8_t value = VarIntSizeHelper < (tSize >> 7), ((tSize >> 7) >= 0x80) >::value + 1;
 };
 
 template< uint64_t tSize >
@@ -133,7 +137,7 @@ struct VarIntSizeHelper< tSize, false >
 template< uint64_t tSize >
 constexpr uint8_t VarIntSize()
 {
-    return VarIntSizeHelper < tSize, ( tSize >= 0x80 ) >::value;
+    return VarIntSizeHelper < tSize, (tSize >= 0x80) >::value;
 }
 
 namespace Serialisation

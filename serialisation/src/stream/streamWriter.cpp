@@ -1,5 +1,7 @@
 /**
- * Copyright (c) 2017 Zefiros Software.
+ * @cond ___LICENSE___
+ *
+ * Copyright (c) 2016-2018 Zefiros Software.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -18,32 +20,34 @@
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
+ *
+ * @endcond
  */
 #include "serialisation/stream/streamWriter.h"
 #include "serialisation/exceptions.h"
 
-StreamWriter::StreamWriter( const std::string &fileName )
-    : mFileStream( fileName.c_str(), std::ifstream::binary | std::ifstream::out ),
-      mStream( &mFileStream )
+StreamWriter::StreamWriter(const std::string &fileName)
+    : mFileStream(fileName.c_str(), std::ifstream::binary | std::ifstream::out),
+      mStream(&mFileStream)
 {
-    if ( !mFileStream.is_open() )
+    if (!mFileStream.is_open())
     {
-        throw FileOpenException( fileName );
+        throw FileOpenException(fileName);
     }
 }
 
-StreamWriter::StreamWriter( std::ofstream &stream )
-    : mStream( &stream )
+StreamWriter::StreamWriter(std::ofstream &stream)
+    : mStream(&stream)
 {
 }
 
-StreamWriter::StreamWriter( std::fstream &stream )
-    : mStream( &stream )
+StreamWriter::StreamWriter(std::fstream &stream)
+    : mStream(&stream)
 {
 }
 
-StreamWriter::StreamWriter( std::ostream &stream )
-    : mStream( &stream )
+StreamWriter::StreamWriter(std::ostream &stream)
+    : mStream(&stream)
 {
 
 }
@@ -62,7 +66,7 @@ void StreamWriter::Close()
 {
     ClearBuffer();
 
-    if ( mFileStream.is_open() )
+    if (mFileStream.is_open())
     {
         mFileStream.close();
     }

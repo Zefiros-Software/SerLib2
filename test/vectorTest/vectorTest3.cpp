@@ -22,7 +22,7 @@
 #include "testClasses.h"
 
 typedef TestClassArray< bool, 0x1 > PackedBoolVector;
-SERIALISATION_TEST( Container, BoolPackedVector, PackedBoolVector, bool, MakeSeed<bool>( 424142 ), 424142 )
+SERIALISATION_TEST(Container, BoolPackedVector, PackedBoolVector, bool, MakeSeed<bool>(424142), 424142)
 
 typedef TestClassArrayOfSize< bool, 0x1, 1024 > PackedBoolVectorOfSize;
-SERIALISATION_TEST( Container, BoolPackedVectorOfSize, PackedBoolVectorOfSize, bool, MakeSeed<bool>( 4241 ), 4241 );
+SERIALISATION_TEST(Container, BoolPackedVectorOfSize, PackedBoolVectorOfSize, bool, MakeSeed<bool>(4241), 4241);

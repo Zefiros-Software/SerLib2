@@ -1,5 +1,7 @@
 /**
- * Copyright (c) 2017 Zefiros Software.
+ * @cond ___LICENSE___
+ *
+ * Copyright (c) 2016-2018 Zefiros Software.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -18,6 +20,8 @@
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
+ *
+ * @endcond
  */
 #pragma once
 #ifndef __SERIALISATION_UNSYNCHRONISEDMEMORYPOOLINSTANTIATOR_H__
@@ -55,9 +59,9 @@ public:
      * @param   maxBlocks   (optional) the maximum amount of blocks.
      */
 
-    explicit UnsychronisedMemoryPoolInstantiator( const size_t blocksize = 1000, const size_t maxBlocks = 1000 ) noexcept
-        : mBlockSize( blocksize ),
-          mMaxBlocks( maxBlocks )
+    explicit UnsychronisedMemoryPoolInstantiator(const size_t blocksize = 1000, const size_t maxBlocks = 1000) noexcept
+        : mBlockSize(blocksize),
+          mMaxBlocks(maxBlocks)
     {
         //         static_assert( Util::IsChildParent< tT, tBase >::value,
         //                        "UnsychronisedMemoryPoolInstantiator::UnsychronisedMemoryPoolInstantiator():\n\tThe child type should derive from the base type." );
@@ -74,11 +78,11 @@ public:
 
     ~UnsychronisedMemoryPoolInstantiator()
     {
-        assert( mBlockSize == 0 || mAvailablePtrs.size() / ( mBlockSize * mMemoryBlocks.size() ) == 1 );
+        assert(mBlockSize == 0 || mAvailablePtrs.size() / (mBlockSize * mMemoryBlocks.size()) == 1);
 
         mAvailablePtrs.clear();
 
-        for ( auto it = mMemoryBlocks.begin(), end = mMemoryBlocks.end(); it != end; ++it )
+        for (auto it = mMemoryBlocks.begin(), end = mMemoryBlocks.end(); it != end; ++it)
         {
             delete[] *it;
         }
@@ -97,12 +101,12 @@ public:
 
     tBase *Create()
     {
-        if ( !mAvailablePtrs.empty() )
+        if (!mAvailablePtrs.empty())
         {
             return GetObject();
 
         }
-        else if ( mMemoryBlocks.size() <= mMaxBlocks )
+        else if (mMemoryBlocks.size() <= mMaxBlocks)
         {
             AddMemoryBlockArray();
             return GetObject();
@@ -124,14 +128,14 @@ public:
      * @param [in,out]  object  If non-null, the object.
      */
 
-    void Destroy( tBase *object )
+    void Destroy(tBase *object)
     {
-        for ( auto it = mMemoryBlocks.begin(), end = mMemoryBlocks.end(); it != end; ++it )
+        for (auto it = mMemoryBlocks.begin(), end = mMemoryBlocks.end(); it != end; ++it)
         {
             // Check whether the pointer falls in this memory block
-            if ( object >= *it && *it + mBlockSize > object )
+            if (object >= *it && *it + mBlockSize > object)
             {
-                mAvailablePtrs.push_back( static_cast< tT * >( object ) );
+                mAvailablePtrs.push_back(static_cast< tT * >(object));
 
                 return;
             }
@@ -154,13 +158,13 @@ private:
     void AddMemoryBlockArray()
     {
         tT *memBlock = new tT[ mBlockSize ];
-        mMemoryBlocks.push_back( memBlock );
+        mMemoryBlocks.push_back(memBlock);
 
-        mAvailablePtrs.reserve( mAvailablePtrs.size() + mBlockSize );
+        mAvailablePtrs.reserve(mAvailablePtrs.size() + mBlockSize);
 
-        for ( size_t i = 0; i < mBlockSize; ++i )
+        for (size_t i = 0; i < mBlockSize; ++i)
         {
-            mAvailablePtrs.push_back( memBlock++ );
+            mAvailablePtrs.push_back(memBlock++);
         }
     }
 

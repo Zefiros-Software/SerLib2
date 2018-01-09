@@ -1,5 +1,7 @@
 /**
- * Copyright (c) 2017 Zefiros Software.
+ * @cond ___LICENSE___
+ *
+ * Copyright (c) 2016-2018 Zefiros Software.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -18,6 +20,8 @@
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
+ *
+ * @endcond
  */
 #pragma once
 #ifndef __SERIALISATION_BINARYSERMESSAGE_H__
@@ -48,73 +52,73 @@ public:
     typedef BinarySerialisationValueMessage< tStreamWriter, tBufferSize > tValueMessage;
 
     template< typename tStream >
-    explicit BinarySerialisationMessage( tStream &streamInitializer )
-        : mStreamWriter( streamInitializer )
+    explicit BinarySerialisationMessage(tStream &streamInitializer)
+        : mStreamWriter(streamInitializer)
     {
     }
 
     template< typename tT >
-    void Store( const tT &value, uint8_t index, uint8_t /*flags*/ )
+    void Store(const tT &value, uint8_t index, uint8_t /*flags*/)
     {
-        WriteHeader< tT >( index );
-        WritePrimitive( value );
+        WriteHeader< tT >(index);
+        WritePrimitive(value);
     }
 
     template< typename tT >
-    void StoreVector( std::vector< tT > &value, uint8_t index, uint8_t flags )
+    void StoreVector(std::vector< tT > &value, uint8_t index, uint8_t flags)
     {
-        WriteHeader( index, Type::Array );
-        WriteArrayHeader< tT >( value.size() );
-        WriteVectorBody( value, flags );
+        WriteHeader(index, Type::Array);
+        WriteArrayHeader< tT >(value.size());
+        WriteVectorBody(value, flags);
     }
 
-    void StoreVector( std::vector< bool > &value, uint8_t index, uint8_t flags )
+    void StoreVector(std::vector< bool > &value, uint8_t index, uint8_t flags)
     {
         flags = flags & 0x1;
-        WriteHeader( index, Type::Array );
-        WriteArrayHeader< bool >( value.size(), flags );
-        WriteVectorBody( value, flags );
+        WriteHeader(index, Type::Array);
+        WriteArrayHeader< bool >(value.size(), flags);
+        WriteVectorBody(value, flags);
     }
 
     template< typename tSerialisable, typename tMessage >
-    void StoreObjectVector( std::vector< tSerialisable > &value, uint8_t index, uint8_t flags, tMessage &message )
+    void StoreObjectVector(std::vector< tSerialisable > &value, uint8_t index, uint8_t flags, tMessage &message)
     {
         flags = flags & 0x1;
-        WriteHeader( index, Type::Array );
-        WriteArrayHeader<tSerialisable>( value.size(), flags );
+        WriteHeader(index, Type::Array);
+        WriteArrayHeader<tSerialisable>(value.size(), flags);
 
-        if ( flags )
+        if (flags)
         {
             {
-                Message< tHeaderMessage >( *this ).Enter( value[0] );
+                Message< tHeaderMessage >(*this).Enter(value[0]);
             }
 
-            Message< tValueMessage > tempMessage( *this, message );
+            Message< tValueMessage > tempMessage(*this, message);
 
-            for ( auto &t : value )
+            for (auto &t : value)
             {
-                tempMessage.Enter( t );
+                tempMessage.Enter(t);
             }
         }
         else
         {
-            WriteObjectVectorBody( value, flags, message );
+            WriteObjectVectorBody(value, flags, message);
         }
     }
 
     template< typename tSerialisable, typename tMessage >
-    void StoreObject( tSerialisable &serialisable, uint8_t index, uint8_t /*flags*/, tMessage &message )
+    void StoreObject(tSerialisable &serialisable, uint8_t index, uint8_t /*flags*/, tMessage &message)
     {
-        WriteHeader< tSerialisable >( index );
-        SerialisationHelper< tSerialisable >::OnStore( message, serialisable );
-        WritePrimitive( Util::CreateHeader( 0, Type::Terminator ) );
+        WriteHeader< tSerialisable >(index);
+        SerialisationHelper< tSerialisable >::OnStore(message, serialisable);
+        WritePrimitive(Util::CreateHeader(0, Type::Terminator));
     }
 
     template< typename tSerialisable, typename tMessage >
-    void StoreEntryPoint( tSerialisable &serialisable, tMessage &message )
+    void StoreEntryPoint(tSerialisable &serialisable, tMessage &message)
     {
-        SerialisationHelper< tSerialisable >::OnStore( message, serialisable );
-        WritePrimitive( Util::CreateHeader( 0, Type::Terminator ) );
+        SerialisationHelper< tSerialisable >::OnStore(message, serialisable);
+        WritePrimitive(Util::CreateHeader(0, Type::Terminator));
     }
 
     void ClearBuffer()
@@ -129,62 +133,62 @@ private:
     uint8_t mBoolPackBuffer[1024];
 
     template< typename tT >
-    void WriteHeader( uint8_t index )
+    void WriteHeader(uint8_t index)
     {
-        WritePrimitive( Util::CreateHeader< tT >( index ) );
+        WritePrimitive(Util::CreateHeader< tT >(index));
     }
 
-    void WriteHeader( uint8_t index, Type::Type type )
+    void WriteHeader(uint8_t index, Type::Type type)
     {
-        WritePrimitive( Util::CreateHeader( index, type ) );
-    }
-
-    template< typename tT >
-    void WriteArrayHeader( size_t size, uint8_t flags = 0 )
-    {
-        WriteHeader< tT >( flags );
-        mStreamWriter.WriteSize( size );
+        WritePrimitive(Util::CreateHeader(index, type));
     }
 
     template< typename tT >
-    void WritePrimitive( const  tT &value )
+    void WriteArrayHeader(size_t size, uint8_t flags = 0)
     {
-        mStreamWriter.WritePrimitive( value );
+        WriteHeader< tT >(flags);
+        mStreamWriter.WriteSize(size);
     }
 
-    void WritePrimitive( const bool &value )
+    template< typename tT >
+    void WritePrimitive(const  tT &value)
+    {
+        mStreamWriter.WritePrimitive(value);
+    }
+
+    void WritePrimitive(const bool &value)
     {
         uint8_t val = value ? 1 : 0;
-        WritePrimitive( val );
+        WritePrimitive(val);
     }
 
-    void WritePrimitive( const float &value )
+    void WritePrimitive(const float &value)
     {
-        uint32_t flexman = Util::FloatToUInt32( value );
-        WritePrimitive( flexman );
+        uint32_t flexman = Util::FloatToUInt32(value);
+        WritePrimitive(flexman);
     }
 
-    void WritePrimitive( const double &value )
+    void WritePrimitive(const double &value)
     {
-        uint64_t flexman = Util::DoubleToUInt64( value );
-        WritePrimitive( flexman );
+        uint64_t flexman = Util::DoubleToUInt64(value);
+        WritePrimitive(flexman);
     }
 
-    void WritePrimitive( const std::string &value )
+    void WritePrimitive(const std::string &value)
     {
-        mStreamWriter.WriteSize( value.size() );
-        mStreamWriter.WriteBytes( {value.c_str(), value.size()} );
+        mStreamWriter.WriteSize(value.size());
+        mStreamWriter.WriteBytes({value.c_str(), value.size()});
     }
 
     template< typename tT >
-    void WriteVectorBody( std::vector< tT > &value, uint8_t /*flags*/ )
+    void WriteVectorBody(std::vector< tT > &value, uint8_t /*flags*/)
     {
-        mStreamWriter.WritePrimitiveBlock( value.data(), value.size() );
+        mStreamWriter.WritePrimitiveBlock(value.data(), value.size());
     }
 
-    void WriteVectorBody( std::vector<bool> &value, uint8_t flags )
+    void WriteVectorBody(std::vector<bool> &value, uint8_t flags)
     {
-        if ( flags )
+        if (flags)
         {
             size_t j = 0;
 
@@ -193,88 +197,88 @@ private:
 
             const size_t size = value.size();
 
-            for ( size_t k = 0, kEnd = ( size + 1023 ) / 1024; k < kEnd; ++k )
+            for (size_t k = 0, kEnd = (size + 1023) / 1024; k < kEnd; ++k)
             {
                 size_t i = 0;
 
-                for ( size_t end = std::min( ( size - j ) / 8, size_t( 1024 ) ); i < end; ++i, j += 8 )
+                for (size_t end = std::min((size - j) / 8, size_t(1024)); i < end; ++i, j += 8)
                 {
                     mBoolPackBuffer[i] = value[j] ? tBit : fBit;
-                    mBoolPackBuffer[i] |= value[j + 1] ? ( tBit << 1 ) : fBit;
-                    mBoolPackBuffer[i] |= value[j + 2] ? ( tBit << 2 ) : fBit;
-                    mBoolPackBuffer[i] |= value[j + 3] ? ( tBit << 3 ) : fBit;
-                    mBoolPackBuffer[i] |= value[j + 4] ? ( tBit << 4 ) : fBit;
-                    mBoolPackBuffer[i] |= value[j + 5] ? ( tBit << 5 ) : fBit;
-                    mBoolPackBuffer[i] |= value[j + 6] ? ( tBit << 6 ) : fBit;
-                    mBoolPackBuffer[i] |= value[j + 7] ? ( tBit << 7 ) : fBit;
+                    mBoolPackBuffer[i] |= value[j + 1] ? (tBit << 1) : fBit;
+                    mBoolPackBuffer[i] |= value[j + 2] ? (tBit << 2) : fBit;
+                    mBoolPackBuffer[i] |= value[j + 3] ? (tBit << 3) : fBit;
+                    mBoolPackBuffer[i] |= value[j + 4] ? (tBit << 4) : fBit;
+                    mBoolPackBuffer[i] |= value[j + 5] ? (tBit << 5) : fBit;
+                    mBoolPackBuffer[i] |= value[j + 6] ? (tBit << 6) : fBit;
+                    mBoolPackBuffer[i] |= value[j + 7] ? (tBit << 7) : fBit;
                 }
 
-                mStreamWriter.WritePrimitiveBlock( mBoolPackBuffer, i );
+                mStreamWriter.WritePrimitiveBlock(mBoolPackBuffer, i);
             }
 
-            if ( j < size )
+            if (j < size)
             {
                 uint8_t temp = 0;
                 temp = value[j] ? tBit : fBit;
                 ++j;
 
-                for ( size_t k = 1; j < size; ++j, ++k )
+                for (size_t k = 1; j < size; ++j, ++k)
                 {
-                    temp |= value[j] ? ( tBit << k ) : fBit;
+                    temp |= value[j] ? (tBit << k) : fBit;
                 }
 
-                mStreamWriter.WritePrimitive( temp );
+                mStreamWriter.WritePrimitive(temp);
             }
         }
         else
         {
-            for ( const bool &b : value )
+            for (const bool &b : value)
             {
-                WritePrimitive( b );
+                WritePrimitive(b);
             }
         }
     }
 
-    void WriteVectorBody( std::vector<std::string> &value, uint8_t /*flags*/ )
+    void WriteVectorBody(std::vector<std::string> &value, uint8_t /*flags*/)
     {
-        for ( const std::string &s : value )
+        for (const std::string &s : value)
         {
-            WritePrimitive( s );
+            WritePrimitive(s);
         }
     }
-    void WriteVectorBody( std::vector< float > &value, uint8_t /*flags*/ )
+    void WriteVectorBody(std::vector< float > &value, uint8_t /*flags*/)
     {
         float *fCursor = &value[0];
-        ParallelFloatProcessor &floatProcessor = *ParallelFloatProcessor::GetInstance( 4 );
+        ParallelFloatProcessor &floatProcessor = *ParallelFloatProcessor::GetInstance(4);
 
-        for ( size_t i = 0, end = value.size(); i < end; i += tBufferSize, fCursor += tBufferSize )
+        for (size_t i = 0, end = value.size(); i < end; i += tBufferSize, fCursor += tBufferSize)
         {
-            const size_t blockSize = std::min( tBufferSize, end - i );
-            floatProcessor.SerialiseFloats( fCursor, blockSize );
-            mStreamWriter.WritePrimitiveBlock( floatProcessor.GetU32Buffer(), blockSize );
+            const size_t blockSize = std::min(tBufferSize, end - i);
+            floatProcessor.SerialiseFloats(fCursor, blockSize);
+            mStreamWriter.WritePrimitiveBlock(floatProcessor.GetU32Buffer(), blockSize);
         }
     }
 
-    void WriteVectorBody( std::vector< double > &value, uint8_t /*flags*/ )
+    void WriteVectorBody(std::vector< double > &value, uint8_t /*flags*/)
     {
         double *fCursor = &value[0];
-        ParallelFloatProcessor &floatProcessor = *ParallelFloatProcessor::GetInstance( 4 );
+        ParallelFloatProcessor &floatProcessor = *ParallelFloatProcessor::GetInstance(4);
 
-        for ( size_t i = 0, end = value.size(); i < end;  i += tBufferSize, fCursor += tBufferSize )
+        for (size_t i = 0, end = value.size(); i < end;  i += tBufferSize, fCursor += tBufferSize)
         {
-            const size_t blockSize = std::min( tBufferSize, end - i );
-            floatProcessor.SerialiseDoubles( fCursor, blockSize );
-            mStreamWriter.WritePrimitiveBlock( floatProcessor.GetU64Buffer(), blockSize );
+            const size_t blockSize = std::min(tBufferSize, end - i);
+            floatProcessor.SerialiseDoubles(fCursor, blockSize);
+            mStreamWriter.WritePrimitiveBlock(floatProcessor.GetU64Buffer(), blockSize);
         }
     }
 
     template< typename tSerialisable, typename tMessage >
-    void WriteObjectVectorBody( std::vector<tSerialisable> &value, uint8_t /*flags*/, tMessage &message )
+    void WriteObjectVectorBody(std::vector<tSerialisable> &value, uint8_t /*flags*/, tMessage &message)
     {
-        for ( auto &t : value )
+        for (auto &t : value)
         {
-            SerialisationHelper< tSerialisable >::OnStore( message, t );
-            WritePrimitive( Util::CreateHeader( 0, Type::Terminator ) );
+            SerialisationHelper< tSerialisable >::OnStore(message, t);
+            WritePrimitive(Util::CreateHeader(0, Type::Terminator));
         }
     }
 };
@@ -284,46 +288,46 @@ class BinarySerialisationHeaderMessage
 {
 public:
 
-    explicit BinarySerialisationHeaderMessage( BinarySerialisationMessage< tStreamWriter, tBufferSize > &message )
-        : mMessage( message )
+    explicit BinarySerialisationHeaderMessage(BinarySerialisationMessage< tStreamWriter, tBufferSize > &message)
+        : mMessage(message)
     {
     }
 
     template< typename tT >
-    void Store( const tT &/*value*/, uint8_t index, uint8_t /*flags*/ )
+    void Store(const tT &/*value*/, uint8_t index, uint8_t /*flags*/)
     {
-        mMessage.template WriteHeader< tT >( index );
+        mMessage.template WriteHeader< tT >(index);
     }
 
     template< typename tT >
-    void StoreVector( std::vector< tT > &value, uint8_t index, uint8_t flags )
+    void StoreVector(std::vector< tT > &value, uint8_t index, uint8_t flags)
     {
-        mMessage.WriteHeader( index, Type::Array );
+        mMessage.WriteHeader(index, Type::Array);
     }
 
-    void StoreVector( std::vector< bool > &value, uint8_t index, uint8_t flags )
+    void StoreVector(std::vector< bool > &value, uint8_t index, uint8_t flags)
     {
-        mMessage.WriteHeader( index, Type::Array );
-    }
-
-    template< typename tSerialisable, typename tMessage >
-    void StoreObject( tSerialisable &/*serialisable*/, uint8_t index, uint8_t /*flags*/, tMessage &/*message*/ )
-    {
-        mMessage.template WriteHeader< tSerialisable >( index );
+        mMessage.WriteHeader(index, Type::Array);
     }
 
     template< typename tSerialisable, typename tMessage >
-    void StoreObjectVector( std::vector< tSerialisable > &value, uint8_t index, uint8_t flags,
-                            tMessage &/*message*/ )
+    void StoreObject(tSerialisable &/*serialisable*/, uint8_t index, uint8_t /*flags*/, tMessage &/*message*/)
     {
-        mMessage.WriteHeader( index, Type::Array );
+        mMessage.template WriteHeader< tSerialisable >(index);
     }
 
     template< typename tSerialisable, typename tMessage >
-    void StoreEntryPoint( tSerialisable &serialisable, tMessage &message )
+    void StoreObjectVector(std::vector< tSerialisable > &value, uint8_t index, uint8_t flags,
+                           tMessage &/*message*/)
     {
-        SerialisationHelper< tSerialisable >::OnStore( message, serialisable );
-        mMessage.WritePrimitive( Util::CreateHeader( 0, Type::Terminator ) );
+        mMessage.WriteHeader(index, Type::Array);
+    }
+
+    template< typename tSerialisable, typename tMessage >
+    void StoreEntryPoint(tSerialisable &serialisable, tMessage &message)
+    {
+        SerialisationHelper< tSerialisable >::OnStore(message, serialisable);
+        mMessage.WritePrimitive(Util::CreateHeader(0, Type::Terminator));
     }
 
     void ClearBuffer()
@@ -341,55 +345,55 @@ class BinarySerialisationValueMessage
 {
 public:
 
-    explicit BinarySerialisationValueMessage( BinarySerialisationMessage< tStreamWriter, tBufferSize > &message,
-                                              Message< BinarySerialisationMessage< tStreamWriter, tBufferSize > > &mainMessage )
-        : mMessage( message ),
-          mMainMessage( mainMessage )
+    explicit BinarySerialisationValueMessage(BinarySerialisationMessage< tStreamWriter, tBufferSize > &message,
+                                             Message< BinarySerialisationMessage< tStreamWriter, tBufferSize > > &mainMessage)
+        : mMessage(message),
+          mMainMessage(mainMessage)
     {
     }
 
     template< typename tT >
-    void Store( const tT &value, uint8_t /*index*/, uint8_t /*flags*/ )
+    void Store(const tT &value, uint8_t /*index*/, uint8_t /*flags*/)
     {
-        mMessage.WritePrimitive( value );
+        mMessage.WritePrimitive(value);
     }
 
     template< typename tT >
-    void StoreVector( std::vector< tT > &value, uint8_t /*index*/, uint8_t flags )
+    void StoreVector(std::vector< tT > &value, uint8_t /*index*/, uint8_t flags)
     {
-        mMessage.WriteArrayHeader( value.size(), flags );
-        mMessage.WriteVectorBody( value, flags );
+        mMessage.WriteArrayHeader(value.size(), flags);
+        mMessage.WriteVectorBody(value, flags);
     }
 
-    void StoreVector( std::vector< bool > &value, uint8_t /*index*/, uint8_t flags )
+    void StoreVector(std::vector< bool > &value, uint8_t /*index*/, uint8_t flags)
     {
         flags = flags & 0x1;
-        mMessage.WriteArrayHeader( value.size(), flags );
-        mMessage.WriteVectorBody( value, flags );
+        mMessage.WriteArrayHeader(value.size(), flags);
+        mMessage.WriteVectorBody(value, flags);
     }
 
     template< typename tSerialisable, typename tMessage >
-    void StoreObjectVector( std::vector< tSerialisable > &value, uint8_t /*index*/, uint8_t flags, tMessage &/*message*/ )
+    void StoreObjectVector(std::vector< tSerialisable > &value, uint8_t /*index*/, uint8_t flags, tMessage &/*message*/)
     {
-        mMessage.template WriteArrayHeader<tSerialisable>( value.size(), flags );
+        mMessage.template WriteArrayHeader<tSerialisable>(value.size(), flags);
 
-        for ( auto &t : value )
+        for (auto &t : value)
         {
-            SerialisationHelper< tSerialisable >::OnStore( mMainMessage, t );
+            SerialisationHelper< tSerialisable >::OnStore(mMainMessage, t);
         }
     }
 
     template< typename tSerialisable, typename tMessage >
-    void StoreObject( tSerialisable &serialisable, uint8_t /*index*/, uint8_t /*flags*/, tMessage &/*message*/ )
+    void StoreObject(tSerialisable &serialisable, uint8_t /*index*/, uint8_t /*flags*/, tMessage &/*message*/)
     {
-        SerialisationHelper< tSerialisable >::OnStore( mMainMessage, serialisable );
-        mMessage.WriteHeader( 0, Type::Terminator );
+        SerialisationHelper< tSerialisable >::OnStore(mMainMessage, serialisable);
+        mMessage.WriteHeader(0, Type::Terminator);
     }
 
     template< typename tSerialisable, typename tMessage >
-    void StoreEntryPoint( tSerialisable &serialisable, tMessage &message )
+    void StoreEntryPoint(tSerialisable &serialisable, tMessage &message)
     {
-        SerialisationHelper< tSerialisable >::OnStore( message, serialisable );
+        SerialisationHelper< tSerialisable >::OnStore(message, serialisable);
     }
 
     void ClearBuffer()

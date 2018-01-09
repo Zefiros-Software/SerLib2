@@ -29,7 +29,7 @@ public:
     SinglePrimitiveVectorStatic()
     {}
 
-    SinglePrimitiveVectorStatic( uint32_t seed )
+    SinglePrimitiveVectorStatic(uint32_t seed)
     {
         g_seed = seed;
         Init();
@@ -37,9 +37,9 @@ public:
 
     void Init()
     {
-        mVec.resize( tBaseSize + ( GetRandom<uint32_t>() % tBaseSize ) );
+        mVec.resize(tBaseSize + (GetRandom<uint32_t>() % tBaseSize));
 
-        for ( auto &s : mVec )
+        for (auto &s : mVec)
         {
             s.Init();
         }
@@ -48,30 +48,30 @@ public:
     }
 
     template< typename tM >
-    void OnStore( Message< tM > &message )
+    void OnStore(Message< tM > &message)
     {
-        message.Store( 0, mVec );
-        message.Store( 1, mValue );
+        message.Store(0, mVec);
+        message.Store(1, mValue);
     }
 
     template< typename tC >
-    void TestEqual( tC &t2 )
+    void TestEqual(tC &t2)
     {
-        ExpectEqual( mVec.size(), t2.mVec.size() );
+        ExpectEqual(mVec.size(), t2.mVec.size());
 
-        for ( auto it = mVec.begin(), end = mVec.end(), it2 = t2.mVec.begin(); it != end; ++it, ++it2 )
+        for (auto it = mVec.begin(), end = mVec.end(), it2 = t2.mVec.begin(); it != end; ++it, ++it2)
         {
-            it->TestEqual( *it2 );
+            it->TestEqual(*it2);
         }
 
-        ExpectEqual( mValue, t2.mValue );
+        ExpectEqual(mValue, t2.mValue);
     }
 
     size_t GetMemberSize() const
     {
-        size_t size = SizeHelper<tT>::GetSize( mValue );
+        size_t size = SizeHelper<tT>::GetSize(mValue);
 
-        for ( auto &t : mVec )
+        for (auto &t : mVec)
         {
             size += t.GetMemberSize();
         }
@@ -91,7 +91,7 @@ public:
     DynamicWithStaticMember()
     {}
 
-    DynamicWithStaticMember( uint32_t seed )
+    DynamicWithStaticMember(uint32_t seed)
     {
         g_seed = seed;
         Init();
@@ -105,23 +105,23 @@ public:
     }
 
     template< typename tM >
-    void OnStore( Message< tM > &message )
+    void OnStore(Message< tM > &message)
     {
-        message.Store( 0, mDynamic );
-        message.Store( 1, mValue );
+        message.Store(0, mDynamic);
+        message.Store(1, mValue);
     }
 
     template< typename tC >
-    void TestEqual( tC &t2 )
+    void TestEqual(tC &t2)
     {
-        mDynamic.TestEqual( t2.mDynamic );
+        mDynamic.TestEqual(t2.mDynamic);
 
-        ExpectEqual( mValue, t2.mValue );
+        ExpectEqual(mValue, t2.mValue);
     }
 
     size_t GetMemberSize() const
     {
-        return SizeHelper<tT>::GetSize( mValue ) + mDynamic.GetMemberSize();
+        return SizeHelper<tT>::GetSize(mValue) + mDynamic.GetMemberSize();
     }
 
     SinglePrimitiveVectorStatic< tObject, tT > mDynamic;
@@ -138,6 +138,6 @@ public:
 //
 // SERIALISATION_ALL_TYPES( SERIALISATION_STATIC_MULTI_PRIMITIVE_TEST );
 
-SERIALISATION_TEST( Static, NestedDynamic,
-                    SinglePrimitiveVectorStatic< DynamicWithStaticMember< SinglePrimitive< uint32_t > PP_COMMA()  uint32_t > PP_COMMA() uint32_t PP_COMMA() 64 >,
-                    uint32_t, 41, 42 );
+SERIALISATION_TEST(Static, NestedDynamic,
+                   SinglePrimitiveVectorStatic< DynamicWithStaticMember< SinglePrimitive< uint32_t > PP_COMMA()  uint32_t > PP_COMMA() uint32_t PP_COMMA() 64 >,
+                   uint32_t, 41, 42);

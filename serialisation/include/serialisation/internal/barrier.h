@@ -1,5 +1,7 @@
 /**
- * Copyright (c) 2017 Zefiros Software.
+ * @cond ___LICENSE___
+ *
+ * Copyright (c) 2016-2018 Zefiros Software.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -18,6 +20,8 @@
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
+ *
+ * @endcond
  */
 #pragma once
 #ifndef __SERIALISATION_BARRIER_H__
@@ -33,12 +37,12 @@ public:
      * @param   count Number of threads to wait for.
      */
 
-    explicit MixedBarrier( uint32_t count )
-        : mCurrentCon( &mConVar1 ),
-          mPreviousCon( &mConVar2 ),
-          mCount( count ),
-          mMax( count ),
-          mSpaces( count )
+    explicit MixedBarrier(uint32_t count)
+        : mCurrentCon(&mConVar1),
+          mPreviousCon(&mConVar2),
+          mCount(count),
+          mMax(count),
+          mSpaces(count)
     {
     }
 
@@ -50,7 +54,7 @@ public:
      * @post The amount of threads the barriers waits on equals count.
      */
 
-    void SetSize( uint32_t count )
+    void SetSize(uint32_t count)
     {
         mCount = count;
         mMax = count;
@@ -68,14 +72,14 @@ public:
      * @post all threads have waited for each other to reach the barrier.
      */
 
-    void Wait( const std::atomic_bool &aborted )
+    void Wait(const std::atomic_bool &aborted)
     {
         const uint32_t myGeneration = mGeneration;
 
-        if ( !--mSpaces )
+        if (!--mSpaces)
         {
             mSpaces = mMax;
-            std::lock_guard< SpinLock > condVarLoc( mCondVarMutex );
+            std::lock_guard< SpinLock > condVarLoc(mCondVarMutex);
             ++mGeneration;
             Reset();
         }
@@ -83,21 +87,21 @@ public:
         {
             size_t i = 0;
 
-            while ( mGeneration == myGeneration && ++i < 16000 )
+            while (mGeneration == myGeneration && ++i < 16000)
             {
-                if ( ( i & 127 ) == 0 && aborted )
+                if ((i & 127) == 0 && aborted)
                 {
                 }
             }
 
-            if ( i >= 16000 )
+            if (i >= 16000)
             {
-                std::unique_lock< SpinLock > condVarLoc( mCondVarMutex );
-                mCurrentCon->wait( condVarLoc, [&] {return mGeneration != myGeneration || aborted;} );
+                std::unique_lock< SpinLock > condVarLoc(mCondVarMutex);
+                mCurrentCon->wait(condVarLoc, [&] {return mGeneration != myGeneration || aborted;});
             }
         }
 
-        if ( aborted )
+        if (aborted)
         {
             mCurrentCon->notify_all();
         }

@@ -22,8 +22,8 @@
 #include "testClasses.h"
 
 #define SERIALISATION_TREE_SKIPPING_TEST( type )                                \
-SERIALISATION_TEST2( Skipping, ObjectTree, TestClassTree< type PP_COMMA() 5 >,  \
-                     TestClassTreeSkipping< type PP_COMMA() 5 >, type,          \
-                     MakeSeed<type>( 4242 ), 4241 );
+    SERIALISATION_TEST2( Skipping, ObjectTree, TestClassTree< type PP_COMMA() 5 >,  \
+                         TestClassTreeSkipping< type PP_COMMA() 5 >, type,          \
+                         MakeSeed<type>( 4242 ), 4241 );
 
-SERIALISATION_ALL_TYPES( SERIALISATION_TREE_SKIPPING_TEST );
+SERIALISATION_ALL_TYPES(SERIALISATION_TREE_SKIPPING_TEST);

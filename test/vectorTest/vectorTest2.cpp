@@ -22,8 +22,8 @@
 #include "testClasses.h"
 
 #define SERIALISATION_SMALL_ARRAY_TEST( type )                                                          \
-SERIALISATION_TEST( Container, SmallVector, TestClassSmallArray< type >, type, MakeSeed<type>( 42 ) ,   \
-                    GetRandom<uint32_t>() );
+    SERIALISATION_TEST( Container, SmallVector, TestClassSmallArray< type >, type, MakeSeed<type>( 42 ) ,   \
+                        GetRandom<uint32_t>() );
 
-SERIALISATION_SMALL_ARRAY_TEST( float );
-SERIALISATION_SMALL_ARRAY_TEST( double );
+SERIALISATION_SMALL_ARRAY_TEST(float);
+SERIALISATION_SMALL_ARRAY_TEST(double);

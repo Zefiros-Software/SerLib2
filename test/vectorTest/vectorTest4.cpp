@@ -22,9 +22,9 @@
 #include "testClasses.h"
 
 #define SERIALISATION_EDGE_CASE_ARRAY_TEST( type )                                                              \
-SERIALISATION_TEST( Container, EdgeCaseVector, TestClassArrayEdgeCaseSize< type >, type, MakeSeed<type>( 42 ) , \
-                    GetRandom<uint32_t>() );
+    SERIALISATION_TEST( Container, EdgeCaseVector, TestClassArrayEdgeCaseSize< type >, type, MakeSeed<type>( 42 ) , \
+                        GetRandom<uint32_t>() );
 
 
-SERIALISATION_EDGE_CASE_ARRAY_TEST( float );
-SERIALISATION_EDGE_CASE_ARRAY_TEST( double );
+SERIALISATION_EDGE_CASE_ARRAY_TEST(float);
+SERIALISATION_EDGE_CASE_ARRAY_TEST(double);

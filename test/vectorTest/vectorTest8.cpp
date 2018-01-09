@@ -22,7 +22,7 @@
 #include "testClasses.h"
 
 #define SERIALISATION_ARRAY_NON_EXISTING_TEST( type )                                                       \
-SERIALISATION_TEST2( NonExisting, Vector, SinglePrimitive<uint8_t>, SkippedArray< type >, type,             \
-                     MakeSeed< type PP_COMMA() uint8_t >( 42 ), GetRandom<uint32_t>() );
+    SERIALISATION_TEST2( NonExisting, Vector, SinglePrimitive<uint8_t>, SkippedArray< type >, type,             \
+                         MakeSeed< type PP_COMMA() uint8_t >( 42 ), GetRandom<uint32_t>() );
 
-SERIALISATION_ALL_TYPES( SERIALISATION_ARRAY_NON_EXISTING_TEST );
+SERIALISATION_ALL_TYPES(SERIALISATION_ARRAY_NON_EXISTING_TEST);

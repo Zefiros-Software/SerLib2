@@ -23,8 +23,8 @@
 
 #ifndef _DEBUG
 #define SERIALISATION_ARRAY_REORDERED_REVERSE_TEST( type )                                                          \
-SERIALISATION_TEST2( Container, VectorReorderedReverse, TestClassArrayWithMember< type >,                           \
-                     TestClassArrayWithMemberReordered< type >, type, MakeSeed<type>( 42 ), GetRandom<uint32_t>() );
+    SERIALISATION_TEST2( Container, VectorReorderedReverse, TestClassArrayWithMember< type >,                           \
+                         TestClassArrayWithMemberReordered< type >, type, MakeSeed<type>( 42 ), GetRandom<uint32_t>() );
 
-SERIALISATION_ALL_TYPES( SERIALISATION_ARRAY_REORDERED_REVERSE_TEST );
+SERIALISATION_ALL_TYPES(SERIALISATION_ARRAY_REORDERED_REVERSE_TEST);
 #endif
