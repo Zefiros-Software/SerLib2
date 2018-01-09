@@ -28,11 +28,11 @@ workspace "SerLib"
 
     zefiros.setDefaults("serialisation")
     
-    -- use another path in case of a coverage build
-    if os.getenv('BUILD_CONFIGURATION') == 'coverage' then
-        project "serialisation-test"
-        
+    project "serialisation-test"
+        -- use another path in case of a coverage build
+        filter "Coverage"            
             defines {
                 "TEST_FILES_DIR=\"test/test-files/\""
             }
-    end
+        
+        filter{}
