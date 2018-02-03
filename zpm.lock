@@ -4,19 +4,19 @@
   "private": {
     "modules": [ {
       "definition": "https://github.com/Zefiros-Software/ZefirosDefaults.git",
-      "hash": "27ac3325c0b8fc0d43b95844bc68df2c975292cb",
-      "name": "Zefiros-Software/Zefiros-Defaults",
+      "hash": "3195f78b6ab3c15e7273fa1e5c7941e3cb195f2f",
+      "name": "Zefiros-Software/Defaults",
       "public": {
         "libraries": [ {
           "definition": "https://github.com/Zefiros-Software/GoogleTest.git",
-          "hash": "e194f52114a181cb3fb420d58d5ae2250207e828",
+          "hash": "62ba5d91d0ceff98fbd95294bd94c97017a07f9e",
           "name": "Zefiros-Software/GoogleTest",
           "repository": "https://github.com/google/googletest.git",
           "tag": "HEAD",
           "versionRequirement": "@head || ^1.0.0"
         }, {
           "definition": "https://github.com/Zefiros-Software/GoogleBenchmark.git",
-          "hash": "e1c3a83b8197cf02e794f61228461c27d4e78cfb",
+          "hash": "4fe0206b658c6aa1d74a2278c26b50f0938a4e64",
           "name": "Zefiros-Software/GoogleBenchmark",
           "repository": "https://github.com/google/benchmark.git",
           "tag": "HEAD",

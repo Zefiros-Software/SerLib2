@@ -1,7 +1,8 @@
+extensions: .h .cpp .cc .hpp
 /**
  * @cond ___LICENSE___
  *
- * Copyright (c) 2016-2018 Zefiros Software.
+ * Copyright (c) %CurrentYear% Zefiros Software.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -22,10 +23,5 @@
  * THE SOFTWARE.
  *
  * @endcond
+ *
  */
-#include "testClasses.h"
-
-#define SERIALISATION_NESTED_TEST( type )                                                                               \
-    SERIALISATION_TEST( Object, Nested_Zebra, NestedObject< type >, type, GenerateZebraValue<type>(), GetRandom<type>() );
-
-SERIALISATION_ALL_TYPES(SERIALISATION_NESTED_TEST);
