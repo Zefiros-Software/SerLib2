@@ -30,10 +30,7 @@ workspace "SerLib-ZPM"
     
 	project "serialisation-zpm-test"
 
-		zpm.uses {
-            "Zefiros-Software/SerLib2",
-            "Zefiros-Software/GoogleTest"
-        }
+		zpm.uses "Zefiros-Software/SerLib2"
 
 		defines {
 			"TEST_FILES_DIR=\"../../test-files/\""
