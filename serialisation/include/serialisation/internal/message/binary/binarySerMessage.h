@@ -346,7 +346,7 @@ class BinarySerialisationValueMessage
 public:
 
     explicit BinarySerialisationValueMessage(BinarySerialisationMessage< tStreamWriter, tBufferSize > &message,
-                                             Message< BinarySerialisationMessage< tStreamWriter, tBufferSize > > &mainMessage)
+                                             Message< BinarySerialisationMessage< tStreamWriter, tBufferSize >> &mainMessage)
         : mMessage(message),
           mMainMessage(mainMessage)
     {
@@ -403,7 +403,7 @@ public:
 private:
 
     BinarySerialisationMessage< tStreamWriter, tBufferSize > &mMessage;
-    Message< BinarySerialisationMessage< tStreamWriter, tBufferSize > > &mMainMessage;
+    Message< BinarySerialisationMessage< tStreamWriter, tBufferSize >> &mMainMessage;
 };
 
 #endif

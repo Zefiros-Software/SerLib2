@@ -769,7 +769,7 @@ typedef SinglePrimitive<uint8_t> SingleU8;
 typedef SinglePrimitive<uint16_t> SingleU16;
 typedef SinglePrimitive<float> SingleFloat;
 
-template< typename tT, typename tMember = SinglePrimitive< tT > >
+template< typename tT, typename tMember = SinglePrimitive< tT >>
 class ClassWithMultipleParents
     : public ClassWithParent< tT >,
       public SingleFloat,
@@ -861,7 +861,7 @@ public:
         }
     }
 
-    std::vector< SinglePrimitive< tT > > mObjects;
+    std::vector< SinglePrimitive< tT >> mObjects;
     uint8_t mValue;
 
 };
@@ -907,7 +907,7 @@ public:
         }
     }
 
-    std::vector< SinglePrimitive< tT > > mObjects;
+    std::vector< SinglePrimitive< tT >> mObjects;
     uint8_t mValue;
 
 };
@@ -947,7 +947,7 @@ public:
         ExpectEqual(mValue, other.mValue);
     }
 
-    std::vector< SinglePrimitive< tT > > mObjects;
+    std::vector< SinglePrimitive< tT >> mObjects;
     uint8_t mValue;
 
 };

@@ -59,7 +59,7 @@ public:
     friend class BinaryDeserialisationValueMessage;
 
     typedef BinaryDeserialisationMessage< tStreamReader, tBufferSize > tMain;
-    typedef BinaryDeserialisationValueMessage< tStreamReader, tBufferSize, Message< tMain > > tValueMessage;
+    typedef BinaryDeserialisationValueMessage< tStreamReader, tBufferSize, Message< tMain >> tValueMessage;
 
     template< typename tStream >
     explicit BinaryDeserialisationMessage(tStream &streamInitializer)

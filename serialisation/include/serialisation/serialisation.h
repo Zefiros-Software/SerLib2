@@ -142,8 +142,8 @@ constexpr uint8_t VarIntSize()
 
 namespace Serialisation
 {
-    typedef Message< BinarySerialisationMessage< BufferedStreamWriter<> > > BinarySerialiser;
-    typedef Message< BinaryDeserialisationMessage< BufferedStreamReader<> > > BinaryDeserialiser;
+    typedef Message< BinarySerialisationMessage< BufferedStreamWriter<>>> BinarySerialiser;
+    typedef Message< BinaryDeserialisationMessage< BufferedStreamReader<>>> BinaryDeserialiser;
 }
 
 #endif
